@@ -112,16 +112,26 @@ class MqttConnection implements MqttCallbackExtended {
      * @param persistence  the persistence class to use to store in-flight message. If
      *                     null then the default persistence mechanism is used
      * @param clientHandle the "handle" by which the activity will identify us
-     */
-    MqttConnection(MqttService service, String serverURI, String clientId, MqttClientPersistence persistence, String clientHandle) {
+     * @throws MqttException thrown if failed to create MqttAsyncClient
+	 */
+    MqttConnection(MqttService service, String serverURI, String clientId, MqttClientPersistence persistence, String clientHandle) throws MqttException {
         this.serverURI = serverURI;
         this.service = service;
         this.clientId = clientId;
         this.persistence = persistence;
         this.clientHandle = clientHandle;
 
+        StringBuilder stringBuilder = new StringBuilder(this.getClass().getCanonicalName());
+        stringBuilder.append(" ");
+        stringBuilder.append(clientId);
+        stringBuilder.append(" ");
+        stringBuilder.append("on host ");
+        stringBuilder.append(serverURI);
         wakeLockTag = this.getClass().getCanonicalName() + " " + clientId + " " + "on host " + serverURI;
-    }
+    alarmPingSender = new AlarmPingSender(service);
+		myClient = new MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender);
+		myClient.setCallback(this);
+	}
 
     public String getServerURI() {
         return serverURI;
@@ -183,8 +193,11 @@ class MqttConnection implements MqttCallbackExtended {
         resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, invocationContext);
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.CONNECT_ACTION);
 
-
-        try {
+try {
+        // if myClient is null, throw an exception
+			if (myClient == null) {
+				throw new IllegalStateException("MqttAsyncClient is not created.");
+			}
             if (persistence == null) {
                 // ask Android where we can put files
                 // some magic Android OS has no externalFileDir or it will throw an exception, so use internal storage directly.
@@ -494,7 +507,7 @@ class MqttConnection implements MqttCallbackExtended {
                 handleException(resultBundle, e);
             }
         } else if ((myClient != null) && (this.bufferOpts != null) && (this.bufferOpts.isBufferEnabled())) {
-            // Client is not connected, but buffer is enabled, so sending message
+            Log.i(TAG, "Client is not connected, message is buffered");// Client is not connected, but buffer is enabled, so sending message
             IMqttActionListener listener = new MqttConnectionListener(resultBundle);
             try {
                 sendToken = myClient.publish(topic, message, invocationContext, listener);
