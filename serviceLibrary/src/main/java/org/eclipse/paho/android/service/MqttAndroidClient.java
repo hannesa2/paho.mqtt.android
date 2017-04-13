@@ -423,9 +423,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public IMqttToken disconnect() {
-        IMqttToken token = new MqttTokenAndroid(this, null, null);
+        MqttTokenAndroid token = new MqttTokenAndroid(this, null, null);
         String activityToken = storeToken(token);
-        mqttService.disconnect(clientHandle, null, activityToken);
+        IMqttToken internalToken = mqttService.disconnect(clientHandle, null, activityToken);
+		token.setDelegate(internalToken);
         return token;
     }
 
@@ -448,9 +449,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public IMqttToken disconnect(long quiesceTimeout) {
-        IMqttToken token = new MqttTokenAndroid(this, null, null);
+        MqttTokenAndroid token = new MqttTokenAndroid(this, null, null);
         String activityToken = storeToken(token);
-        mqttService.disconnect(clientHandle, quiesceTimeout, null, activityToken);
+        IMqttToken internalToken =mqttService.disconnect(clientHandle, quiesceTimeout, null, activityToken);token.setDelegate(internalToken);
         return token;
     }
 
@@ -473,9 +474,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public IMqttToken disconnect(Object userContext, IMqttActionListener callback) {
-        IMqttToken token = new MqttTokenAndroid(this, userContext, callback);
+        MqttTokenAndroid token = new MqttTokenAndroid(this, userContext, callback);
         String activityToken = storeToken(token);
-        mqttService.disconnect(clientHandle, null, activityToken);
+        IMqttToken internalToken = mqttService.disconnect(clientHandle, null, activityToken);
+		token.setDelegate(internalToken);
         return token;
     }
 
@@ -519,9 +521,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public IMqttToken disconnect(long quiesceTimeout, Object userContext, IMqttActionListener callback) {
-        IMqttToken token = new MqttTokenAndroid(this, userContext, callback);
+        MqttTokenAndroid token = new MqttTokenAndroid(this, userContext, callback);
         String activityToken = storeToken(token);
-        mqttService.disconnect(clientHandle, quiesceTimeout, null, activityToken);
+        IMqttToken internalToken =mqttService.disconnect(clientHandle, quiesceTimeout, null, activityToken);token.setDelegate(internalToken);
         return token;
     }
 
@@ -740,9 +742,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public IMqttToken subscribe(String topic, int qos, Object userContext, IMqttActionListener callback) {
-        IMqttToken token = new MqttTokenAndroid(this, userContext, callback, new String[]{topic});
+        MqttTokenAndroid token = new MqttTokenAndroid(this, userContext, callback, new String[]{topic});
         String activityToken = storeToken(token);
-        mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
+        IMqttToken internalToken = mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
+		token.setDelegate(internalToken);
         return token;
     }
 
@@ -871,9 +874,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public IMqttToken subscribe(String[] topic, int[] qos, Object userContext, IMqttActionListener callback) {
-        IMqttToken token = new MqttTokenAndroid(this, userContext, callback, topic);
+        MqttTokenAndroid token = new MqttTokenAndroid(this, userContext, callback, topic);
         String activityToken = storeToken(token);
-        mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
+        IMqttToken internalToken = mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
+		token.setDelegate(internalToken);
         return token;
     }
 
@@ -957,9 +961,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     public IMqttToken subscribe(String[] topicFilters, int[] qos, Object userContext, IMqttActionListener callback, IMqttMessageListener[]
             messageListeners) {
-        IMqttToken token = new MqttTokenAndroid(this, userContext, callback, topicFilters);
+        MqttTokenAndroid token = new MqttTokenAndroid(this, userContext, callback, topicFilters);
         String activityToken = storeToken(token);
-        mqttService.subscribe(clientHandle, topicFilters, qos, null, activityToken, messageListeners);
+        IMqttToken internalToken = mqttService.subscribe(clientHandle, topicFilters, qos, null, activityToken, messageListeners);
+		token.setDelegate(internalToken);
 
         return token;
     }
@@ -1007,9 +1012,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public IMqttToken unsubscribe(String topic, Object userContext, IMqttActionListener callback) {
-        IMqttToken token = new MqttTokenAndroid(this, userContext, callback);
+        MqttTokenAndroid token = new MqttTokenAndroid(this, userContext, callback);
         String activityToken = storeToken(token);
-        mqttService.unsubscribe(clientHandle, topic, null, activityToken);
+        IMqttToken internalToken = mqttService.unsubscribe(clientHandle, topic, null, activityToken);
+		token.setDelegate(internalToken);
         return token;
     }
 
@@ -1047,9 +1053,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public IMqttToken unsubscribe(String[] topic, Object userContext, IMqttActionListener callback) {
-        IMqttToken token = new MqttTokenAndroid(this, userContext, callback);
+        MqttTokenAndroid token = new MqttTokenAndroid(this, userContext, callback);
         String activityToken = storeToken(token);
-        mqttService.unsubscribe(clientHandle, topic, null, activityToken);
+        IMqttToken internalToken = mqttService.unsubscribe(clientHandle, topic, null, activityToken);
+		token.setDelegate(internalToken);
         return token;
     }
 
