@@ -76,7 +76,7 @@ import javax.net.ssl.TrustManagerFactory;
  * <li>disconnect
  * </ul>
  */
-public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncClient {
+public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncClient, Handler.Callback {
 
     private static final String SERVICE_NAME = "org.eclipse.paho.android.service.MqttService";
     private static final ExecutorService pool = Executors.newCachedThreadPool();
@@ -399,7 +399,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         mqttService.setTraceEnabled(traceEnabled);
         mqttService.setTraceCallbackId(clientHandle);
 
-        String activityToken = storeToken(connectToken);
+        mqttService.setCallbackMessenger(handlerThread.getMessenger());String activityToken = storeToken(connectToken);
         try {
             mqttService.connect(clientHandle, connectOptions, activityToken);
         } catch (MqttException e) {
@@ -1165,7 +1165,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * and asynchronous activities such as message received
      * </p>
      * <p>
-     * <strong>Note:</strong> This is only a public method because the Android
+     * <strong>Note:</strong> One of the two public methods because the Android
      * APIs require such.<br>
      * This method should not be explicitly invoked.
      * </p>
@@ -1174,7 +1174,29 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     public void onReceive(Context context, Intent intent) {
         Bundle data = intent.getExtras();
 
-        String handleFromIntent = data.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE);
+        onReceiveCallback(data);
+	}
+
+	/**
+	 * <p>
+	 * Process incoming Bundle objects representing the results of operations
+	 * and asynchronous activities such as message received
+	 * </p>
+	 * <p>
+	 * <strong>Note:</strong> One of the two public methods because the Android
+	 * APIs require such.<br>
+	 * This method should not be explicitly invoked.
+	 * </p>
+	 */
+	@Override
+	public boolean handleMessage(Message msg) {
+		if (msg.what == MqttServiceConstants.CALLBACK_TO_MESSENGER) {
+			onReceiveCallback(msg.getData());
+		}
+		return false;
+	}
+
+	private void onReceiveCallback(Bundle data) {String handleFromIntent = data.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE);
 
         if ((handleFromIntent == null) || (!handleFromIntent.equals(clientHandle))) {
             return;
@@ -1636,4 +1658,15 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
             mqttService = null;
         }
     }
+
+	public void releaseHandlerThread() {
+		if (handlerThread != null) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+				handlerThread.quitSafely();
+			}
+			else {
+				handlerThread.quit();
+			}
+		}
+	}
 }

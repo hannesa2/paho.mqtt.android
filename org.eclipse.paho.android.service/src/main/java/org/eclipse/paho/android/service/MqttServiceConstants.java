@@ -51,7 +51,7 @@ interface MqttServiceConstants {
     /* Identifies an Intent which calls back to the Activity */
     String CALLBACK_TO_ACTIVITY = MqttService.TAG + ".callbackToActivity" + "." + VERSION;
 
-    /* Identifiers for extra data on Intents broadcast to the Activity */
+    public static final int CALLBACK_TO_MESSENGER = -999;/* Identifiers for extra data on Intents broadcast to the Activity */
     String CALLBACK_ACTION = MqttService.TAG + ".callbackAction";
     String CALLBACK_STATUS = MqttService.TAG + ".callbackStatus";
     String CALLBACK_CLIENT_HANDLE = MqttService.TAG + "." + CLIENT_HANDLE;
