@@ -25,8 +25,13 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import android.os.Message;
+import android.os.Messenger;
 import android.util.SparseArray;
 
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -109,6 +114,40 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     // notification for Foreground Service
     private int foregroundServiceNotificationId = 1;
     private Notification foregroundServiceNotification;
+
+    private final class MqttCallbackHandlerThread extends HandlerThread {
+
+        private Handler callbackHandler;
+        private Handler.Callback handlerCallback;
+        private Messenger messenger;
+
+        public MqttCallbackHandlerThread(String name, Handler.Callback callback) {
+            super(name);
+            handlerCallback = callback;
+            start();
+        }
+
+        @Override
+        protected void onLooperPrepared() {
+            super.onLooperPrepared();
+            callbackHandler = new Handler(getLooper(), handlerCallback);
+            messenger = new Messenger(callbackHandler);
+        }
+
+        public void releaseResources() {
+            if (callbackHandler != null) {
+                callbackHandler.removeMessages(MqttServiceConstants.CALLBACK_TO_MESSENGER);
+                callbackHandler = null;
+            }
+        }
+
+        public Messenger getMessenger() {
+            return messenger;
+        }
+    }
+
+    private MqttCallbackHandlerThread handlerThread = new MqttCallbackHandlerThread(
+            "MqttCallbackHandlerThread", this);
 
     /**
      * Constructor - create an MqttAndroidClient that can be used to communicate with an MQTT server on android
