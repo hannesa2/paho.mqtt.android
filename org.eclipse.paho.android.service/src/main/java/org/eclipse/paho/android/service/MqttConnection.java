@@ -249,7 +249,8 @@ class MqttConnection implements MqttCallbackExtended {
             // if myClient is null, then create a new connection
             else {
                 alarmPingSender = new AlarmPingSender(service);
-                myClient = new MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender);
+                myClient = new MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender, null,
+						new AndroidHighResolutionTimer());
                 myClient.setCallback(this);
 
                 service.traceDebug(TAG, "Do Real connect!");
