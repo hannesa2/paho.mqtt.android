@@ -26,6 +26,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import android.content.Intent;
 import android.os.IBinder;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -382,6 +383,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
     //
     //  }
 
+    @Suppress
     public void testQoSPreserved() throws Throwable {
 
         IMqttAsyncClient mqttClient = null;
@@ -605,6 +607,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
      * @throws Exception
      */
 
+    @Suppress
     public void testSSLConnect() throws Exception {
 
         MqttAndroidClient mqttClient = null;
@@ -646,6 +649,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
      * @throws Exception
      */
 
+    @Suppress
     public void testSSLPubSub() throws Exception {
 
         MqttAndroidClient mqttClient = null;

@@ -1,9 +1,10 @@
 package org.eclipse.paho.android;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.Suppress;
+import android.util.Log;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -11,11 +12,9 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import android.test.AndroidTestCase;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
-
-import android.util.Log;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
@@ -81,7 +80,7 @@ public class AndroidServiceTest extends AndroidTestCase {
     /**
      * Tests that a client connection with cleanSession=False recieves the session Present Flag in
      * a subsequent connection.
-     *
+     * <p>
      * 1. Connect with CleanSession=True to ensure that state is cleared.
      * 2. Connect with CleanSession=False and ensure that sessionPresent is false.
      * 3. Connect with CleanSession=False and ensure that sessionPresent is true.
@@ -300,6 +299,7 @@ public class AndroidServiceTest extends AndroidTestCase {
      * Multiple publishers and subscribers.
      */
 
+    @Suppress
     public void testMultipleClients() {
 
         int publishers = 2;
@@ -404,6 +404,7 @@ public class AndroidServiceTest extends AndroidTestCase {
      * subscribers.
      */
 
+    @Suppress
     public void testQoSPreserved() {
 
         IMqttAsyncClient mqttClient = null;
@@ -957,6 +958,7 @@ public class AndroidServiceTest extends AndroidTestCase {
      * @throws Exception
      */
 
+    @Suppress
     public void testSSLConnect() throws Exception {
 
         MqttAndroidClient mqttClient = null;
@@ -997,6 +999,7 @@ public class AndroidServiceTest extends AndroidTestCase {
      * @throws Exception
      */
 
+    @Suppress
     public void testSSLPubSub() throws Exception {
 
         MqttAndroidClient mqttClient = null;
