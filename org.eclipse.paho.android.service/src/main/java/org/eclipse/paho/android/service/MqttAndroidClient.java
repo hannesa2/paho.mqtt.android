@@ -51,6 +51,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -99,8 +100,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     private MqttClientPersistence persistence = null;
     private MqttConnectOptions connectOptions;
     private IMqttToken connectToken;
-    // The MqttCallback provided by the application
-    private MqttCallback callback;
+    // The MqttCallback list provided by the application
+    private ArrayList<MqttCallback> callbacksList = new ArrayList<>();
     private MqttTraceHandler traceCallback;
     private boolean traceEnabled = false;
     private volatile boolean receiverRegistered = false;
@@ -1054,31 +1055,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         return token;
     }
 
-    /**
-     * Removes a published message corresponding to the token.
-     * <p>If a publish is requested with QoS1 or Qos2 and the publish callback is
-     * not called yet, this function returns true, the publish called will never
-     * be called, and a messageId corresponding to the token will become reusable.
-     * </p>
-     * <p>If the publish callback is already be called, this function returns false.
-     * </p>
-     * <p>This function might not stop sending the published message.
-     * </p>
-     * *
-     *
-     * @param token the token of removing published message
-     * @return if the message is removed then true, otherwise false
-     * @throws MqttException if there was an error removing the message.
-     */
     @Override
     public boolean removeMessage(IMqttDeliveryToken token) throws MqttException {
-        if (token.getMessage().getQos() > 0 && !token.isComplete())
-            return false;
-        int i = tokenMap.indexOfValue(token);
-        if (i > -1) tokenMap.removeAt(i);
-        if (callback != null)
-            callback.deliveryComplete(token);
-        return true;
+        return false;
     }
 
     /**
@@ -1127,8 +1106,34 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public void setCallback(MqttCallback callback) {
-        this.callback = callback;
+        if (callbacksList == null) callbacksList = new ArrayList<>();
+        callbacksList.add(callback);
+    }
 
+    /**
+     * Adds a callback listener to use for events that happen asynchronously.
+     * <p>
+     * There are a number of events that the listener will be notified about.
+     * These include:
+     * </p>
+     * <ul>
+     * <li>A new message has arrived and is ready to be processed</li>
+     * <li>The connection to the server has been lost</li>
+     * <li>Delivery of a message to the server has completed</li>
+     * </ul>
+     * <p>
+     * Other events that track the progress of an individual operation such as
+     * connect and subscribe can be tracked using the {@link MqttToken} returned
+     * from each non-blocking method or using setting a
+     * {@link IMqttActionListener} on the non-blocking method.
+     * <p>
+     *
+     * @param callback which will be invoked for certain asynchronous events
+     * @see MqttCallback
+     */
+    public void addCallback(MqttCallback callback) {
+        if (callbacksList == null) callbacksList = new ArrayList<>();
+        callbacksList.add(callback);
     }
 
     /**
@@ -1229,14 +1234,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Will attempt to reconnect to the server after the client has lost connection.
-     *
-     * @throws MqttException if an error occurs attempting to reconnect
-     */
     @Override
     public void reconnect() throws MqttException {
-        mqttService.reconnect();
+
     }
 
     /**
@@ -1263,8 +1263,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         if (token != null) {
             ((MqttTokenAndroid) token).notifyComplete();
         }
-        if (callback != null) {
-            callback.connectionLost(null);
+        if (callbacksList != null) {
+            for (MqttCallback callback : callbacksList) {
+                callback.connectionLost(null);
+            }
         }
     }
 
@@ -1274,21 +1276,27 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * @param data
      */
     private void connectionLostAction(Bundle data) {
-        if (callback != null) {
-            Exception reason = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
-            callback.connectionLost(reason);
+        Exception reason = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
+
+        if (callbacksList != null) {
+            for (MqttCallback callback : callbacksList) {
+                callback.connectionLost(reason);
+            }
         }
     }
 
     private void connectExtendedAction(Bundle data) {
         // This is called differently from a normal connect
+        boolean reconnect = data.getBoolean(MqttServiceConstants.CALLBACK_RECONNECT, false);
+        String serverURI = data.getString(MqttServiceConstants.CALLBACK_SERVER_URI);
 
-        if (callback instanceof MqttCallbackExtended) {
-            boolean reconnect = data.getBoolean(MqttServiceConstants.CALLBACK_RECONNECT, false);
-            String serverURI = data.getString(MqttServiceConstants.CALLBACK_SERVER_URI);
-            ((MqttCallbackExtended) callback).connectComplete(reconnect, serverURI);
+        if (callbacksList != null) {
+            for (MqttCallback callback : callbacksList) {
+                if (callback instanceof MqttCallbackExtended) {
+                    ((MqttCallbackExtended) callback).connectComplete(reconnect, serverURI);
+                }
+            }
         }
-
     }
 
     /**
@@ -1349,11 +1357,13 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     private void messageDeliveredAction(Bundle data) {
         IMqttToken token = removeMqttToken(data);
+        Status status = (Status) data.getSerializable(MqttServiceConstants.CALLBACK_STATUS);
         if (token != null) {
-            if (callback != null) {
-                Status status = (Status) data.getSerializable(MqttServiceConstants.CALLBACK_STATUS);
+            if (callbacksList != null) {
                 if (status == Status.OK && token instanceof IMqttDeliveryToken) {
-                    callback.deliveryComplete((IMqttDeliveryToken) token);
+                    for (MqttCallback callback : callbacksList) {
+                        callback.deliveryComplete((IMqttDeliveryToken) token);
+                    }
                 }
             }
         }
@@ -1365,21 +1375,24 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * @param data
      */
     private void messageArrivedAction(Bundle data) {
-        if (callback != null) {
-            String messageId = data.getString(MqttServiceConstants.CALLBACK_MESSAGE_ID);
-            String destinationName = data.getString(MqttServiceConstants.CALLBACK_DESTINATION_NAME);
+        String messageId = data.getString(MqttServiceConstants.CALLBACK_MESSAGE_ID);
+        String destinationName = data.getString(MqttServiceConstants.CALLBACK_DESTINATION_NAME);
 
-            ParcelableMqttMessage message = data.getParcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL);
+        ParcelableMqttMessage message = data.getParcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL);
+
+        if (callbacksList != null) {
             try {
                 if (messageAck == Ack.AUTO_ACK) {
-                    callback.messageArrived(destinationName, message);
+                    for (MqttCallback callback : callbacksList) {
+                        callback.messageArrived(destinationName, message);
+                    }
                     mqttService.acknowledgeMessageArrival(clientHandle, messageId);
                 } else {
                     message.messageId = messageId;
-                    callback.messageArrived(destinationName, message);
+                    for (MqttCallback callback : callbacksList) {
+                        callback.messageArrived(destinationName, message);
+                    }
                 }
-
-                // let the service discard the saved message details
             } catch (Exception e) {
                 mqttService.traceError(MqttService.TAG, "messageArrivedAction failed: " + e);
             }
@@ -1492,17 +1505,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         mqttService.deleteBufferedMessage(clientHandle, bufferIndex);
     }
 
-    /**
-     * Returns the current number of outgoing in-flight messages being sent by the
-     * client. Note that this number cannot be guaranteed to be 100% accurate as
-     * some messages may have been sent or queued in the time taken for this method
-     * to return.
-     *
-     * @return the current number of in-flight messages.
-     */
     @Override
     public int getInFlightMessageCount() {
-        return mqttService.getInFlightMessageCount(clientHandle);
+        return 0;
     }
 
     /**
