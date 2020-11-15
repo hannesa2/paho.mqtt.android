@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
+
 /**
  * <p>
  * MqttConnection holds a MqttAsyncClient {host,port,clientId} instance to perform
@@ -671,8 +673,12 @@ class MqttConnection implements MqttCallbackExtended {
      * @param why the exeception causing the break in communications
      */
     @Override
-    public void connectionLost(Throwable why) {
-        service.traceDebug(TAG, "connectionLost(" + why.getMessage() + ")");
+    public void connectionLost(@Nullable Throwable why) {
+        if (why != null) {
+            service.traceDebug(TAG, "connectionLost(" + why.getMessage() + ")");
+        } else {
+            service.traceDebug(TAG, "connectionLost(NO_REASON)");
+        }
         disconnected = true;
         try {
             if (!this.connectOptions.isAutomaticReconnect()) {
