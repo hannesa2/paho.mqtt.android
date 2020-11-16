@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 1999, 2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
@@ -13,6 +13,7 @@
  */
 package paho.mqtt.java.example;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,12 +24,13 @@ import java.util.ArrayList;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 
-    private ArrayList<String> history;
+    private final ArrayList<String> history;
 
     public HistoryAdapter(ArrayList<String> dataSet) {
         history = dataSet;
     }
 
+    @NonNull
     @Override
     public HistoryAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
