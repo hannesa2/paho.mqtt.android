@@ -8,8 +8,8 @@ android {
         applicationId 'org.eclipse.paho.android.sample'
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 1
-        versionName "0.1"
+        versionCode getGitCommitCount()
+        versionName getTag()
     }
 
     useLibrary 'android.test.runner'
