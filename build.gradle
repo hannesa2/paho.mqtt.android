@@ -11,7 +11,7 @@ buildscript {
 }
 
 ext {
-    compileSdkVersion = 28
+    compileSdkVersion = 30
 
     group = 'org.eclipse.paho'
 
@@ -22,8 +22,6 @@ ext {
     serviceVersion = '1.2.0'
 
     clientVersion = '1.2.5'
-
-    mavenUrl = "https://repo.eclipse.org/content/repositories/paho-releases/"
 }
 
 allprojects {
@@ -31,7 +29,7 @@ allprojects {
     repositories {
         jcenter()
         google()
-        maven { url rootProject.ext.mavenUrl }
+        maven { url "https://repo.eclipse.org/content/repositories/paho-releases/" }
     }
 
 }
