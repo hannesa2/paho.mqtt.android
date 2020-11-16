@@ -47,9 +47,6 @@ proguard/
 # IntelliJ
 out/
 
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
 # JIRA plugin
 atlassian-ide-plugin.xml
 
@@ -86,16 +83,12 @@ gradle.properties
 hs_err_pid*
 
 # Misc
-/.idea/workspace.xml
-/.idea/libraries
 .DS_Store
 /captures
 **/*.iml
 *.class
 
-
 org.eclipse.paho.android.sample/libs/
 
-!.idea/
 .idea/*
-!codeStyleSettings.xml
+!.idea/codeStyles/
