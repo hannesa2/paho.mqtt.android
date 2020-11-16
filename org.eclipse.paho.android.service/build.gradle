@@ -11,10 +11,6 @@ android {
         testApplicationId "org.eclipse.paho.android.service.test"
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     useLibrary 'android.test.runner'
     useLibrary 'android.test.base'
 }
