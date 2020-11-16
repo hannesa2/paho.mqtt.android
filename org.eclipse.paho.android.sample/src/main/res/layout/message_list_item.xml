@@ -11,9 +11,9 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/message_text"
         android:ellipsize="marquee"
-        android:maxLines="1"
         android:text="@string/message_topic"
-        android:textSize="12sp"/>
+        android:textSize="12sp"
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/message_text"
