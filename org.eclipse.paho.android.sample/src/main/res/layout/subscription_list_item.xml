@@ -21,9 +21,9 @@
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@id/icon"
         android:ellipsize="marquee"
-        android:maxLines="1"
         android:text="@string/qos_text"
-        android:textSize="12sp"/>
+        android:textSize="12sp"
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/show_notifications_label"

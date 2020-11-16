@@ -10,9 +10,6 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    lintOptions {
-        abortOnError false
-    }
 
     useLibrary 'android.test.runner'
     useLibrary 'android.test.base'
