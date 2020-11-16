@@ -14,14 +14,11 @@
 package paho.mqtt.java.example;
 
 import android.os.Bundle;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -34,6 +31,11 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.ArrayList;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class PahoExampleActivity extends AppCompatActivity {
     final String serverUri = "tcp://mqtt.eclipse.org:1883";
@@ -89,7 +91,7 @@ public class PahoExampleActivity extends AppCompatActivity {
             }
 
             @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
+            public void messageArrived(String topic, MqttMessage message) {
                 addToHistory("Incoming message: " + new String(message.getPayload()));
             }
 
@@ -153,7 +155,7 @@ public class PahoExampleActivity extends AppCompatActivity {
         // THIS DOES NOT WORK!
         mqttAndroidClient.subscribe(subscriptionTopic, 0, new IMqttMessageListener() {
             @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
+            public void messageArrived(String topic, MqttMessage message) {
                 System.out.println("Message arrived: " + topic + " : " + new String(message.getPayload()));
             }
         });
