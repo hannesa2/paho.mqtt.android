@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 1999, 2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
@@ -252,7 +252,7 @@ public class MqttService extends Service implements MqttTraceHandler {
     private MqttServiceBinder mqttServiceBinder;
 
     // mapping from client handle strings to actual client connections.
-    private Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<>();
+    private final Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<>();
 
     public MqttService() {
         super();
@@ -601,8 +601,7 @@ public class MqttService extends Service implements MqttTraceHandler {
         registerBroadcastReceivers();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && intent != null) {
-            Notification foregroundServiceNotification
-                    = (Notification) (intent.getParcelableExtra(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION));
+            Notification foregroundServiceNotification = intent.getParcelableExtra(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION);
             if (foregroundServiceNotification != null)
                 startForeground(
                         intent.getIntExtra(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, 1),
@@ -696,21 +695,10 @@ public class MqttService extends Service implements MqttTraceHandler {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void registerBroadcastReceivers() {
         if (networkConnectionMonitor == null) {
             networkConnectionMonitor = new NetworkConnectionIntentReceiver();
             registerReceiver(networkConnectionMonitor, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        }
-
-        if (Build.VERSION.SDK_INT < 14 /**Build.VERSION_CODES.ICE_CREAM_SANDWICH**/) {
-            // Support the old system for background data preferences
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            backgroundDataEnabled = cm.getBackgroundDataSetting();
-            if (backgroundDataPreferenceMonitor == null) {
-                backgroundDataPreferenceMonitor = new BackgroundDataPreferenceReceiver();
-                registerReceiver(backgroundDataPreferenceMonitor, new IntentFilter(ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED));
-            }
         }
     }
 
@@ -718,12 +706,6 @@ public class MqttService extends Service implements MqttTraceHandler {
         if (networkConnectionMonitor != null) {
             unregisterReceiver(networkConnectionMonitor);
             networkConnectionMonitor = null;
-        }
-
-        if (Build.VERSION.SDK_INT < 14 /**Build.VERSION_CODES.ICE_CREAM_SANDWICH**/) {
-            if (backgroundDataPreferenceMonitor != null) {
-                unregisterReceiver(backgroundDataPreferenceMonitor);
-            }
         }
     }
 
@@ -818,7 +800,6 @@ public class MqttService extends Service implements MqttTraceHandler {
      */
     private class BackgroundDataPreferenceReceiver extends BroadcastReceiver {
 
-        @SuppressWarnings("deprecation")
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -826,8 +807,7 @@ public class MqttService extends Service implements MqttTraceHandler {
             if (cm.getBackgroundDataSetting()) {
                 if (!backgroundDataEnabled) {
                     backgroundDataEnabled = true;
-                    // we have the Internet connection - have another try at
-                    // connecting
+                    // we have the Internet connection - have another try at connecting
                     reconnect();
                 }
             } else {
