@@ -12,16 +12,6 @@ buildscript {
 
 ext {
     compileSdkVersion = 30
-
-    group = 'org.eclipse.paho'
-
-    sampleArchivesBaseName = 'org.eclipse.paho.android.sample'
-    sampleVersion = '1.2.0'
-
-    serviceArchivesBaseName = 'org.eclipse.paho.android.service'
-    serviceVersion = '1.2.0'
-
-    clientVersion = '1.2.5'
 }
 
 allprojects {

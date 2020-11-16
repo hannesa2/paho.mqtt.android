@@ -5,7 +5,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId rootProject.ext.sampleArchivesBaseName
+        applicationId 'org.eclipse.paho.android.sample'
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 1
