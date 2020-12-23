@@ -36,7 +36,7 @@ jobs:
           arch: x86_64
           profile: Nexus 6
           script: ./gradlew cAT
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2.2.1
         if: failure()
         with:
           name: Espresso-test-paho.mqtt-report
@@ -52,7 +52,7 @@ jobs:
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
-        uses: actions/upload-artifact@v2.0.1
+        uses: actions/upload-artifact@v2.2.1
         if: ${{ always() }}
         with:
           name: Paho-Lint-report
