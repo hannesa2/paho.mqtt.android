@@ -20,10 +20,6 @@ build
 # Cache of project
 .gradletasknamecache
 
-# Ignore Gradle GUI config
-gradle-app.setting
-
-
 # Local configuration file (sdk path, etc)
 local.properties
 
@@ -62,16 +58,8 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 
-
-# [Gradle-Android] ========================
-# Ignore Gradle GUI config
-gradle-app.setting
-
 # Properties
 gradle.properties
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
 
 # Package Files #
 *.jar

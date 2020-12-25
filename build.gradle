@@ -24,7 +24,6 @@ allprojects {
 
 }
 
-
 @SuppressWarnings('unused')
 static def getTag() {
     def tagVersion = "$System.env.VERSION"
@@ -52,4 +51,3 @@ static def getGitCommitCount() {
     def process = "git rev-list HEAD --count".execute()
     return process.text.toInteger()
 }
-
