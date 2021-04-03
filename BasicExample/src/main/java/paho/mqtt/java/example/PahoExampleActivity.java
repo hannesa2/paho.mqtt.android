@@ -130,8 +130,8 @@ public class PahoExampleActivity extends AppCompatActivity {
     private void addToHistory(String mainText) {
         Log.d("LOG", mainText);
         @SuppressLint("SimpleDateFormat")
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm.ss.SSS").format(new Date(System.currentTimeMillis()));
-        mAdapter.add(timestamp + " : " + mainText);
+        String timestamp = new SimpleDateFormat("HH:mm.ss.SSS").format(new Date(System.currentTimeMillis()));
+        mAdapter.add(timestamp + " " + mainText);
         Snackbar.make(findViewById(android.R.id.content), mainText, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
@@ -160,10 +160,14 @@ public class PahoExampleActivity extends AppCompatActivity {
     public void publishMessage() {
         MqttMessage message = new MqttMessage();
         message.setPayload(publishMessage.getBytes());
-        mqttAndroidClient.publish(publishTopic, message);
-        addToHistory("Message Published");
-        if (!mqttAndroidClient.isConnected()) {
-            addToHistory(mqttAndroidClient.getBufferedMessageCount() + " messages in buffer.");
+        if (mqttAndroidClient.isConnected()) {
+            mqttAndroidClient.publish(publishTopic, message);
+            addToHistory("Message Published");
+            if (!mqttAndroidClient.isConnected()) {
+                addToHistory(mqttAndroidClient.getBufferedMessageCount() + " messages in buffer.");
+            }
+        } else {
+            Snackbar.make(findViewById(android.R.id.content), "Not connected", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
         }
     }
 }
