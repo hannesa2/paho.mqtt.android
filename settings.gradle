@@ -2,4 +2,4 @@ rootProject.name='Paho MQTT'
 
 include ':serviceLibrary'
 include ':extendedSample'
-include ':BasicExample'
+include ':basicSample'
