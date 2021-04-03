@@ -13,8 +13,9 @@
  */
 package paho.mqtt.java.example;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.view.Menu;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,7 +31,9 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -60,7 +63,6 @@ public class PahoExampleActivity extends AppCompatActivity {
                 publishMessage();
             }
         });
-
 
         RecyclerView mRecyclerView = findViewById(R.id.history_recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -105,7 +107,7 @@ public class PahoExampleActivity extends AppCompatActivity {
         mqttConnectOptions.setAutomaticReconnect(true);
         mqttConnectOptions.setCleanSession(false);
 
-        //addToHistory("Connecting to " + serverUri);
+        addToHistory("Connecting to " + serverUri);
         mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {
@@ -126,17 +128,11 @@ public class PahoExampleActivity extends AppCompatActivity {
     }
 
     private void addToHistory(String mainText) {
-        System.out.println("LOG: " + mainText);
-        mAdapter.add(mainText);
+        Log.d("LOG", mainText);
+        @SuppressLint("SimpleDateFormat")
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm.ss.SSS").format(new Date(System.currentTimeMillis()));
+        mAdapter.add(timestamp + " : " + mainText);
         Snackbar.make(findViewById(android.R.id.content), mainText, Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-
-        return true;
     }
 
     public void subscribeToTopic() {
@@ -156,7 +152,7 @@ public class PahoExampleActivity extends AppCompatActivity {
         mqttAndroidClient.subscribe(subscriptionTopic, 0, new IMqttMessageListener() {
             @Override
             public void messageArrived(String topic, MqttMessage message) {
-                System.out.println("Message arrived: " + topic + " : " + new String(message.getPayload()));
+                Log.d("Message arrived", topic + " : " + new String(message.getPayload()));
             }
         });
     }
