@@ -48,8 +48,8 @@ internal class TestProperties(private val context: Context) {
 
     val serverURI: String
         get() = getProperty(KEY_SERVER_URI)
-    val waitForCompletionTime: Int
-        get() = getIntProperty(KEY_WAIT_FOR_COMPLETION_TIME)
+    val waitForCompletionTime: Long
+        get() = getIntProperty(KEY_WAIT_FOR_COMPLETION_TIME).toLong()
 
     /**
      * Reads properties from a properties file
