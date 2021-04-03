@@ -37,7 +37,7 @@ jobs:
           profile: Nexus 6
           script: ./gradlew cAT
       - uses: actions/upload-artifact@v2.2.2
-        if: failure()
+        if: ${{ always() }}
         with:
           name: Espresso-test-paho.mqtt-report
           path: org.eclipse.paho.android.service/build/reports/androidTests/connected
