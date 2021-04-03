@@ -41,7 +41,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class PahoExampleActivity extends AppCompatActivity {
-    final String serverUri = "tcp://mqtt.eclipse.org:1883";
+    final String serverUri = "tcp://mqtt.eclipseprojects.io:1883";
     final String subscriptionTopic = "exampleAndroidTopic";
     final String publishTopic = "exampleAndroidPublishTopic";
     final String publishMessage = "Hello World!";
