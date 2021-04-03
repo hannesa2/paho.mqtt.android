@@ -311,7 +311,7 @@ public class AndroidServiceTest extends AndroidTestCase {
                     pubToken.waitForCompletion(waitForCompletionTime);
                 }
 
-                TimeUnit.MILLISECONDS.sleep(30000);
+                TimeUnit.MILLISECONDS.sleep(9999);
 
                 for (int i = 0; i < mqttSubscriber.length; i++) {
                     for (IMqttAsyncClient aMqttPublisher : mqttPublisher) {
