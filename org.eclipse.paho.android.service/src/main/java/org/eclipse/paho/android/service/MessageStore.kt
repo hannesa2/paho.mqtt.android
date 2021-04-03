@@ -3,36 +3,34 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
- *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
- *   http://www.eclipse.org/org/documents/edl-v10.php.
+ * The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * and the Eclipse Distribution License is available at
+ * http://www.eclipse.org/org/documents/edl-v10.php.
  */
-package org.eclipse.paho.android.service;
+package org.eclipse.paho.android.service
 
-import java.util.Iterator;
-
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttMessage
 
 /**
- * <p>
+ *
+ *
  * Mechanism for persisting messages until we know they have been received
- * </p>
- * <ul>
- * <li>A Service should store messages as they arrive via
- * {@link #storeArrived(String, String, MqttMessage)}.
- * <li>When a message has been passed to the consuming entity,
- * {@link #discardArrived(String, String)} should be called.
- * <li>To recover messages which have not been definitely passed to the
- * consumer, {@link MessageStore#getAllArrivedMessages(String)} is used.
- * <li>When a clean session is started {@link #clearArrivedMessages(String)} is
+ *
+ *
+ *  * A Service should store messages as they arrive via
+ * [.storeArrived].
+ *  * When a message has been passed to the consuming entity,
+ * [.discardArrived] should be called.
+ *  * To recover messages which have not been definitely passed to the
+ * consumer, [MessageStore.getAllArrivedMessages] is used.
+ *  * When a clean session is started [.clearArrivedMessages] is
  * used.
- * </ul>
+ *
  */
-interface MessageStore {
-
+internal interface MessageStore {
     /**
      * Store a message and return an identifier for it
      *
@@ -40,8 +38,8 @@ interface MessageStore {
      * @param message      message to be stored
      * @return a unique identifier for it
      */
-    String storeArrived(String clientHandle, String Topic,
-            MqttMessage message);
+    fun storeArrived(clientHandle: String?, Topic: String?,
+                     message: MqttMessage?): String?
 
     /**
      * Discard a message - called when we are certain that an arrived message
@@ -50,25 +48,24 @@ interface MessageStore {
      * @param clientHandle identifier for the client
      * @param id           id of message to be discarded
      */
-    boolean discardArrived(String clientHandle, String id);
+    fun discardArrived(clientHandle: String?, id: String?): Boolean
 
     /**
      * Get all the stored messages, usually for a specific client
      *
      * @param clientHandle identifier for the client - if null, then messages for all
-     *                     clients are returned
+     * clients are returned
      */
-    Iterator<StoredMessage> getAllArrivedMessages(String clientHandle);
+    fun getAllArrivedMessages(clientHandle: String?): Iterator<StoredMessage?>?
 
     /**
      * Discard stored messages, usually for a specific client
      *
      * @param clientHandle identifier for the client - if null, then messages for all
-     *                     clients are discarded
+     * clients are discarded
      */
-    void clearArrivedMessages(String clientHandle);
-
-    void close();
+    fun clearArrivedMessages(clientHandle: String?)
+    fun close()
 
     /**
      * External representation of a stored message
@@ -77,21 +74,21 @@ interface MessageStore {
         /**
          * @return the identifier for the message within the store
          */
-        String getMessageId();
+        val messageId: String?
 
         /**
          * @return the identifier of the client which stored this message
          */
-        String getClientHandle();
+        val clientHandle: String?
 
         /**
          * @return the topic on which the message was received
          */
-        String getTopic();
+        val topic: String?
 
         /**
          * @return the identifier of the client which stored this message
          */
-        MqttMessage getMessage();
+        val message: MqttMessage?
     }
 }
