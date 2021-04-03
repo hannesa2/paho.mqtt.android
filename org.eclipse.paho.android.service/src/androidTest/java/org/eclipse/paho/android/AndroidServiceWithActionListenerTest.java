@@ -243,7 +243,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
                 notifier.waitForCompletion(waitForCompletionTime);
             }
 
-            TimeUnit.MILLISECONDS.sleep(30000);
+            TimeUnit.MILLISECONDS.sleep(8888);
 
             for (int i = 0; i < mqttSubscriber.length; i++) {
                 for (IMqttAsyncClient aMqttPublisher : mqttPublisher) {
