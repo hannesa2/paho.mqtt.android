@@ -21,10 +21,6 @@ import java.util.Properties;
 
 class TestProperties {
 
-
-    private final Class<?> cclass = TestProperties.class;
-    private final String className = cclass.getName();
-
     private final String KEY_SERVER_URI = "SERVER_URI";
     private final String KEY_CLIENT_KEY_STORE = "CLIENT_KEY_STORE";
     private final String KEY_CLIENT_KEY_STORE_PASSWORD = "CLIENT_KEY_STORE_PASSWORD";
@@ -73,9 +69,7 @@ class TestProperties {
     private InputStream getPropertyFileAsStream(String fileName) throws IOException {
         InputStream stream = null;
         try {
-
             stream = this.context.getResources().getAssets().open(fileName);
-
         } catch (Exception exception) {
             Log.e("TestProperties", "Property file: '" + fileName + "' not found");
         }
