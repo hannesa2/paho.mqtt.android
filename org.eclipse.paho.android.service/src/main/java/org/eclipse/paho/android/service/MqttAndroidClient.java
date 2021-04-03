@@ -3,11 +3,11 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
+ * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  *   Ian Craggs - Per subscription message handlers bug 466579
@@ -26,7 +26,6 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.SparseArray;
 
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -59,6 +58,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * Enables an android application to communicate with an MQTT server using non-blocking methods.
@@ -97,7 +99,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     private String clientHandle;
     private Context myContext;
     private int tokenNumber = 0;
-    private MqttClientPersistence persistence = null;
+    private final MqttClientPersistence persistence;
     private MqttConnectOptions connectOptions;
     private IMqttToken connectToken;
     // The MqttCallback list provided by the application
@@ -119,7 +121,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * @param clientId  specifies the name by which this connection should be
      *                  identified to the server
      */
-    public MqttAndroidClient(Context context, String serverURI, String clientId) {
+    public MqttAndroidClient(@NonNull Context context, @NonNull String serverURI, @NonNull String clientId) {
         this(context, serverURI, clientId, null, Ack.AUTO_ACK);
     }
 
@@ -135,7 +137,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * @param ackType   how the application wishes to acknowledge a message has been
      *                  processed
      */
-    public MqttAndroidClient(Context ctx, String serverURI, String clientId, Ack ackType) {
+    public MqttAndroidClient(@NonNull Context ctx, @NonNull String serverURI, @NonNull String clientId, @NonNull Ack ackType) {
         this(ctx, serverURI, clientId, null, ackType);
     }
 
@@ -168,7 +170,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * @param ackType     how the application wishes to acknowledge a message has been
      *                    processed.
      */
-    public MqttAndroidClient(Context context, String serverURI, String clientId, MqttClientPersistence persistence, Ack ackType) {
+    public MqttAndroidClient(@NonNull Context context, @NonNull String serverURI, @NonNull String clientId, @NonNull MqttClientPersistence persistence, @NonNull Ack ackType) {
         myContext = context;
         this.serverURI = serverURI;
         this.clientId = clientId;
@@ -318,30 +320,25 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         connectOptions = options;
         connectToken = token;
 
-		/*
+        /*
          * The actual connection depends on the service, which we start and bind
-		 * to here, but which we can't actually use until the serviceConnection
-		 * onServiceConnected() method has run (asynchronously), so the
-		 * connection itself takes place in the onServiceConnected() method
-		 */
+         * to here, but which we can't actually use until the serviceConnection
+         * onServiceConnected() method has run (asynchronously), so the
+         * connection itself takes place in the onServiceConnected() method
+         */
         if (mqttService == null) { // First time - must bind to the service
             Intent serviceStartIntent = new Intent();
             serviceStartIntent.setClassName(myContext, SERVICE_NAME);
 
             Object service = null;
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    && foregroundServiceNotification != null) {
-                serviceStartIntent.putExtra(
-                        MqttService.PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION,
-                        foregroundServiceNotification);
-                serviceStartIntent.putExtra(
-                        MqttService.PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID,
-                        foregroundServiceNotificationId);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && foregroundServiceNotification != null) {
+                serviceStartIntent.putExtra(MqttService.PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION, foregroundServiceNotification);
+                serviceStartIntent.putExtra(MqttService.PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, foregroundServiceNotificationId);
                 service = myContext.startForegroundService(serviceStartIntent);
             } else {
                 try {
                     service = myContext.startService(serviceStartIntent);
-                } catch(IllegalStateException ex) {
+                } catch (IllegalStateException ex) {
                     IMqttActionListener listener = token.getActionCallback();
                     if (listener != null) {
                         listener.onFailure(token, ex);
@@ -534,7 +531,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * with a byte array payload and the specified QoS, and then publish it.
      * </p>
      *
-     * @param topic    to deliver the message to, for example "finance/stock/ibm".
+     * @param topic    to deliver the message to, for example "finance\/stock\/ibm".
      * @param payload  the byte array to use as the payload
      * @param qos      the Quality of Service to deliver the message at. Valid values
      *                 are 0, 1 or 2.
@@ -1106,7 +1103,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public void setCallback(MqttCallback callback) {
-        if (callbacksList == null) callbacksList = new ArrayList<>();
+        if (callbacksList == null) {
+            callbacksList = new ArrayList<>();
+        }
         callbacksList.add(callback);
     }
 
@@ -1132,7 +1131,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * @see MqttCallback
      */
     public void addCallback(MqttCallback callback) {
-        if (callbacksList == null) callbacksList = new ArrayList<>();
+        if (callbacksList == null) {
+            callbacksList = new ArrayList<>();
+        }
         callbacksList.add(callback);
     }
 
@@ -1242,7 +1243,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process the results of a connection
      *
-     * @param data
      */
     private void connectAction(Bundle data) {
         IMqttToken token = connectToken;
@@ -1255,7 +1255,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process a notification that we have disconnected
      *
-     * @param data
      */
     private void disconnected(Bundle data) {
         clientHandle = null; // avoid reuse!
@@ -1273,7 +1272,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process a Connection Lost notification
      *
-     * @param data
      */
     private void connectionLostAction(Bundle data) {
         Exception reason = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
@@ -1322,7 +1320,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process notification of a publish(send) operation
      *
-     * @param data
      */
     private void sendAction(Bundle data) {
         IMqttToken token = getMqttToken(data); // get, don't remove - will
@@ -1333,7 +1330,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process notification of a subscribe operation
      *
-     * @param data
      */
     private void subscribeAction(Bundle data) {
         IMqttToken token = removeMqttToken(data);
@@ -1343,7 +1339,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process notification of an unsubscribe operation
      *
-     * @param data
      */
     private void unSubscribeAction(Bundle data) {
         IMqttToken token = removeMqttToken(data);
@@ -1353,7 +1348,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process notification of a published message having been delivered
      *
-     * @param data
      */
     private void messageDeliveredAction(Bundle data) {
         IMqttToken token = removeMqttToken(data);
@@ -1372,7 +1366,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process notification of a message's arrival
      *
-     * @param data
      */
     private void messageArrivedAction(Bundle data) {
         String messageId = data.getString(MqttServiceConstants.CALLBACK_MESSAGE_ID);
@@ -1402,7 +1395,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Process trace action - pass trace data back to the callback
      *
-     * @param data
      */
     private void traceAction(Bundle data) {
 
@@ -1434,7 +1426,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Get a token identified by a string, and remove it from our map
      *
-     * @param data
      * @return the token
      */
     private synchronized IMqttToken removeMqttToken(Bundle data) {
@@ -1452,7 +1443,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     /**
      * Get a token identified by a string, and remove it from our map
      *
-     * @param data
      * @return the token
      */
     private synchronized IMqttToken getMqttToken(Bundle data) {
@@ -1465,7 +1455,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * MqttService start then the service  will run in foreground mode which is
      * mandatory to keep MQTT service operation when app is
      * in the background on Android version >=8.
-     *
+     * <p>
      * This method has no effect if Build.VERSION.SDK_INT < Build.VERSION_CODES.O
      *
      * @param notification notification to be used when MqttService runs in foreground mode
@@ -1527,8 +1517,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     public SSLSocketFactory getSSLSocketFactory(InputStream keyStore, String password) throws MqttSecurityException {
         try {
-            SSLContext ctx = null;
-            SSLSocketFactory sslSockFactory = null;
+            SSLContext ctx;
+            SSLSocketFactory sslSockFactory;
             KeyStore ts;
             ts = KeyStore.getInstance("BKS");
             ts.load(keyStore, password.toCharArray());
@@ -1557,8 +1547,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     }
 
     @Override
-    public void disconnectForcibly(long quiesceTimeout, long disconnectTimeout)
-            throws MqttException {
+    public void disconnectForcibly(long quiesceTimeout, long disconnectTimeout)            throws MqttException {
         throw new UnsupportedOperationException();
     }
 

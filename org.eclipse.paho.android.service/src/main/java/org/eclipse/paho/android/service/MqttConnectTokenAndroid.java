@@ -24,7 +24,7 @@ import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage;
  * Implementation of the IMqttToken interface only for sessionPresent
  */
 class MqttConnectTokenAndroid implements IMqttToken {
-    private boolean sessionPresent;
+    private final boolean sessionPresent;
 
     MqttConnectTokenAndroid(boolean sessionPresent) {
         this.sessionPresent = sessionPresent;
