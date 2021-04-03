@@ -18,7 +18,7 @@ android {
 }
 
 dependencies {
-    implementation project(':org.eclipse.paho.android.service')
+    implementation project(':serviceLibrary')
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
