@@ -37,7 +37,6 @@ import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -244,11 +243,6 @@ public class MqttService extends Service implements MqttTraceHandler {
     private boolean traceEnabled = false;
     // An intent receiver to deal with changes in network connectivity
     private NetworkConnectionIntentReceiver networkConnectionMonitor;
-    //a receiver to recognise when the user changes the "background data" preference
-    // and a flag to track that preference
-    // Only really relevant below android version ICE_CREAM_SANDWICH - see
-    // android docs
-    private BackgroundDataPreferenceReceiver backgroundDataPreferenceMonitor;
     private volatile boolean backgroundDataEnabled = true;
     // a way to pass ourself back to the activity
     private MqttServiceBinder mqttServiceBinder;
@@ -306,11 +300,8 @@ public class MqttService extends Service implements MqttTraceHandler {
      * @param clientHandle   identifies the MqttConnection to use
      * @param connectOptions the MQTT connection options to be used
      * @param activityToken  arbitrary identifier to be passed back to the Activity
-     * @throws MqttSecurityException thrown if there is a security exception
-     * @throws MqttException         thrown for all other MqttExceptions
      */
-    public void connect(String clientHandle, MqttConnectOptions connectOptions, String activityToken)
-            throws MqttException {
+    public void connect(String clientHandle, MqttConnectOptions connectOptions, String activityToken) throws MqttException {
         MqttConnection client = getConnection(clientHandle);
         client.connect(connectOptions, null, activityToken);
     }
