@@ -2,12 +2,6 @@ package org.eclipse.paho.android.sample.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,13 +9,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.eclipse.paho.android.sample.R;
+import org.eclipse.paho.android.sample.adapter.NavigationDrawerAdapter;
+import org.eclipse.paho.android.sample.model.NavDrawerItem;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.paho.android.sample.R;
-import org.eclipse.paho.android.sample.adapter.NavigationDrawerAdapter;
-import org.eclipse.paho.android.sample.model.NavDrawerItem;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class FragmentDrawer extends Fragment {
 

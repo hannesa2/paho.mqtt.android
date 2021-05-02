@@ -1,7 +1,6 @@
 package org.eclipse.paho.android.sample.components;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,8 @@ import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.model.Subscription;
 
 import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
 
 public class SubscriptionListItemAdapter extends ArrayAdapter<Subscription> {
 

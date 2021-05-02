@@ -9,6 +9,7 @@ public class ReceivedMessage {
     private final String topic;
     private final MqttMessage message;
     private final Date timestamp;
+
     public ReceivedMessage(String topic, MqttMessage message) {
         this.topic = topic;
         this.message = message;

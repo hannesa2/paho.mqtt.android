@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:clickable="true"
-              android:orientation="horizontal"
-              tools:ignore="UseCompoundDrawables">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:orientation="horizontal"
+    tools:ignore="UseCompoundDrawables">
 
     <ImageView
         android:id="@+id/connection_icon"
@@ -14,7 +14,7 @@
         android:paddingLeft="15dp"
         android:paddingRight="0dp"
         android:src="@drawable/ic_cloud_off_dark"
-        tools:ignore="ContentDescription"/>
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/title"
@@ -27,7 +27,7 @@
         android:text="@string/hello_world"
         android:textColor="@color/textColorPrimary"
         android:textSize="13sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
 
 </LinearLayout>

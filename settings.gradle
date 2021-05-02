@@ -1,4 +1,4 @@
-rootProject.name='Paho MQTT'
+rootProject.name = 'Paho MQTT'
 
 include ':serviceLibrary'
 include ':extendedSample'

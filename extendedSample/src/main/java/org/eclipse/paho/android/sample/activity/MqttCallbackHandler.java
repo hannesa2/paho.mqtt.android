@@ -16,12 +16,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-//import org.eclipse.paho.android.sample.Connection.ConnectionStatus;
 import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.internal.Connections;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+//import org.eclipse.paho.android.sample.Connection.ConnectionStatus;
 
 /**
  * Handles call backs from the MQTT Client

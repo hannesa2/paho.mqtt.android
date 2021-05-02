@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -42,6 +41,8 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * <p>
@@ -228,8 +229,11 @@ public class MqttService extends Service implements MqttTraceHandler {
     // Identifier for Intents, log messages, etc..
     static final String TAG = "MqttService";
     // names of the start service Intent extras for foreground service mode
-    static final String PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID = "org.eclipse.paho.android.service.MqttService.FOREGROUND_SERVICE_NOTIFICATION_ID";
+    static final String PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID = "org.eclipse.paho.android.service.MqttService" +
+            ".FOREGROUND_SERVICE_NOTIFICATION_ID";
     static final String PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION = "org.eclipse.paho.android.service.MqttService.FOREGROUND_SERVICE_NOTIFICATION";
+    // mapping from client handle strings to actual client connections.
+    private final Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<>();
     // somewhere to persist received messages until we're sure
     // that they've reached the application
     MessageStore messageStore;
@@ -240,19 +244,14 @@ public class MqttService extends Service implements MqttTraceHandler {
     private boolean traceEnabled = false;
     // An intent receiver to deal with changes in network connectivity
     private NetworkConnectionIntentReceiver networkConnectionMonitor;
-
     //a receiver to recognise when the user changes the "background data" preference
     // and a flag to track that preference
     // Only really relevant below android version ICE_CREAM_SANDWICH - see
     // android docs
     private BackgroundDataPreferenceReceiver backgroundDataPreferenceMonitor;
     private volatile boolean backgroundDataEnabled = true;
-
     // a way to pass ourself back to the activity
     private MqttServiceBinder mqttServiceBinder;
-
-    // mapping from client handle strings to actual client connections.
-    private final Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<>();
 
     public MqttService() {
         super();
@@ -502,22 +501,22 @@ public class MqttService extends Service implements MqttTraceHandler {
         return client.getPendingDeliveryTokens();
     }
 
-  /**
-   * Get the MqttConnection identified by this client handle
-   *
-   * @param clientHandle identifies the MqttConnection
-   * @return the MqttConnection identified by this handle
-   */
-  private MqttConnection getConnection(String clientHandle) {
-    if(clientHandle == null){
-      throw new IllegalArgumentException("Invalid ClientHandle");
+    /**
+     * Get the MqttConnection identified by this client handle
+     *
+     * @param clientHandle identifies the MqttConnection
+     * @return the MqttConnection identified by this handle
+     */
+    private MqttConnection getConnection(String clientHandle) {
+        if (clientHandle == null) {
+            throw new IllegalArgumentException("Invalid ClientHandle");
+        }
+        MqttConnection client = connections.get(clientHandle);
+        if (client == null) {
+            throw new IllegalArgumentException("Invalid ClientHandle");
+        }
+        return client;
     }
-    MqttConnection client = connections.get(clientHandle);
-    if (client == null) {
-      throw new IllegalArgumentException("Invalid ClientHandle");
-    }
-    return client;
-  }
 
     /**
      * Called by the Activity when a message has been passed back to the
@@ -602,11 +601,12 @@ public class MqttService extends Service implements MqttTraceHandler {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && intent != null) {
             Notification foregroundServiceNotification = intent.getParcelableExtra(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION);
-            if (foregroundServiceNotification != null)
+            if (foregroundServiceNotification != null) {
                 startForeground(
                         intent.getIntExtra(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, 1),
                         foregroundServiceNotification
                 );
+            }
         }
 
         return START_STICKY;
@@ -779,7 +779,7 @@ public class MqttService extends Service implements MqttTraceHandler {
             // lock - just enough to keep the CPU running until we've finished
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
             WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MQTT:tag");
-            wl.acquire(10*60*1000L /*10 minutes*/);
+            wl.acquire(10 * 60 * 1000L /*10 minutes*/);
             traceDebug(TAG, "Reconnect for Network recovery.");
             if (isOnline()) {
                 traceDebug(TAG, "Online,reconnect.");

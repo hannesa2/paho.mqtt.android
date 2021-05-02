@@ -2,7 +2,6 @@ package org.eclipse.paho.android.sample.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -24,6 +23,8 @@ import org.eclipse.paho.android.sample.model.ConnectionModel;
 
 import java.util.Map;
 import java.util.Random;
+
+import androidx.fragment.app.Fragment;
 
 
 public class EditConnectionFragment extends Fragment {

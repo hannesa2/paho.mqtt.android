@@ -1,7 +1,6 @@
 package org.eclipse.paho.android.sample.components;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,8 @@ import org.eclipse.paho.android.sample.model.ReceivedMessage;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
 
 
 public class MessageListItemAdapter extends ArrayAdapter<ReceivedMessage> {

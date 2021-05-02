@@ -3,19 +3,20 @@ package org.eclipse.paho.android.sample.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.eclipse.paho.android.sample.R;
+import org.eclipse.paho.android.sample.model.NavDrawerItem;
+
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.paho.android.sample.R;
-import org.eclipse.paho.android.sample.model.NavDrawerItem;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.MyViewHolder> {
     private final LayoutInflater inflater;

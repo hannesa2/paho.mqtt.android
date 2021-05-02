@@ -19,7 +19,6 @@ package org.eclipse.paho.android.sample.internal;
 import android.content.Context;
 
 import org.eclipse.paho.android.sample.activity.Connection;
-import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import java.util.HashMap;
 import java.util.List;

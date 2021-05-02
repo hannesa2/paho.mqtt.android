@@ -72,7 +72,16 @@ class MqttConnection implements MqttCallbackExtended {
     private static final String TAG = "MqttConnection";
     // Error status messages
     private static final String NOT_CONNECTED = "not connected";
-
+    // our (parent) service object
+    private final MqttService service;
+    // Saved sent messages and their corresponding Topics, activityTokens and
+    // invocationContexts, so we can handle "deliveryComplete" callbacks
+    // from the mqttClient
+    private final Map<IMqttDeliveryToken, String /* Topic */> savedTopics = new HashMap<>();
+    private final Map<IMqttDeliveryToken, MqttMessage> savedSentMessages = new HashMap<>();
+    private final Map<IMqttDeliveryToken, String> savedActivityTokens = new HashMap<>();
+    private final Map<IMqttDeliveryToken, String> savedInvocationContexts = new HashMap<>();
+    private final String wakeLockTag;
     // fields for the connection definition
     private String serverURI;
     private String clientId;
@@ -85,22 +94,12 @@ class MqttConnection implements MqttCallbackExtended {
     // our client object - instantiated on connect
     private MqttAsyncClient myClient = null;
     private AlarmPingSender alarmPingSender = null;
-    // our (parent) service object
-    private final MqttService service;
     private volatile boolean disconnected = true;
     private boolean cleanSession = true;
     // Indicate this connection is connecting or not.
     // This variable uses to avoid reconnect multiple times.
     private volatile boolean isConnecting = false;
-    // Saved sent messages and their corresponding Topics, activityTokens and
-    // invocationContexts, so we can handle "deliveryComplete" callbacks
-    // from the mqttClient
-    private final Map<IMqttDeliveryToken, String /* Topic */> savedTopics = new HashMap<>();
-    private final Map<IMqttDeliveryToken, MqttMessage> savedSentMessages = new HashMap<>();
-    private final Map<IMqttDeliveryToken, String> savedActivityTokens = new HashMap<>();
-    private final Map<IMqttDeliveryToken, String> savedInvocationContexts = new HashMap<>();
     private WakeLock wakelock = null;
-    private final String wakeLockTag;
     private DisconnectedBufferOptions bufferOpts = null;
 
     /**
@@ -796,7 +795,7 @@ class MqttConnection implements MqttCallbackExtended {
             PowerManager pm = (PowerManager) service.getSystemService(Service.POWER_SERVICE);
             wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag);
         }
-        wakelock.acquire(10*60*1000L /*10 minutes*/);
+        wakelock.acquire(10 * 60 * 1000L /*10 minutes*/);
 
     }
 

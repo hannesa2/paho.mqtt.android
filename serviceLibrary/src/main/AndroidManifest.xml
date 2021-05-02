@@ -1,14 +1,10 @@
 <manifest package="org.eclipse.paho.android.service"
-          xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
 
         <!-- Mqtt Service -->
-        <service android:name="org.eclipse.paho.android.service.MqttService"/>
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
 
     </application>
 

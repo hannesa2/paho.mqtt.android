@@ -4,23 +4,23 @@ package org.eclipse.paho.android.sample.components;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.content.DialogInterface;
-import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-
 import org.eclipse.paho.android.sample.R;
 
 import java.util.ArrayList;
+
+import androidx.appcompat.app.AlertDialog;
 
 
 public class TextSelectComponent extends RelativeLayout {

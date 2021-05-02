@@ -1,7 +1,6 @@
 package org.eclipse.paho.android.sample.activity;
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -19,6 +18,8 @@ import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.internal.Connections;
 
 import java.util.Map;
+
+import androidx.fragment.app.Fragment;
 
 
 public class PublishFragment extends Fragment {

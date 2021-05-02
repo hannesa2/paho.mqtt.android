@@ -92,6 +92,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     private final String clientId;
     //The acknowledgment that a message has been processed by the application
     private final Ack messageAck;
+    private final MqttClientPersistence persistence;
     // The Android Service which will process our mqtt calls
     private MqttService mqttService;
     // An identifier for the underlying client connection, which we can pass to
@@ -99,7 +100,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     private String clientHandle;
     private Context myContext;
     private int tokenNumber = 0;
-    private final MqttClientPersistence persistence;
     private MqttConnectOptions connectOptions;
     private IMqttToken connectToken;
     // The MqttCallback list provided by the application
@@ -170,7 +170,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * @param ackType     how the application wishes to acknowledge a message has been
      *                    processed.
      */
-    public MqttAndroidClient(@NonNull Context context, @NonNull String serverURI, @NonNull String clientId, @NonNull MqttClientPersistence persistence, @NonNull Ack ackType) {
+    public MqttAndroidClient(@NonNull Context context, @NonNull String serverURI, @NonNull String clientId,
+            @NonNull MqttClientPersistence persistence, @NonNull Ack ackType) {
         myContext = context;
         this.serverURI = serverURI;
         this.clientId = clientId;
@@ -1242,7 +1243,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process the results of a connection
-     *
      */
     private void connectAction(Bundle data) {
         IMqttToken token = connectToken;
@@ -1254,7 +1254,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process a notification that we have disconnected
-     *
      */
     private void disconnected(Bundle data) {
         clientHandle = null; // avoid reuse!
@@ -1271,7 +1270,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process a Connection Lost notification
-     *
      */
     private void connectionLostAction(Bundle data) {
         Exception reason = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
@@ -1319,7 +1317,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process notification of a publish(send) operation
-     *
      */
     private void sendAction(Bundle data) {
         IMqttToken token = getMqttToken(data); // get, don't remove - will
@@ -1329,7 +1326,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process notification of a subscribe operation
-     *
      */
     private void subscribeAction(Bundle data) {
         IMqttToken token = removeMqttToken(data);
@@ -1338,7 +1334,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process notification of an unsubscribe operation
-     *
      */
     private void unSubscribeAction(Bundle data) {
         IMqttToken token = removeMqttToken(data);
@@ -1347,7 +1342,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process notification of a published message having been delivered
-     *
      */
     private void messageDeliveredAction(Bundle data) {
         IMqttToken token = removeMqttToken(data);
@@ -1365,7 +1359,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process notification of a message's arrival
-     *
      */
     private void messageArrivedAction(Bundle data) {
         String messageId = data.getString(MqttServiceConstants.CALLBACK_MESSAGE_ID);
@@ -1394,7 +1387,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     /**
      * Process trace action - pass trace data back to the callback
-     *
      */
     private void traceAction(Bundle data) {
 
@@ -1547,7 +1539,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     }
 
     @Override
-    public void disconnectForcibly(long quiesceTimeout, long disconnectTimeout)            throws MqttException {
+    public void disconnectForcibly(long quiesceTimeout, long disconnectTimeout) throws MqttException {
         throw new UnsupportedOperationException();
     }
 

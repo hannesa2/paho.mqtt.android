@@ -17,10 +17,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import androidx.core.app.NotificationCompat.Builder;
 import android.widget.Toast;
 
 import org.eclipse.paho.android.sample.R;
+
+import androidx.core.app.NotificationCompat.Builder;
 
 /**
  * Provides static methods for creating and showing notifications to the user.
