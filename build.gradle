@@ -3,7 +3,6 @@ import org.gradle.internal.jvm.Jvm
 buildscript {
     ext.kotlin_version = '1.5.0'
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -23,7 +22,6 @@ ext {
 allprojects {
 
     repositories {
-        jcenter()
         google()
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/paho-releases/" }
