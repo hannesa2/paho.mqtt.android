@@ -405,132 +405,113 @@ public class AndroidServiceTest extends AndroidTestCase {
     /**
      * Test non durable subscriptions.
      */
+    private void testNonDurableSubs() {
+        String methodName = "testNonDurableSubs";
 
-    //  public void testNonDurableSubs() {
-    //    String methodName = "testNonDurableSubs";
-    //
-    //    IMqttAsyncClient mqttClient = null;
-    //
-    //    IMqttToken connectToken;
-    //    IMqttToken subToken;
-    //    IMqttToken unsubToken;
-    //    IMqttDeliveryToken pubToken;
-    //    IMqttToken disconnectToken;
-    //
-    //    try {
-    //      mqttClient = new MqttAndroidClient(mContext, serverURI,
-    //          "testNonDurableSubs");
-    //      MqttV3Receiver mqttV3Receiver = new MqttV3Receiver(mqttClient,
-    //          null);
-    //      mqttClient.setCallback(mqttV3Receiver);
-    //      MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-    //      // Clean session true is the default and implies non durable
-    //      // subscriptions.
-    //      mqttConnectOptions.setCleanSession(true);
-    //      connectToken = mqttClient.connect(mqttConnectOptions, null, null);
-    //      connectToken.waitForCompletion(10000);
-    //
-    //      String[] topicNames = new String[]{methodName + "/Topic"};
-    //      int[] topicQos = {2};
-    //      subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
-    //      subToken.waitForCompletion(10000);
-    //
-    //      byte[] payloadNotRetained = ("Message payload "
-    //                                   + classCanonicalName + "." + methodName + " not retained")
-    //          .getBytes();
-    //      pubToken = mqttClient.publish(topicNames[0], payloadNotRetained, 2, false,
-    //          null, null);
-    //      pubToken.waitForCompletion(100000);
-    //
-    //      boolean ok = mqttV3Receiver.validateReceipt(topicNames[0], 2,
-    //          payloadNotRetained);
-    //      if (!ok) {
-    //        fail("Receive failed");
-    //      }
-    //
-    //      // Retained publications.
-    //      // ----------------------
-    //      byte[] payloadRetained = ("Message payload " + classCanonicalName
-    //                                + "." + methodName + " retained").getBytes();
-    //      pubToken = mqttClient.publish(topicNames[0], payloadRetained, 2, true,
-    //          null, null);
-    //      pubToken.waitForCompletion(10000);
-    //
-    //      ok = mqttV3Receiver.validateReceipt(topicNames[0], 2,
-    //          payloadRetained);
-    //      if (!ok) {
-    //        fail("Receive failed");
-    //      }
-    //
-    //      // Check that unsubscribe and re subscribe resends the publication.
-    //      unsubToken = mqttClient.unsubscribe(topicNames, null, null);
-    //      unsubToken.waitForCompletion(10000);
-    //
-    //      subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
-    //      subToken.waitForCompletion(10000);
-    //
-    //      ok = mqttV3Receiver.validateReceipt(topicNames[0], 2,
-    //          payloadRetained);
-    //      if (!ok) {
-    //        fail("Receive failed");
-    //      }
-    //
-    //      // Check that subscribe without unsubscribe receives the
-    //      // publication.
-    //      subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
-    //      subToken.waitForCompletion(10000);
-    //      ok = mqttV3Receiver.validateReceipt(topicNames[0], 2,
-    //          payloadRetained);
-    //      if (!ok) {
-    //        fail("Receive failed");
-    //      }
-    //
-    //      // Disconnect, reconnect and check that the retained publication is
-    //      // still delivered.
-    //      disconnectToken = mqttClient.disconnect(null, null);
-    //      disconnectToken.waitForCompletion(10000);
-    //
-    //      mqttClient.close();
-    //
-    //      mqttClient = new MqttAndroidClient(mContext, serverURI,
-    //          "testNonDurableSubs");
-    //
-    //      mqttV3Receiver = new MqttV3Receiver(mqttClient,
-    //          null);
-    //      mqttClient.setCallback(mqttV3Receiver);
-    //
-    //      mqttConnectOptions = new MqttConnectOptions();
-    //      mqttConnectOptions.setCleanSession(true);
-    //      connectToken = mqttClient.connect(mqttConnectOptions, null, null);
-    //      connectToken.waitForCompletion(1000);
-    //
-    //      subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
-    //      subToken.waitForCompletion(1000);
-    //
-    //      ok = mqttV3Receiver.validateReceipt(topicNames[0], 2,
-    //          payloadRetained);
-    //      if (!ok) {
-    //        fail("Receive failed");
-    //      }
-    //
-    //    }
-    //    catch (Exception exception) {
-    //
-    //      fail("Failed:" + methodName + " exception=" + exception);
-    //    }
-    //    finally {
-    //      try {
-    //        disconnectToken = mqttClient.disconnect(null, null);
-    //        disconnectToken.waitForCompletion(1000);
-    //
-    //        mqttClient.close();
-    //      }
-    //      catch (Exception exception) {
-    //
-    //      }
-    //    }
-    //
-    //  }
+        IMqttAsyncClient mqttClient = null;
+
+        IMqttToken connectToken;
+        IMqttToken subToken;
+        IMqttToken unsubToken;
+        IMqttDeliveryToken pubToken;
+        IMqttToken disconnectToken;
+
+        try {
+            mqttClient = new MqttAndroidClient(mContext, mqttServerURI, "testNonDurableSubs");
+            MqttV3Receiver mqttV3Receiver = new MqttV3Receiver(mqttClient, null);
+            mqttClient.setCallback(mqttV3Receiver);
+            MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+            // Clean session true is the default and implies non durable
+            // subscriptions.
+            mqttConnectOptions.setCleanSession(true);
+            connectToken = mqttClient.connect(mqttConnectOptions, null, null);
+            connectToken.waitForCompletion(10000);
+
+            String[] topicNames = new String[]{methodName + "/Topic"};
+            int[] topicQos = {2};
+            subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
+            subToken.waitForCompletion(10000);
+
+            byte[] payloadNotRetained = ("Message payload " + classCanonicalName + "." + methodName + " not retained").getBytes();
+            pubToken = mqttClient.publish(topicNames[0], payloadNotRetained, 2, false, null, null);
+            pubToken.waitForCompletion(100000);
+
+            boolean ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadNotRetained);
+            if (!ok) {
+                fail("Receive failed");
+            }
+
+            // Retained publications.
+            // ----------------------
+            byte[] payloadRetained = ("Message payload " + classCanonicalName + "." + methodName + " retained").getBytes();
+            pubToken = mqttClient.publish(topicNames[0], payloadRetained, 2, true, null, null);
+            pubToken.waitForCompletion(10000);
+
+            ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadRetained);
+            if (!ok) {
+                fail("Receive failed");
+            }
+
+            // Check that unsubscribe and re subscribe resends the publication.
+            unsubToken = mqttClient.unsubscribe(topicNames, null, null);
+            unsubToken.waitForCompletion(10000);
+
+            subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
+            subToken.waitForCompletion(10000);
+
+            ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadRetained);
+            if (!ok) {
+                fail("Receive failed");
+            }
+
+            // Check that subscribe without unsubscribe receives the
+            // publication.
+            subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
+            subToken.waitForCompletion(10000);
+            ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadRetained);
+            if (!ok) {
+                fail("Receive failed");
+            }
+
+            // Disconnect, reconnect and check that the retained publication is
+            // still delivered.
+            disconnectToken = mqttClient.disconnect(null, null);
+            disconnectToken.waitForCompletion(10000);
+
+            mqttClient.close();
+
+            mqttClient = new MqttAndroidClient(mContext, mqttServerURI, "testNonDurableSubs");
+
+            mqttV3Receiver = new MqttV3Receiver(mqttClient, null);
+            mqttClient.setCallback(mqttV3Receiver);
+
+            mqttConnectOptions = new MqttConnectOptions();
+            mqttConnectOptions.setCleanSession(true);
+            connectToken = mqttClient.connect(mqttConnectOptions, null, null);
+            connectToken.waitForCompletion(1000);
+
+            subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
+            subToken.waitForCompletion(1000);
+
+            ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadRetained);
+            if (!ok) {
+                fail("Receive failed");
+            }
+
+        } catch (Exception exception) {
+            fail("Failed:" + methodName + " exception=" + exception);
+        } finally {
+            try {
+                disconnectToken = mqttClient.disconnect(null, null);
+                disconnectToken.waitForCompletion(1000);
+
+                mqttClient.close();
+            } catch (Exception ignored) {
+
+            }
+        }
+
+    }
 
     /**
      * Test the behaviour of the cleanStart flag, used to clean up before
