@@ -1,3 +1,5 @@
+import org.gradle.internal.jvm.Jvm
+
 buildscript {
     ext.kotlin_version = '1.5.0'
     repositories {
@@ -11,6 +13,8 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
+println "Gradle uses Java ${Jvm.current()}"
 
 ext {
     compileSdkVersion = 30
