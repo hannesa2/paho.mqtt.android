@@ -29,11 +29,6 @@ proguard/
 # Log Files
 *.log
 
-
-## Directory-based project format:
-.idea/
-*.iml
-
 ## File-based project format:
 *.ipr
 *.iws
@@ -58,14 +53,10 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 
-# Properties
-gradle.properties
-
 # Package Files #
 *.jar
 *.war
 *.ear
-!gradle-wrapper.jar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -73,10 +64,7 @@ hs_err_pid*
 # Misc
 .DS_Store
 /captures
-**/*.iml
-*.class
-
-org.eclipse.paho.android.sample/libs/
+*.iml
 
 .idea/*
-!.idea/codeStyles/
+!.idea/codeStyles
