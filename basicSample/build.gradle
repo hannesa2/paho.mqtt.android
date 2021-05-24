@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "paho.mqtt.java.example"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode getGitCommitCount()
         versionName getTag()
