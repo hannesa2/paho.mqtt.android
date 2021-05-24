@@ -3,7 +3,6 @@ package org.eclipse.paho.android.sample.activity;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.eclipse.paho.android.sample.R;
@@ -14,6 +13,8 @@ import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 
 import java.util.ArrayList;
+
+import timber.log.Timber;
 
 /**
  * This Class handles receiving information from the
@@ -120,7 +121,7 @@ public class ActionListener implements IMqttActionListener {
         connection.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED);
         String actionTaken = context.getString(R.string.toast_disconnected);
         connection.addAction(actionTaken);
-        Log.i(TAG, connection.handle() + " disconnected.");
+        Timber.i(connection.handle() + " disconnected.");
         //build intent
         Intent intent = new Intent();
         intent.setClassName(context, activityClass);
@@ -136,11 +137,11 @@ public class ActionListener implements IMqttActionListener {
         Connection connection = Connections.getInstance(context).getConnection(clientHandle);
         connection.changeConnectionStatus(Connection.ConnectionStatus.CONNECTED);
         connection.addAction("Client Connected");
-        Log.i(TAG, connection.handle() + " connected.");
+        Timber.i(connection.handle() + " connected.");
 
         ArrayList<Subscription> subscriptions = this.connection.getSubscriptions();
         for (Subscription sub : subscriptions) {
-            Log.i(TAG, "Auto-subscribing to: " + sub.getTopic() + "@ QoS: " + sub.getQos());
+            Timber.i("Auto-subscribing to: " + sub.getTopic() + "@ QoS: " + sub.getQos());
             this.connection.getClient().subscribe(sub.getTopic(), sub.getQos());
         }
     }

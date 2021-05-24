@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import org.eclipse.paho.android.sample.activity.Connection;
 import org.eclipse.paho.android.sample.model.Subscription;
@@ -17,14 +16,14 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * <code>Persistence</code> deals with interacting with the database to persist
  * {@link Connection} objects so created clients survive, the destruction of the
  * singleton {@link Connections} object.
  */
 public class Persistence extends SQLiteOpenHelper implements BaseColumns {
-
-    private static final String TAG = "Persistence";
 
     /**
      * The version of the database
@@ -314,7 +313,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
      * @param subscription The subscription to delete from the database
      */
     public void deleteSubscription(Subscription subscription) {
-        Log.d(TAG, "Deleting Subscription: " + subscription.toString());
+        Timber.d("Deleting Subscription: " + subscription.toString());
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_SUBSCRIPTIONS, _ID + "=?", new String[]{String.valueOf(subscription.getPersistenceId())});
         db.close();
@@ -431,7 +430,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
                 int sub_qos = sub_c.getInt(sub_c.getColumnIndexOrThrow(SUBSCRIPTIONS_COLUMN_QOS));
                 Subscription sub = new Subscription(sub_topic, sub_qos, sub_clientHandle, sub_notify);
                 sub.setPersistenceId(sub_id);
-                Log.d(TAG, "Restoring Subscription: " + sub.toString());
+                Timber.d("Restoring Subscription: " + sub.toString());
                 subscriptions.add(sub);
             }
             sub_c.close();

@@ -1205,7 +1205,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         } else if (MqttServiceConstants.TRACE_ACTION.equals(action)) {
             traceAction(data);
         } else {
-            mqttService.traceError(MqttService.TAG, "Callback action doesn't exist.");
+            mqttService.traceError("Callback action doesn't exist.");
         }
 
     }
@@ -1311,7 +1311,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
                 ((MqttTokenAndroid) token).notifyFailure(exceptionThrown);
             }
         } else {
-            mqttService.traceError(MqttService.TAG, "simpleAction : token is null");
+            mqttService.traceError("simpleAction : token is null");
         }
     }
 
@@ -1380,7 +1380,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
                     }
                 }
             } catch (Exception e) {
-                mqttService.traceError(MqttService.TAG, "messageArrivedAction failed: " + e);
+                mqttService.traceError("messageArrivedAction failed: " + e);
             }
         }
     }
@@ -1393,14 +1393,13 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         if (traceCallback != null) {
             String severity = data.getString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY);
             String message = data.getString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE);
-            String tag = data.getString(MqttServiceConstants.CALLBACK_TRACE_TAG);
             if (MqttServiceConstants.TRACE_DEBUG.equals(severity)) {
-                traceCallback.traceDebug(tag, message);
+                traceCallback.traceDebug(message);
             } else if (MqttServiceConstants.TRACE_ERROR.equals(severity)) {
-                traceCallback.traceError(tag, message);
+                traceCallback.traceError(message);
             } else {
                 Exception e = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
-                traceCallback.traceException(tag, message, e);
+                traceCallback.traceException(message, e);
             }
         }
     }
