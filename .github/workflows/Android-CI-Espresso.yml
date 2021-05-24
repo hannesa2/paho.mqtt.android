@@ -28,6 +28,12 @@ jobs:
         with:
           name: Espresso-test-paho.mqtt-report
           path: ./**/build/reports/androidTests/connected
+      - name: Archive screenshots
+        uses: actions/upload-artifact@v2.2.3
+        if: ${{ always() }}
+        with:
+          name: Logcat-Screenshots
+          path: screenshots/adb
   Check:
     name: Check
     runs-on: ubuntu-latest
