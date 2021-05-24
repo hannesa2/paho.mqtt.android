@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2014 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
@@ -46,11 +46,10 @@ class AlarmPingSender implements MqttPingSender {
     // Identifier for Intents, log messages, etc..
     private static final String TAG = "AlarmPingSender";
 
-    // TODO: Add log.
     private ClientComms comms;
-    private MqttService service;
+    private final MqttService service;
     private BroadcastReceiver alarmReceiver;
-    private AlarmPingSender that;
+    private final AlarmPingSender that;
     private PendingIntent pendingIntent;
     private volatile boolean hasStarted = false;
 
@@ -109,10 +108,10 @@ class AlarmPingSender implements MqttPingSender {
         if (Build.VERSION.SDK_INT >= 23) {
             // In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
             // the device to run this task whilst dosing.
-            Log.d(TAG, "Alarm scheule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
+            Log.d(TAG, "Alarm schedule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            Log.d(TAG, "Alarm scheule using setExact, delay: " + delayInMilliseconds);
+            Log.d(TAG, "Alarm schedule using setExact, delay: " + delayInMilliseconds);
             alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
         } else {
             alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
@@ -149,14 +148,14 @@ class AlarmPingSender implements MqttPingSender {
             } catch (Exception ex) {
                 Log.d(TAG, "Ping async background : Ignore unknown exception : " + ex.getMessage());
             }
-            if (success == false) {
+            if (!success) {
                 Log.d(TAG, "Ping async background task completed at " + System.currentTimeMillis() + " Success is " + success);
             }
-            return new Boolean(success);
+            return success;
         }
 
         protected void onPostExecute(Boolean success) {
-            if (success == false) {
+            if (!success) {
                 Log.d(TAG, "Ping async task onPostExecute() Success is " + this.success);
             }
         }
@@ -173,7 +172,6 @@ class AlarmPingSender implements MqttPingSender {
     class AlarmReceiver extends BroadcastReceiver {
         private final String wakeLockTag = MqttServiceConstants.PING_WAKELOCK + that.comms.getClient().getClientId();
         private PingAsyncTask pingRunner = null;
-        private WakeLock wakelock;
 
         @Override
         @SuppressLint("Wakelock")
@@ -185,7 +183,7 @@ class AlarmPingSender implements MqttPingSender {
             // a wake lock to wait for ping finished.
 
             PowerManager pm = (PowerManager) service.getSystemService(Service.POWER_SERVICE);
-            wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag);
+            WakeLock wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag);
             wakelock.acquire(10*60*1000L /*10 minutes*/);
 
             if (pingRunner != null) {
