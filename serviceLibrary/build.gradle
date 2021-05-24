@@ -15,8 +15,6 @@ android {
         testApplicationId "org.eclipse.paho.android.service.test"
     }
 
-    useLibrary 'android.test.runner'
-    useLibrary 'android.test.base'
 }
 
 dependencies {
