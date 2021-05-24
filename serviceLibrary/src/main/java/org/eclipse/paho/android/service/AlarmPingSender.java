@@ -186,7 +186,7 @@ class AlarmPingSender implements MqttPingSender {
 
             PowerManager pm = (PowerManager) service.getSystemService(Service.POWER_SERVICE);
             wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag);
-            wakelock.acquire();
+            wakelock.acquire(10*60*1000L /*10 minutes*/);
 
             if (pingRunner != null) {
                 if (pingRunner.cancel(true)) {
