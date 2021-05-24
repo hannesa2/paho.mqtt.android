@@ -48,7 +48,7 @@ public class TextSelectComponent extends RelativeLayout {
         this.subLabel.setText(attributeArray.getString(R.styleable.TextSelectComponent_default_value));
         this.inputTitle = attributeArray.getString(R.styleable.TextSelectComponent_input_title);
         setText = attributeArray.getString(R.styleable.TextSelectComponent_default_value);
-        this.numberInput = attributeArray.getBoolean(R.styleable.TextSelectComponent_number, false);
+        this.numberInput = attributeArray.getBoolean(R.styleable.TextSelectComponent_numberTxt, false);
         textSelectLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
