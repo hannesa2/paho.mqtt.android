@@ -48,33 +48,33 @@ internal interface MqttServiceConstants {
         const val TRACE_ACTION = "trace"
 
         /* Identifies an Intent which calls back to the Activity */
-        const val CALLBACK_TO_ACTIVITY = MqttService.TAG + ".callbackToActivity" + "." + VERSION
+        const val CALLBACK_TO_ACTIVITY = ".callbackToActivity" + "." + VERSION
 
         /* Identifiers for extra data on Intents broadcast to the Activity */
-        const val CALLBACK_ACTION = MqttService.TAG + ".callbackAction"
-        const val CALLBACK_STATUS = MqttService.TAG + ".callbackStatus"
-        const val CALLBACK_CLIENT_HANDLE = MqttService.TAG + "." + CLIENT_HANDLE
-        const val CALLBACK_ERROR_MESSAGE = MqttService.TAG + ".errorMessage"
-        const val CALLBACK_EXCEPTION_STACK = MqttService.TAG + ".exceptionStack"
-        const val CALLBACK_INVOCATION_CONTEXT = MqttService.TAG + "." + "invocationContext"
-        const val CALLBACK_ACTIVITY_TOKEN = MqttService.TAG + "." + "activityToken"
-        const val CALLBACK_DESTINATION_NAME = MqttService.TAG + '.' + DESTINATION_NAME
-        const val CALLBACK_MESSAGE_ID = MqttService.TAG + '.' + MESSAGE_ID
-        const val CALLBACK_RECONNECT = MqttService.TAG + ".reconnect"
-        const val CALLBACK_SERVER_URI = MqttService.TAG + ".serverURI"
-        const val CALLBACK_MESSAGE_PARCEL = MqttService.TAG + ".PARCEL"
-        const val CALLBACK_TRACE_SEVERITY = MqttService.TAG + ".traceSeverity"
-        const val CALLBACK_TRACE_TAG = MqttService.TAG + ".traceTag"
-        const val CALLBACK_TRACE_ID = MqttService.TAG + ".traceId"
-        const val CALLBACK_ERROR_NUMBER = MqttService.TAG + ".ERROR_NUMBER"
-        const val CALLBACK_EXCEPTION = MqttService.TAG + ".exception"
+        const val CALLBACK_ACTION = ".callbackAction"
+        const val CALLBACK_STATUS = ".callbackStatus"
+        const val CALLBACK_CLIENT_HANDLE = "." + CLIENT_HANDLE
+        const val CALLBACK_ERROR_MESSAGE = ".errorMessage"
+        const val CALLBACK_EXCEPTION_STACK = ".exceptionStack"
+        const val CALLBACK_INVOCATION_CONTEXT = "." + "invocationContext"
+        const val CALLBACK_ACTIVITY_TOKEN = "." + "activityToken"
+        const val CALLBACK_DESTINATION_NAME = DESTINATION_NAME
+        const val CALLBACK_MESSAGE_ID = MESSAGE_ID
+        const val CALLBACK_RECONNECT = ".reconnect"
+        const val CALLBACK_SERVER_URI = ".serverURI"
+        const val CALLBACK_MESSAGE_PARCEL = ".PARCEL"
+        const val CALLBACK_TRACE_SEVERITY = ".traceSeverity"
+        const val CALLBACK_TRACE_TAG = ".traceTag"
+        const val CALLBACK_TRACE_ID = ".traceId"
+        const val CALLBACK_ERROR_NUMBER = ".ERROR_NUMBER"
+        const val CALLBACK_EXCEPTION = ".exception"
 
         //Intent prefix for Ping sender.
-        const val PING_SENDER = MqttService.TAG + ".pingSender."
+        const val PING_SENDER = ".pingSender."
 
         //Constant for wakelock
-        const val PING_WAKELOCK = MqttService.TAG + ".client."
-        const val WAKELOCK_NETWORK_INTENT = MqttService.TAG + ""
+        const val PING_WAKELOCK = ".client."
+        const val WAKELOCK_NETWORK_INTENT = ""
 
         //Trace severity levels
         const val TRACE_ERROR = "error"

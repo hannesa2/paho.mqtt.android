@@ -31,9 +31,6 @@ import java.util.Iterator;
  */
 class DatabaseMessageStore implements MessageStore {
 
-    // TAG used for indentify trace data etc.
-    private static final String TAG = "DatabaseMessageStore";
-
     // One "private" database column name
     // The other database column names are defined in MqttServiceConstants
     private static final String MTIMESTAMP = "mtimestamp";
@@ -66,7 +63,7 @@ class DatabaseMessageStore implements MessageStore {
         // could/should be done in another thread, but as the
         // database is only one table, I doubt it matters...
 
-        traceHandler.traceDebug(TAG, "DatabaseMessageStore<init> complete");
+        traceHandler.traceDebug("DatabaseMessageStore<init> complete");
     }
 
     /**
@@ -82,7 +79,7 @@ class DatabaseMessageStore implements MessageStore {
 
         db = mqttDb.getWritableDatabase();
 
-        traceHandler.traceDebug(TAG, "storeArrived{" + clientHandle + "}, {" + message.toString() + "}");
+        traceHandler.traceDebug("storeArrived{" + clientHandle + "}, {" + message.toString() + "}");
 
         byte[] payload = message.getPayload();
         int qos = message.getQos();
@@ -102,13 +99,12 @@ class DatabaseMessageStore implements MessageStore {
         try {
             db.insertOrThrow(ARRIVED_MESSAGE_TABLE_NAME, null, values);
         } catch (SQLException e) {
-            traceHandler.traceException(TAG, "onUpgrade", e);
+            traceHandler.traceException("onUpgrade", e);
             throw e;
         }
         int count = getArrivedRowCount(clientHandle);
-        traceHandler.traceDebug(TAG,
-                "storeArrived: inserted message with id of {" + id
-                        + "} - Number of messages in database for this clientHandle = " + count);
+        traceHandler.traceDebug("storeArrived: inserted message with id of {" + id
+                + "} - Number of messages in database for this clientHandle = " + count);
         return id;
     }
 
@@ -149,7 +145,7 @@ class DatabaseMessageStore implements MessageStore {
 
         db = mqttDb.getWritableDatabase();
 
-        traceHandler.traceDebug(TAG, "discardArrived{" + clientHandle + "}, {" + id + "}");
+        traceHandler.traceDebug("discardArrived{" + clientHandle + "}, {" + id + "}");
         int rows;
         String[] selectionArgs = new String[2];
         selectionArgs[0] = id;
@@ -160,18 +156,15 @@ class DatabaseMessageStore implements MessageStore {
                     MqttServiceConstants.MESSAGE_ID + "=? AND " + MqttServiceConstants.CLIENT_HANDLE + "=?",
                     selectionArgs);
         } catch (SQLException e) {
-            traceHandler.traceException(TAG, "discardArrived", e);
+            traceHandler.traceException("discardArrived", e);
             throw e;
         }
         if (rows != 1) {
-            traceHandler.traceError(TAG,
-                    "discardArrived - Error deleting message {" + id
-                            + "} from database: Rows affected = " + rows);
+            traceHandler.traceError("discardArrived - Error deleting message {" + id + "} from database: Rows affected = " + rows);
             return false;
         }
         int count = getArrivedRowCount(clientHandle);
-        traceHandler.traceDebug(TAG,
-                "discardArrived - Message deleted successfully. - messages in db for this clientHandle " + count);
+        traceHandler.traceDebug("discardArrived - Message deleted successfully. - messages in db for this clientHandle " + count);
         return true;
     }
 
@@ -276,16 +269,16 @@ class DatabaseMessageStore implements MessageStore {
 
         int rows = 0;
         if (clientHandle == null) {
-            traceHandler.traceDebug(TAG, "clearArrivedMessages: clearing the table");
+            traceHandler.traceDebug("clearArrivedMessages: clearing the table");
             rows = db.delete(ARRIVED_MESSAGE_TABLE_NAME, null, null);
         } else {
-            traceHandler.traceDebug(TAG, "clearArrivedMessages: clearing the table of " + clientHandle + " messages");
+            traceHandler.traceDebug("clearArrivedMessages: clearing the table of " + clientHandle + " messages");
             rows = db.delete(ARRIVED_MESSAGE_TABLE_NAME,
                     MqttServiceConstants.CLIENT_HANDLE + "=?",
                     selectionArgs);
 
         }
-        traceHandler.traceDebug(TAG, "clearArrivedMessages: rows affected = " + rows);
+        traceHandler.traceDebug("clearArrivedMessages: rows affected = " + rows);
     }
 
     @Override
@@ -339,12 +332,12 @@ class DatabaseMessageStore implements MessageStore {
                     + MqttServiceConstants.RETAINED + " TEXT, "
                     + MqttServiceConstants.DUPLICATE + " TEXT, " + MTIMESTAMP
                     + " INTEGER" + ");";
-            traceHandler.traceDebug(TAG, "onCreate {" + createArrivedTableStatement + "}");
+            traceHandler.traceDebug("onCreate {" + createArrivedTableStatement + "}");
             try {
                 database.execSQL(createArrivedTableStatement);
-                traceHandler.traceDebug(TAG, "created the table");
+                traceHandler.traceDebug("created the table");
             } catch (SQLException e) {
-                traceHandler.traceException(TAG, "onCreate", e);
+                traceHandler.traceException("onCreate", e);
                 throw e;
             }
         }
@@ -359,15 +352,15 @@ class DatabaseMessageStore implements MessageStore {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            traceHandler.traceDebug(TAG, "onUpgrade");
+            traceHandler.traceDebug("onUpgrade");
             try {
                 db.execSQL("DROP TABLE IF EXISTS " + ARRIVED_MESSAGE_TABLE_NAME);
             } catch (SQLException e) {
-                traceHandler.traceException(TAG, "onUpgrade", e);
+                traceHandler.traceException("onUpgrade", e);
                 throw e;
             }
             onCreate(db);
-            traceHandler.traceDebug(TAG, "onUpgrade complete");
+            traceHandler.traceDebug("onUpgrade complete");
         }
     }
 

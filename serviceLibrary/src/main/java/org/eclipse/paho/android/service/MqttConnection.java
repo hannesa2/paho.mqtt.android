@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import androidx.annotation.Nullable;
+import timber.log.Timber;
 
 /**
  * <p>
@@ -68,15 +69,13 @@ import androidx.annotation.Nullable;
  */
 class MqttConnection implements MqttCallbackExtended {
 
-    // Strings for Intents etc..
-    private static final String TAG = "MqttConnection";
-    // Error status messages
+    private static final String TEMP = "MqttConnection";
+
     private static final String NOT_CONNECTED = "not connected";
     // our (parent) service object
     private final MqttService service;
     // Saved sent messages and their corresponding Topics, activityTokens and
-    // invocationContexts, so we can handle "deliveryComplete" callbacks
-    // from the mqttClient
+    // invocationContexts, so we can handle "deliveryComplete" callbacks from the mqttClient
     private final Map<IMqttDeliveryToken, String /* Topic */> savedTopics = new HashMap<>();
     private final Map<IMqttDeliveryToken, MqttMessage> savedSentMessages = new HashMap<>();
     private final Map<IMqttDeliveryToken, String> savedActivityTokens = new HashMap<>();
@@ -177,7 +176,7 @@ class MqttConnection implements MqttCallbackExtended {
             }
         }
 
-        service.traceDebug(TAG, "Connecting {" + serverURI + "} as {" + clientId + "}");
+        service.traceDebug("Connecting {" + serverURI + "} as {" + clientId + "}");
         final Bundle resultBundle = new Bundle();
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
         resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, invocationContext);
@@ -191,7 +190,7 @@ class MqttConnection implements MqttCallbackExtended {
                 File myDir = null;
                 // use internal storage instead.
                 try {
-                    myDir = service.getDir(TAG, Context.MODE_PRIVATE);
+                    myDir = service.getDir(TEMP, Context.MODE_PRIVATE);
                 } catch (Exception e) {
                     //skip
                 }
@@ -199,7 +198,7 @@ class MqttConnection implements MqttCallbackExtended {
                     try {
                         myDir = service.getFilesDir();
                         if (myDir != null) {
-                            String stringBuilder = myDir.getAbsolutePath() + File.separator + TAG;
+                            String stringBuilder = myDir.getAbsolutePath() + File.separator;
                             myDir = new File(stringBuilder);
                             myDir.mkdirs();
                         }
@@ -224,14 +223,14 @@ class MqttConnection implements MqttCallbackExtended {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     resultBundle.putBoolean(MqttServiceConstants.SESSION_PRESENT, asyncActionToken.getSessionPresent());
                     doAfterConnectSuccess(resultBundle);
-                    service.traceDebug(TAG, "connect success!");
+                    service.traceDebug("connect success!");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, exception.getLocalizedMessage());
                     resultBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, exception);
-                    service.traceError(TAG, "connect fail, call connect to reconnect.reason:" + exception.getMessage());
+                    service.traceError("connect fail, call connect to reconnect.reason:" + exception.getMessage());
 
                     doAfterConnectFail(resultBundle);
                 }
@@ -239,14 +238,14 @@ class MqttConnection implements MqttCallbackExtended {
 
             if (myClient != null) {
                 if (isConnecting) {
-                    service.traceDebug(TAG, "myClient != null and the client is connecting. Connect return directly.");
-                    service.traceDebug(TAG, "Connect return:isConnecting:" + isConnecting + ".disconnected:" + disconnected);
+                    service.traceDebug("myClient != null and the client is connecting. Connect return directly.");
+                    service.traceDebug("Connect return:isConnecting:" + isConnecting + ".disconnected:" + disconnected);
                 } else if (!disconnected) {
-                    service.traceDebug(TAG, "myClient != null and the client is connected and notify!");
+                    service.traceDebug("myClient != null and the client is connected and notify!");
                     doAfterConnectSuccess(resultBundle);
                 } else {
-                    service.traceDebug(TAG, "myClient != null and the client is not connected");
-                    service.traceDebug(TAG, "Do Real connect!");
+                    service.traceDebug("myClient != null and the client is not connected");
+                    service.traceDebug("Do Real connect!");
                     setConnectingState(true);
                     myClient.connect(connectOptions, invocationContext, listener);
                 }
@@ -259,12 +258,12 @@ class MqttConnection implements MqttCallbackExtended {
                 //, null,	new AndroidHighResolutionTimer());
                 myClient.setCallback(this);
 
-                service.traceDebug(TAG, "Do Real connect!");
+                service.traceDebug("Do Real connect!");
                 setConnectingState(true);
                 myClient.connect(connectOptions, invocationContext, listener);
             }
         } catch (Exception e) {
-            service.traceError(TAG, "Exception occurred attempting to connect: " + e.getMessage());
+            service.traceError("Exception occurred attempting to connect: " + e.getMessage());
             setConnectingState(false);
             handleException(resultBundle, e);
         }
@@ -341,7 +340,7 @@ class MqttConnection implements MqttCallbackExtended {
      * Close connection from the server
      */
     void close() {
-        service.traceDebug(TAG, "close()");
+        service.traceDebug("close()");
         try {
             if (myClient != null) {
                 myClient.close();
@@ -360,7 +359,7 @@ class MqttConnection implements MqttCallbackExtended {
      * @param activityToken     arbitrary string to be passed back to the activity
      */
     void disconnect(long quiesceTimeout, String invocationContext, String activityToken) {
-        service.traceDebug(TAG, "disconnect()");
+        service.traceDebug("disconnect()");
         disconnected = true;
         final Bundle resultBundle = new Bundle();
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
@@ -375,7 +374,7 @@ class MqttConnection implements MqttCallbackExtended {
             }
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
-            service.traceError(MqttServiceConstants.DISCONNECT_ACTION, NOT_CONNECTED);
+            service.traceError(MqttServiceConstants.DISCONNECT_ACTION + " " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
 
@@ -394,7 +393,7 @@ class MqttConnection implements MqttCallbackExtended {
      * @param activityToken     arbitrary string to be passed back to the activity
      */
     void disconnect(String invocationContext, String activityToken) {
-        service.traceDebug(TAG, "disconnect()");
+        service.traceDebug("disconnect()");
         disconnected = true;
         final Bundle resultBundle = new Bundle();
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
@@ -409,7 +408,7 @@ class MqttConnection implements MqttCallbackExtended {
             }
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
-            service.traceError(MqttServiceConstants.DISCONNECT_ACTION, NOT_CONNECTED);
+            service.traceError(MqttServiceConstants.DISCONNECT_ACTION + " " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
 
@@ -460,7 +459,7 @@ class MqttConnection implements MqttCallbackExtended {
             }
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
-            service.traceError(MqttServiceConstants.SEND_ACTION, NOT_CONNECTED);
+            service.traceError(MqttServiceConstants.SEND_ACTION + " " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
 
@@ -503,9 +502,9 @@ class MqttConnection implements MqttCallbackExtended {
                 handleException(resultBundle, e);
             }
         } else {
-            Log.i(TAG, "Client is not connected, so not sending message");
+            Timber.i("Client is not connected, so not sending message");
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
-            service.traceError(MqttServiceConstants.SEND_ACTION, NOT_CONNECTED);
+            service.traceError(MqttServiceConstants.SEND_ACTION + " " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
         return sendToken;
@@ -520,7 +519,7 @@ class MqttConnection implements MqttCallbackExtended {
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
     public void subscribe(final String topic, final int qos, String invocationContext, String activityToken) {
-        service.traceDebug(TAG, "subscribe({" + topic + "}," + qos + ",{" + invocationContext + "}, {" + activityToken + "}");
+        service.traceDebug("subscribe({" + topic + "}," + qos + ",{" + invocationContext + "}, {" + activityToken + "}");
         final Bundle resultBundle = new Bundle();
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SUBSCRIBE_ACTION);
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
@@ -535,7 +534,7 @@ class MqttConnection implements MqttCallbackExtended {
             }
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
-            service.traceError("subscribe", NOT_CONNECTED);
+            service.traceError("subscribe " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
     }
@@ -549,8 +548,8 @@ class MqttConnection implements MqttCallbackExtended {
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
     public void subscribe(final String[] topic, final int[] qos, String invocationContext, String activityToken) {
-        service.traceDebug(TAG, "subscribe({" + Arrays.toString(topic) + "}," + Arrays.toString(qos) + ",{"
-                + invocationContext + "}, {" + activityToken + "}");
+        service.traceDebug("subscribe({" + Arrays.toString(topic) + "}," + Arrays
+                .toString(qos) + ",{" + invocationContext + "}, {" + activityToken + "}");
         final Bundle resultBundle = new Bundle();
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SUBSCRIBE_ACTION);
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
@@ -565,13 +564,13 @@ class MqttConnection implements MqttCallbackExtended {
             }
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
-            service.traceError("subscribe", NOT_CONNECTED);
+            service.traceError("subscribe " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
     }
 
     public void subscribe(String[] topicFilters, int[] qos, String invocationContext, String activityToken, IMqttMessageListener[] messageListeners) {
-        service.traceDebug(TAG, "subscribe({" + Arrays.toString(topicFilters) + "}," + Arrays.toString(qos) + ",{"
+        service.traceDebug("subscribe({" + Arrays.toString(topicFilters) + "}," + Arrays.toString(qos) + ",{"
                 + invocationContext + "}, {" + activityToken + "}");
         final Bundle resultBundle = new Bundle();
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SUBSCRIBE_ACTION);
@@ -586,7 +585,7 @@ class MqttConnection implements MqttCallbackExtended {
             }
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
-            service.traceError("subscribe", NOT_CONNECTED);
+            service.traceError("subscribe " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
     }
@@ -599,7 +598,7 @@ class MqttConnection implements MqttCallbackExtended {
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
     void unsubscribe(final String topic, String invocationContext, String activityToken) {
-        service.traceDebug(TAG, "unsubscribe({" + topic + "},{" + invocationContext + "}, {" + activityToken + "})");
+        service.traceDebug("unsubscribe({" + topic + "},{" + invocationContext + "}, {" + activityToken + "})");
         final Bundle resultBundle = new Bundle();
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.UNSUBSCRIBE_ACTION);
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
@@ -614,7 +613,7 @@ class MqttConnection implements MqttCallbackExtended {
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
 
-            service.traceError("subscribe", NOT_CONNECTED);
+            service.traceError("subscribe " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
     }
@@ -627,7 +626,7 @@ class MqttConnection implements MqttCallbackExtended {
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
     void unsubscribe(final String[] topic, String invocationContext, String activityToken) {
-        service.traceDebug(TAG, "unsubscribe({" + Arrays.toString(topic) + "},{" + invocationContext + "}, {" + activityToken + "})");
+        service.traceDebug("unsubscribe({" + Arrays.toString(topic) + "},{" + invocationContext + "}, {" + activityToken + "})");
         final Bundle resultBundle = new Bundle();
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.UNSUBSCRIBE_ACTION);
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
@@ -642,7 +641,7 @@ class MqttConnection implements MqttCallbackExtended {
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
 
-            service.traceError("subscribe", NOT_CONNECTED);
+            service.traceError("subscribe " + NOT_CONNECTED);
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
         }
     }
@@ -666,9 +665,9 @@ class MqttConnection implements MqttCallbackExtended {
     @Override
     public void connectionLost(@Nullable Throwable why) {
         if (why != null) {
-            service.traceDebug(TAG, "connectionLost(" + why.getMessage() + ")");
+            service.traceDebug("connectionLost(" + why.getMessage() + ")");
         } else {
-            service.traceDebug(TAG, "connectionLost(NO_REASON)");
+            service.traceDebug("connectionLost(NO_REASON)");
         }
         disconnected = true;
         try {
@@ -719,7 +718,7 @@ class MqttConnection implements MqttCallbackExtended {
     @Override
     public void deliveryComplete(IMqttDeliveryToken messageToken) {
 
-        service.traceDebug(TAG, "deliveryComplete(" + messageToken + ")");
+        service.traceDebug("deliveryComplete(" + messageToken + ")");
 
         Bundle resultBundle = popSendDetails(messageToken);
         if (resultBundle != null) {
@@ -742,7 +741,7 @@ class MqttConnection implements MqttCallbackExtended {
     @Override
     public void messageArrived(String topic, MqttMessage message) {
 
-        service.traceDebug(TAG, "messageArrived(" + topic + ",{" + message.toString() + "})");
+        service.traceDebug("messageArrived(" + topic + ",{" + message.toString() + "})");
 
         String messageId = service.messageStore.storeArrived(clientHandle, topic, message);
 
@@ -829,23 +828,23 @@ class MqttConnection implements MqttCallbackExtended {
     synchronized void reconnect() {
 
         if (myClient == null) {
-            service.traceError(TAG, "Reconnect myClient = null. Will not do reconnect");
+            service.traceError("Reconnect myClient = null. Will not do reconnect");
             return;
         }
 
         if (isConnecting) {
-            service.traceDebug(TAG, "The client is connecting. Reconnect return directly.");
+            service.traceDebug("The client is connecting. Reconnect return directly.");
             return;
         }
 
         if (!service.isOnline()) {
-            service.traceDebug(TAG, "The network is not reachable. Will not do reconnect");
+            service.traceDebug("The network is not reachable. Will not do reconnect");
             return;
         }
 
         if (connectOptions.isAutomaticReconnect()) {
             //The Automatic reconnect functionality is enabled here
-            Log.i(TAG, "Requesting Automatic reconnect using New Java AC");
+            Timber.i("Requesting Automatic reconnect using New Java AC");
             final Bundle resultBundle = new Bundle();
             resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, reconnectActivityToken);
             resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, null);
@@ -853,13 +852,13 @@ class MqttConnection implements MqttCallbackExtended {
             try {
                 myClient.reconnect();
             } catch (MqttException ex) {
-                Log.e(TAG, "Exception occurred attempting to reconnect: " + ex.getMessage());
+                Timber.e(ex, "Exception occurred attempting to reconnect: " + ex.getMessage());
                 setConnectingState(false);
                 handleException(resultBundle, ex);
             }
         } else if (disconnected && !cleanSession) {
             // use the activityToke the same with action connect
-            service.traceDebug(TAG, "Do Real Reconnect!");
+            service.traceDebug("Do Real Reconnect!");
             final Bundle resultBundle = new Bundle();
             resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, reconnectActivityToken);
             resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, null);
@@ -872,8 +871,8 @@ class MqttConnection implements MqttCallbackExtended {
                     public void onSuccess(IMqttToken asyncActionToken) {
                         // since the device's cpu can go to sleep, acquire a
                         // wakelock and drop it later.
-                        service.traceDebug(TAG, "Reconnect Success!");
-                        service.traceDebug(TAG, "DeliverBacklog when reconnect.");
+                        service.traceDebug("Reconnect Success!");
+                        service.traceDebug("DeliverBacklog when reconnect.");
                         resultBundle.putBoolean(MqttServiceConstants.SESSION_PRESENT, asyncActionToken.getSessionPresent());
                         doAfterConnectSuccess(resultBundle);
                     }
@@ -891,7 +890,7 @@ class MqttConnection implements MqttCallbackExtended {
                 myClient.connect(connectOptions, null, listener);
                 setConnectingState(true);
             } catch (MqttException e) {
-                service.traceError(TAG, "Cannot reconnect to remote server." + e.getMessage());
+                service.traceError("Cannot reconnect to remote server." + e.getMessage());
                 setConnectingState(false);
                 handleException(resultBundle, e);
             } catch (Exception e) {
@@ -901,7 +900,7 @@ class MqttConnection implements MqttCallbackExtended {
 				    up to the application. myClient should not be null so more investigation is
 				    required.
 				*/
-                service.traceError(TAG, "Cannot reconnect to remote server." + e.getMessage());
+                service.traceError("Cannot reconnect to remote server." + e.getMessage());
                 setConnectingState(false);
                 MqttException newEx = new MqttException(MqttException.REASON_CODE_UNEXPECTED_ERROR, e.getCause());
                 handleException(resultBundle, newEx);

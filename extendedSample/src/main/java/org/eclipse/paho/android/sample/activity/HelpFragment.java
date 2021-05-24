@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,11 +19,10 @@ import org.eclipse.paho.android.sample.internal.Connections;
 import java.util.Map;
 
 import androidx.fragment.app.Fragment;
+import timber.log.Timber;
 
 
 public class HelpFragment extends Fragment {
-
-    private static final String TAG = "HelpFragment";
 
     private static final String FEEDBACK_EMAIL = "paho-dev@eclipse.org";
     private static final String FEEDBACK_SUBJECT = "Eclipse Paho Android Sample Feedback";
@@ -49,7 +47,7 @@ public class HelpFragment extends Fragment {
         websiteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "Opening Web Browser to Paho Website");
+                Timber.i("Opening Web Browser to Paho Website");
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(PAHO_WEBSITE));
                 startActivity(browserIntent);
             }
@@ -59,7 +57,7 @@ public class HelpFragment extends Fragment {
         feedbackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "Preparing Feedback Email.");
+                Timber.i("Preparing Feedback Email.");
                 Uri data = Uri.parse("mailto:" + FEEDBACK_EMAIL + "?subject=" + FEEDBACK_SUBJECT + "&body=" + getDebugInfoForEmail());
                 Intent feedbackIntent = new Intent(Intent.ACTION_VIEW, data);
                 startActivity(feedbackIntent);
@@ -79,9 +77,9 @@ public class HelpFragment extends Fragment {
                     if (isChecked) {
                         connection.getClient().setTraceCallback(new MqttTraceCallback());
                     }
-                    Log.i(TAG, "Trace was set to: " + isChecked);
+                    Timber.i("Trace was set to: " + isChecked);
                 } else {
-                    Log.i(TAG, "No Connection available to enable / disable trace on.");
+                    Timber.i("No Connection available to enable / disable trace on.");
                 }
             }
         });

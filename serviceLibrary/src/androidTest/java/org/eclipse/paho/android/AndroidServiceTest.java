@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 public class AndroidServiceTest extends AndroidTestCase {
 
     private static final String TAG = "AndroidServiceTest";
@@ -36,7 +38,7 @@ public class AndroidServiceTest extends AndroidTestCase {
         waitForCompletionTime = properties.getWaitForCompletionTime();
         String clientKeyStore = properties.getClientKeyStore();
         keyStorePwd = properties.getClientKeyStorePassword();
-        Log.d(TAG, properties.getServerSSLURI());
+        Timber.d(properties.getServerSSLURI());
     }
 
     /**
@@ -693,7 +695,6 @@ public class AndroidServiceTest extends AndroidTestCase {
     //	@Test
     //	public void testBadClientId() throws Exception {
     //		final String methodName = Utility.getMethodName();
-    //		Log.banner(logger, cclass, methodName);
     //		logger.entering(classCanonicalName, methodName);
     //
     //		// Client ids with length errors are now trapped by the client

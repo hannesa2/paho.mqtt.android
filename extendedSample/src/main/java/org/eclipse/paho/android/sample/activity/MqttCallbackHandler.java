@@ -14,13 +14,14 @@ package org.eclipse.paho.android.sample.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.internal.Connections;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import timber.log.Timber;
 
 //import org.eclipse.paho.android.sample.Connection.ConnectionStatus;
 
@@ -29,7 +30,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
  */
 class MqttCallbackHandler implements MqttCallback {
 
-    private static final String TAG = "MqttCallbackHandler";
     private static final String activityClass = "org.eclipse.paho.android.sample.activity.MainActivity";
     /**
      * {@link Context} for the application used to format and import external strings
@@ -57,7 +57,7 @@ class MqttCallbackHandler implements MqttCallback {
     @Override
     public void connectionLost(Throwable cause) {
         if (cause != null) {
-            Log.d(TAG, "Connection Lost: " + cause.getMessage());
+            Timber.d("Connection Lost: " + cause.getMessage());
             Connection c = Connections.getInstance(context).getConnection(clientHandle);
             c.addAction("Connection Lost");
             c.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED);
@@ -88,7 +88,7 @@ class MqttCallbackHandler implements MqttCallback {
                 .getString(R.string.messageRecieved, new String(message.getPayload()), topic + ";qos:" + message.getQos() + ";retained:" + message
                         .isRetained());
 
-        Log.i(TAG, messageString);
+        Timber.i(messageString);
 
         //update client history
         connection.addAction(messageString);

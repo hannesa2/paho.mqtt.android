@@ -15,7 +15,6 @@ package paho.mqtt.java.example;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -39,6 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import timber.log.Timber;
 
 public class PahoExampleActivity extends AppCompatActivity {
     final String serverUri = "tcp://mqtt.eclipseprojects.io:1883";
@@ -128,7 +128,7 @@ public class PahoExampleActivity extends AppCompatActivity {
     }
 
     private void addToHistory(String mainText) {
-        Log.d("LOG", mainText);
+        Timber.d(mainText);
         @SuppressLint("SimpleDateFormat")
         String timestamp = new SimpleDateFormat("HH:mm.ss.SSS").format(new Date(System.currentTimeMillis()));
         mAdapter.add(timestamp + " " + mainText);
@@ -152,7 +152,7 @@ public class PahoExampleActivity extends AppCompatActivity {
         mqttAndroidClient.subscribe(subscriptionTopic, 0, new IMqttMessageListener() {
             @Override
             public void messageArrived(String topic, MqttMessage message) {
-                Log.d("Message arrived", topic + " : " + new String(message.getPayload()));
+                Timber.d("Message arrived " + topic + " : " + new String(message.getPayload()));
             }
         });
     }

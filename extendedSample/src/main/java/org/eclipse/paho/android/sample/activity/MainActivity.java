@@ -2,7 +2,6 @@ package org.eclipse.paho.android.sample.activity;
 
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 
 import org.eclipse.paho.android.sample.R;
@@ -22,11 +21,11 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import timber.log.Timber;
 
 
 public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener {
 
-    private static final String TAG = "MainActivity";
     private final ChangeListener changeListener = new ChangeListener();
     private final MainActivity mainActivity = this;
     private FragmentDrawer drawerFragment;
@@ -60,17 +59,14 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         drawerFragment.clearConnections();
 
         // get all the available connections
-        Map<String, Connection> connections = Connections.getInstance(this)
-                .getConnections();
-        int connectionIndex = 0;
-        connectionMap = new ArrayList<String>();
+        Map<String, Connection> connections = Connections.getInstance(this).getConnections();
+        connectionMap = new ArrayList<>();
 
         Iterator connectionIterator = connections.entrySet().iterator();
         while (connectionIterator.hasNext()) {
             Map.Entry pair = (Map.Entry) connectionIterator.next();
             drawerFragment.addConnection((Connection) pair.getValue());
             connectionMap.add((String) pair.getKey());
-            ++connectionIndex;
         }
 
         if (connectionMap.size() == 0) {
@@ -160,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         Map<String, Connection> connections = Connections.getInstance(this)
                 .getConnections();
 
-        Log.i(TAG, "Updating connection: " + connections.keySet().toString());
+        Timber.i("Updating connection: " + connections.keySet().toString());
 
         Connection connection = connections.get(model.getClientHandle());
         // First disconnect the current instance of this connection
@@ -200,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
      * @param model - The connection Model
      */
     public void persistAndConnect(ConnectionModel model) {
-        Log.i(TAG, "Persisting new connection:" + model.getClientHandle());
+        Timber.i("Persisting new connection:" + model.getClientHandle());
         Connection connection = Connection
                 .createConnection(model.getClientHandle(), model.getClientId(), model.getServerHostName(), model.getServerPort(), this, model
                         .isTlsConnection());

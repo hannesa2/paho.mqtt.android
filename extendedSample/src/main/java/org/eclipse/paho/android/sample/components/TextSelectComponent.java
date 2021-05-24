@@ -21,17 +21,16 @@ import org.eclipse.paho.android.sample.R;
 import java.util.ArrayList;
 
 import androidx.appcompat.app.AlertDialog;
+import timber.log.Timber;
 
 
 public class TextSelectComponent extends RelativeLayout {
-
-    private static final String TAG = "TextSelectComponent";
 
     private final TextView subLabel;
 
     private final String inputTitle;
     private final boolean numberInput;
-    private final ArrayList<ITextSelectCallback> registeredCallbacks = new ArrayList<ITextSelectCallback>();
+    private final ArrayList<ITextSelectCallback> registeredCallbacks = new ArrayList<>();
     private final Context context;
     private String setText;
 
@@ -66,14 +65,14 @@ public class TextSelectComponent extends RelativeLayout {
         promptText.setText(inputTitle);
         final EditText promptEditText = promptView.findViewById(R.id.edittext);
         if (this.numberInput) {
-            Log.i(TAG, "NUMBER INPUT");
+            Timber.i("NUMBER INPUT");
             promptEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
         } else {
-            Log.i(TAG, "NOT A NUMBER INPUT");
+            Timber.i("NOT A NUMBER INPUT");
             promptEditText.setInputType(InputType.TYPE_CLASS_TEXT);
         }
-        Log.i(TAG, "Setting text to: " + setText);
-        Log.i(TAG, "input Type: " + promptEditText.getInputType());
+        Timber.i("Setting text to: " + setText);
+        Timber.i("input Type: " + promptEditText.getInputType());
         promptEditText.setText(setText);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
