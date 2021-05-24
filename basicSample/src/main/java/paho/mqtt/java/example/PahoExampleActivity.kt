@@ -1,0 +1,131 @@
+package paho.mqtt.java.example
+
+import org.eclipse.paho.android.service.MqttAndroidClient
+import android.os.Bundle
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
+import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
+import timber.log.Timber
+import android.annotation.SuppressLint
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import com.google.android.material.snackbar.Snackbar
+import java.text.SimpleDateFormat
+import java.util.*
+
+class PahoExampleActivity : AppCompatActivity() {
+
+    private lateinit var mqttAndroidClient: MqttAndroidClient
+    private var adapter: HistoryAdapter? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_scrolling)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        val fab = findViewById<FloatingActionButton>(R.id.fab)
+        fab.setOnClickListener { publishMessage() }
+        val recyclerView = findViewById<RecyclerView>(R.id.history_recycler_view)
+        val mLayoutManager: LayoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = mLayoutManager
+        adapter = HistoryAdapter(ArrayList())
+        recyclerView.adapter = adapter
+        clientId += System.currentTimeMillis()
+        mqttAndroidClient = MqttAndroidClient(applicationContext, serverUri, clientId)
+        mqttAndroidClient.setCallback(object : MqttCallbackExtended {
+            override fun connectComplete(reconnect: Boolean, serverURI: String) {
+                if (reconnect) {
+                    addToHistory("Reconnected to : $serverURI")
+                    // Because Clean Session is true, we need to re-subscribe
+                    subscribeToTopic()
+                } else {
+                    addToHistory("Connected to: $serverURI")
+                }
+            }
+
+            override fun connectionLost(cause: Throwable) {
+                addToHistory("The Connection was lost.")
+            }
+
+            override fun messageArrived(topic: String, message: MqttMessage) {
+                addToHistory("Incoming message: " + String(message.payload))
+            }
+
+            override fun deliveryComplete(token: IMqttDeliveryToken) {}
+        })
+        val mqttConnectOptions = MqttConnectOptions()
+        mqttConnectOptions.isAutomaticReconnect = true
+        mqttConnectOptions.isCleanSession = false
+        addToHistory("Connecting to $serverUri")
+        mqttAndroidClient.connect(mqttConnectOptions, null, object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                val disconnectedBufferOptions = DisconnectedBufferOptions()
+                disconnectedBufferOptions.isBufferEnabled = true
+                disconnectedBufferOptions.bufferSize = 100
+                disconnectedBufferOptions.isPersistBuffer = false
+                disconnectedBufferOptions.isDeleteOldestMessages = false
+                mqttAndroidClient.setBufferOpts(disconnectedBufferOptions)
+                subscribeToTopic()
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                addToHistory("Failed to connect to: $serverUri")
+            }
+        })
+    }
+
+    private fun addToHistory(mainText: String) {
+        Timber.d(mainText)
+        @SuppressLint("SimpleDateFormat")
+        val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
+        adapter!!.add("$timestamp $mainText")
+        Snackbar.make(findViewById(android.R.id.content), mainText, Snackbar.LENGTH_LONG).setAction("Action", null).show()
+    }
+
+    fun subscribeToTopic() {
+        mqttAndroidClient.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                addToHistory("Subscribed!")
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                addToHistory("Failed to subscribe")
+            }
+        })
+
+        // THIS DOES NOT WORK!
+        mqttAndroidClient.subscribe(subscriptionTopic, 0) { topic, message -> Timber.d("Message arrived $topic : ${String(message.payload)}") }
+    }
+
+    private fun publishMessage() {
+        val message = MqttMessage()
+        message.payload = publishMessage.toByteArray()
+        if (mqttAndroidClient.isConnected) {
+            mqttAndroidClient.publish(publishTopic, message)
+            addToHistory("Message Published")
+            if (!mqttAndroidClient.isConnected) {
+                addToHistory(mqttAndroidClient.bufferedMessageCount.toString() + " messages in buffer.")
+            }
+        } else {
+            Snackbar.make(findViewById(android.R.id.content), "Not connected", Snackbar.LENGTH_SHORT).setAction("Action", null).show()
+        }
+    }
+
+    companion object {
+        private val serverUri = "tcp://mqtt.eclipseprojects.io:1883"
+        private val subscriptionTopic = "exampleAndroidTopic"
+        private val publishTopic = "exampleAndroidPublishTopic"
+        private val publishMessage = "Hello World!"
+        private var clientId = "ExampleAndroidClient"
+    }
+}
