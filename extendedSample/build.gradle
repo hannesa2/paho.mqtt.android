@@ -12,8 +12,6 @@ android {
         versionName getTag()
     }
 
-    useLibrary 'android.test.runner'
-    useLibrary 'android.test.base'
 }
 
 dependencies {
