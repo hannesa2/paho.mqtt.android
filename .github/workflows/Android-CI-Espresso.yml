@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         if: ${{ always() }}
         with:
-          name: Logcat-Screenshots
+          name: MQ-Example-Screenshots
           path: screenshots/adb
   Check:
     name: Check
