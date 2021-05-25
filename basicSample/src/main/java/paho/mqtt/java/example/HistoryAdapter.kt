@@ -23,12 +23,9 @@ class HistoryAdapter(private val history: ArrayList<String>) : RecyclerView.Adap
         holder.mTextView.text = history[position]
     }
 
-    override fun getItemCount(): Int {
-        return history.size
-    }
+    override fun getItemCount() = history.size
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var mTextView: TextView = view.findViewById(R.id.row_text)
-
     }
 }

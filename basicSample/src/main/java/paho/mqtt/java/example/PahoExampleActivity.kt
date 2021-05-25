@@ -24,7 +24,7 @@ import java.util.*
 class PahoExampleActivity : AppCompatActivity() {
 
     private lateinit var mqttAndroidClient: MqttAndroidClient
-    private var adapter: HistoryAdapter? = null
+    private lateinit var adapter: HistoryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +88,7 @@ class PahoExampleActivity : AppCompatActivity() {
         Timber.d(mainText)
         @SuppressLint("SimpleDateFormat")
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
-        adapter!!.add("$timestamp $mainText")
+        adapter.add("$timestamp $mainText")
         Snackbar.make(findViewById(android.R.id.content), mainText, Snackbar.LENGTH_LONG).setAction("Action", null).show()
     }
 
@@ -99,12 +99,15 @@ class PahoExampleActivity : AppCompatActivity() {
             }
 
             override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                addToHistory("Failed to subscribe")
+                addToHistory("Failed to subscribe $exception")
             }
         })
 
         // THIS DOES NOT WORK!
-        mqttAndroidClient.subscribe(subscriptionTopic, 0) { topic, message -> Timber.d("Message arrived $topic : ${String(message.payload)}") }
+        mqttAndroidClient.subscribe(subscriptionTopic, 0) { topic, message ->
+            Timber.d("Message arrived $topic : ${String(message.payload)}")
+            addToHistory("Message arrived $message")
+        }
     }
 
     private fun publishMessage() {
@@ -112,7 +115,7 @@ class PahoExampleActivity : AppCompatActivity() {
         message.payload = publishMessage.toByteArray()
         if (mqttAndroidClient.isConnected) {
             mqttAndroidClient.publish(publishTopic, message)
-            addToHistory("Message Published")
+            addToHistory("Message Published >$publishMessage<")
             if (!mqttAndroidClient.isConnected) {
                 addToHistory(mqttAndroidClient.bufferedMessageCount.toString() + " messages in buffer.")
             }
@@ -122,10 +125,10 @@ class PahoExampleActivity : AppCompatActivity() {
     }
 
     companion object {
-        private val serverUri = "tcp://mqtt.eclipseprojects.io:1883"
-        private val subscriptionTopic = "exampleAndroidTopic"
-        private val publishTopic = "exampleAndroidPublishTopic"
-        private val publishMessage = "Hello World!"
-        private var clientId = "ExampleAndroidClient"
+        private const val serverUri = "tcp://mqtt.eclipseprojects.io:1883"
+        private const val subscriptionTopic = "exampleAndroidTopic"
+        private const val publishTopic = "exampleAndroidPublishTopic"
+        private const val publishMessage = "Hello World"
+        private var clientId = "BasicSample"
     }
 }
