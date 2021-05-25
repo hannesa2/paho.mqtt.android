@@ -26,7 +26,7 @@ class ConnectTest {
     )
 
     @Test
-    fun basicLogcatTest() {
+    fun basicSmokeTest() {
         WaitingAssertion.checkAssertion(R.id.history_recycler_view, isDisplayed(), 1500)
         Screenshot.takeScreenshot("Step1")
         WaitingAssertion.assertRecyclerAdapterItemsCount(R.id.history_recycler_view, 3, MatchOperator.GREATER_EQUAL, 2500)
