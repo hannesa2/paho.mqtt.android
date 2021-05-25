@@ -12,17 +12,11 @@
  */
 package org.eclipse.paho.android.service
 
-import android.os.Binder
-
 /**
- * What the Service passes to the Activity on binding:-
- *
- *  * a reference to the Service
- *  * the activityToken provided when the Service was started
- *
+ * Enumeration representing the success or failure of an operation
  */
-internal class MqttServiceBinder(val service: MqttService) : Binder() {
-
-    var activityToken: String? = null
-
+internal enum class Status {
+    OK,
+    ERROR,
+    NO_RESULT
 }
