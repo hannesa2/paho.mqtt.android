@@ -1,15 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2015, 2016 IBM Corp.
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution.
- *
- * The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at
- * http://www.eclipse.org/org/documents/edl-v10.php.
- */
 package org.eclipse.paho.android
 
 import android.content.Context
@@ -24,11 +12,6 @@ internal class TestProperties(private val context: Context) {
 
     private val properties = Properties()
 
-    /**
-     * @param fileName
-     * @return stream
-     * @throws IOException
-     */
     @Throws(IOException::class)
     private fun getPropertyFileAsStream(fileName: String): InputStream? {
         var stream: InputStream? = null
@@ -40,53 +23,29 @@ internal class TestProperties(private val context: Context) {
         return stream
     }
 
-    /**
-     * @param key
-     * @return value
-     */
     private fun getProperty(key: String): String {
         return properties.getProperty(key)
     }
 
-    /**
-     * @param key
-     * @return value
-     */
     fun getBooleanProperty(key: String): Boolean {
         val value = getProperty(key)
         return java.lang.Boolean.parseBoolean(value)
     }
 
-    /**
-     * @param key
-     * @return value
-     */
     private fun getIntProperty(key: String): Int {
         val value = getProperty(key)
         return value.toInt()
     }
 
-    /**
-     * @return keystore file name
-     */
     val clientKeyStore: String
         get() = getProperty(KEY_CLIENT_KEY_STORE)
 
-    /**
-     * @return keystore file password
-     */
     val clientKeyStorePassword: String
         get() = getProperty(KEY_CLIENT_KEY_STORE_PASSWORD)
 
-    /**
-     * @return the SSL url of the server for testing
-     */
     val serverSSLURI: String
         get() = getProperty(KEY_SERVER_SSL_URI)
 
-    /**
-     * @return the server url for testing
-     */
     val serverURI: String
         get() = getProperty(KEY_SERVER_URI)
     val waitForCompletionTime: Int
