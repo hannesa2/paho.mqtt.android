@@ -1,11 +1,11 @@
 package org.eclipse.paho.android
 
 import android.test.ServiceTestCase
+import android.test.suitebuilder.annotation.Suppress
 import org.eclipse.paho.android.service.MqttService
 import kotlin.Throws
 import java.lang.Exception
 import android.content.Intent
-import android.test.suitebuilder.annotation.Suppress
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.IMqttToken
@@ -416,7 +416,6 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
      * @throws Exception
      */
     @Suppress
-    @Throws(Exception::class)
     fun testSSLConnect() {
         var mqttClient: MqttAndroidClient? = null
         try {
@@ -442,7 +441,6 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
      * An SSL connection with server cert authentication, simple pub/sub of an message
      */
     @Suppress
-    @Throws(Exception::class)
     fun testSSLPubSub() {
         var mqttClient: MqttAndroidClient? = null
         val connectToken: IMqttToken?
