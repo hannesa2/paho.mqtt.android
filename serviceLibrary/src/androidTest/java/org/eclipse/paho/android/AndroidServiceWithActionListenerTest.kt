@@ -26,6 +26,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
 
     //since we know tokens do not work when an action listener isn't specified
     private var notifier = TestCaseNotifier()
+
     @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
@@ -42,7 +43,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
 
     @Throws(Throwable::class)
     fun testConnect() {
-        var mqttClient: IMqttAsyncClient? = null
+        val mqttClient: IMqttAsyncClient?
         mqttClient = MqttAndroidClient(mContext, serverURI!!, "testConnect")
         mqttClient.connect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
@@ -57,7 +58,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
     @Throws(Throwable::class)
     fun testRemoteConnect() {
         val methodName = "testRemoteConnect"
-        var mqttClient: IMqttAsyncClient? = null
+        val mqttClient: IMqttAsyncClient?
         mqttClient = MqttAndroidClient(mContext, serverURI!!, "testRemoteConnect")
         mqttClient.connect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
@@ -184,7 +185,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
     private fun testNonDurableSubs() {
         val methodName = "testNonDurableSubs"
         notifier = TestCaseNotifier()
-        var mqttClient: IMqttAsyncClient? = null
+        var mqttClient: IMqttAsyncClient?
         val connectToken: IMqttToken
         mqttClient = MqttAndroidClient(mContext, serverURI!!, "testNonDurableSubs")
         var mqttV3Receiver = MqttV3Receiver(mqttClient, null)
