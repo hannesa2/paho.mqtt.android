@@ -15,14 +15,16 @@ jobs:
           java-version: 11
       - name: Run tests
         run: ./gradlew test
+      - name: Install Android SDK
+        uses: malinskiy/action-android/install-sdk@release/0.1.2
       - name: Android Emulator test
-        uses: ReactiveCircus/android-emulator-runner@v2.16.0
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.2
         with:
-          api-level: 28
-          disable-animations: true
-          arch: x86_64
-          profile: Nexus 6
-          script: ./gradlew cAT
+          cmd: ./gradlew cAT --continue
+          api: 28
+          tag: default
+          abi: x86
+          cmdOptions: -noaudio -no-boot-anim -no-window
       - uses: actions/upload-artifact@v2.2.3
         if: ${{ always() }}
         with:
