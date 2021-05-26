@@ -22,7 +22,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
     private var serverURI: String? = null
     private var mqttSSLServerURI: String? = null
     private var waitForCompletionTime = 0
-    private var keyStorePwd: String? = null
+    private var keyStorePwd = ""
 
     //since we know tokens do not work when an action listener isn't specified
     private var notifier = TestCaseNotifier()
