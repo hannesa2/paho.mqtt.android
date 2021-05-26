@@ -13,6 +13,10 @@ android {
         buildConfigField "String", 'VERSION_NAME', "\"" + getTag() + "\""
 
         testApplicationId "org.eclipse.paho.android.service.test"
+
+        packagingOptions {
+            pickFirst 'META-INF/serviceLibrary_debug.kotlin_module'
+        }
     }
 
     useLibrary 'android.test.runner'
