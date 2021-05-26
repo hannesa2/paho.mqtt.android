@@ -21,7 +21,8 @@ class AndroidServiceTest : AndroidTestCase() {
     private var mqttServerURI: String? = null
     private var mqttSSLServerURI: String? = null
     private var waitForCompletionTime = 0
-    private var keyStorePwd: String? = null
+    private lateinit var keyStorePwd: String
+
     @Throws(Exception::class)
     public override fun setUp() {
         super.setUp()
@@ -29,7 +30,6 @@ class AndroidServiceTest : AndroidTestCase() {
         mqttServerURI = properties.serverURI
         mqttSSLServerURI = properties.serverSSLURI
         waitForCompletionTime = properties.waitForCompletionTime
-        val clientKeyStore = properties.clientKeyStore
         keyStorePwd = properties.clientKeyStorePassword
         Timber.d(properties.serverSSLURI)
     }

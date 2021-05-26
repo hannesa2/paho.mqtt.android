@@ -64,8 +64,6 @@ internal interface MqttServiceConstants {
         const val CALLBACK_SERVER_URI = ".serverURI"
         const val CALLBACK_MESSAGE_PARCEL = ".PARCEL"
         const val CALLBACK_TRACE_SEVERITY = ".traceSeverity"
-        const val CALLBACK_TRACE_TAG = ".traceTag"
-        const val CALLBACK_TRACE_ID = ".traceId"
         const val CALLBACK_ERROR_NUMBER = ".ERROR_NUMBER"
         const val CALLBACK_EXCEPTION = ".exception"
 
