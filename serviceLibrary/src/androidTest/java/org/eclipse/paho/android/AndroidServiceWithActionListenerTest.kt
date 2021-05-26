@@ -31,7 +31,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         super.setUp()
         val intent = Intent()
         intent.setClassName("org.eclipse.paho.android.service", "MqttService")
-        val binder = bindService(intent)
+        bindService(intent)
         val properties = TestProperties(this.context)
         serverURI = properties.serverURI
         mqttSSLServerURI = properties.serverSSLURI
@@ -44,15 +44,13 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
     fun testConnect() {
         var mqttClient: IMqttAsyncClient? = null
         mqttClient = MqttAndroidClient(mContext, serverURI!!, "testConnect")
-        var connectToken: IMqttToken? = null
-        var disconnectToken: IMqttToken? = null
-        connectToken = mqttClient.connect(null, ActionListener(notifier))
+        mqttClient.connect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
-        disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+        mqttClient.disconnect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
-        connectToken = mqttClient.connect(null, ActionListener(notifier))
+        mqttClient.connect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
-        disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+        mqttClient.disconnect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
     }
 
@@ -61,32 +59,28 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         val methodName = "testRemoteConnect"
         var mqttClient: IMqttAsyncClient? = null
         mqttClient = MqttAndroidClient(mContext, serverURI!!, "testRemoteConnect")
-        var connectToken: IMqttToken? = null
-        var subToken: IMqttToken? = null
-        var pubToken: IMqttDeliveryToken? = null
-        var disconnectToken: IMqttToken? = null
-        connectToken = mqttClient.connect(null, ActionListener(notifier))
+        mqttClient.connect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
-        disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+        mqttClient.disconnect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
         val mqttV3Receiver = MqttV3Receiver(mqttClient, null)
         mqttClient.setCallback(mqttV3Receiver)
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isCleanSession = false
-        connectToken = mqttClient.connect(mqttConnectOptions, null, ActionListener(notifier))
+        mqttClient.connect(mqttConnectOptions, null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
         val topicNames = arrayOf("$methodName/Topic")
         val topicQos = intArrayOf(0)
-        subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+        mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
         val payload = "Message payload $classCanonicalName.$methodName".toByteArray()
-        pubToken = mqttClient.publish(topicNames[0], payload, 1, false, null, ActionListener(notifier))
+        mqttClient.publish(topicNames[0], payload, 1, false, null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
         val ok = mqttV3Receiver.validateReceipt(topicNames[0], 0, payload)
         if (!ok) {
             fail("Receive failed")
         }
-        disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+        mqttClient.disconnect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
     }
 
@@ -97,26 +91,22 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         var mqttClient: IMqttAsyncClient? = null
         try {
             mqttClient = MqttAndroidClient(mContext, serverURI!!, "testLargeMessage")
-            val connectToken: IMqttToken
-            var subToken: IMqttToken?
-            val unsubToken: IMqttToken
-            val pubToken: IMqttDeliveryToken
             val mqttV3Receiver = MqttV3Receiver(mqttClient, null) //TODO do something about this?
             mqttClient.setCallback(mqttV3Receiver)
-            connectToken = mqttClient.connect(null, ActionListener(notifier))
+            mqttClient.connect(null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             val largeSize = 1000
             val topicNames = arrayOf("testLargeMessage" + "/Topic")
             val topicQos = intArrayOf(0)
             val message = ByteArray(largeSize)
             Arrays.fill(message, 's'.toByte())
-            subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+            mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
-            unsubToken = mqttClient.unsubscribe(topicNames, null, ActionListener(notifier))
+            mqttClient.unsubscribe(topicNames, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
-            subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+            mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
-            pubToken = mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener(notifier))
+            mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             val ok = mqttV3Receiver.validateReceipt(topicNames[0], 0, message)
             if (!ok) {
@@ -129,8 +119,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
             )
         } finally {
             try {
-                val disconnectToken: IMqttToken
-                disconnectToken = mqttClient!!.disconnect(null, ActionListener(notifier))
+                mqttClient!!.disconnect(null, ActionListener(notifier))
                 notifier.waitForCompletion(waitForCompletionTime.toLong())
                 mqttClient.close()
             } catch (ignored: Exception) {
@@ -145,15 +134,12 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         val methodName = "testMultipleClients"
         val mqttPublisher = arrayOfNulls<IMqttAsyncClient>(publishers)
         val mqttSubscriber = arrayOfNulls<IMqttAsyncClient>(subscribers)
-        var connectToken: IMqttToken?
-        var subToken: IMqttToken?
-        var pubToken: IMqttDeliveryToken
         var disconnectToken: IMqttToken
         val topicNames = arrayOf("$methodName/Topic")
         val topicQos = intArrayOf(0)
         for (i in mqttPublisher.indices) {
             mqttPublisher[i] = MqttAndroidClient(mContext, serverURI!!, "MultiPub$i")
-            connectToken = mqttPublisher[i]!!.connect(null, ActionListener(notifier))
+            mqttPublisher[i]!!.connect(null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
         } // for...
         val mqttV3Receiver = arrayOfNulls<MqttV3Receiver>(mqttSubscriber.size)
@@ -161,15 +147,15 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
             mqttSubscriber[i] = MqttAndroidClient(mContext, serverURI!!, "MultiSubscriber$i")
             mqttV3Receiver[i] = MqttV3Receiver(mqttSubscriber[i], null)
             mqttSubscriber[i]!!.setCallback(mqttV3Receiver[i])
-            connectToken = mqttSubscriber[i]!!.connect(null, ActionListener(notifier))
+            mqttSubscriber[i]!!.connect(null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
-            subToken = mqttSubscriber[i]!!.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+            mqttSubscriber[i]!!.subscribe(topicNames, topicQos, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
         } // for...
         for (iMessage in 0..1) {
             val payload = "Message $iMessage".toByteArray()
             for (aMqttPublisher in mqttPublisher) {
-                pubToken = aMqttPublisher!!.publish(topicNames[0], payload, 0, false, null, ActionListener(notifier))
+                aMqttPublisher!!.publish(topicNames[0], payload, 0, false, null, ActionListener(notifier))
                 notifier.waitForCompletion(waitForCompletionTime.toLong())
             }
             TimeUnit.MILLISECONDS.sleep(8888)
@@ -179,9 +165,9 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
                     if (!ok) {
                         fail("Receive failed")
                     }
-                } // for publishers...
-            } // for subscribers...
-        } // for messages...
+                }
+            }
+        }
         for (aMqttPublisher in mqttPublisher) {
             disconnectToken = aMqttPublisher!!.disconnect(null, null)
             disconnectToken.waitForCompletion(waitForCompletionTime.toLong())
@@ -199,26 +185,21 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         val methodName = "testNonDurableSubs"
         notifier = TestCaseNotifier()
         var mqttClient: IMqttAsyncClient? = null
-        var connectToken: IMqttToken
-        var subToken: IMqttToken?
-        val unsubToken: IMqttToken
-        var pubToken: IMqttDeliveryToken?
-        var disconnectToken: IMqttToken?
+        val connectToken: IMqttToken
         mqttClient = MqttAndroidClient(mContext, serverURI!!, "testNonDurableSubs")
         var mqttV3Receiver = MqttV3Receiver(mqttClient, null)
         mqttClient.setCallback(mqttV3Receiver)
         var mqttConnectOptions = MqttConnectOptions()
-        // Clean session true is the default and implies non durable
-        // subscriptions.
+        // Clean session true is the default and implies non durable subscriptions.
         mqttConnectOptions.isCleanSession = true
-        connectToken = mqttClient.connect(mqttConnectOptions, null, ActionListener(notifier))
+        mqttClient.connect(mqttConnectOptions, null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         val topicNames = arrayOf("$methodName/Topic")
         val topicQos = intArrayOf(2)
-        subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+        mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         val payloadNotRetained = "Message payload $classCanonicalName.$methodName not retained".toByteArray()
-        pubToken = mqttClient.publish(topicNames[0], payloadNotRetained, 2, false, null, ActionListener(notifier))
+        mqttClient.publish(topicNames[0], payloadNotRetained, 2, false, null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         var ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadNotRetained)
         if (!ok) {
@@ -228,7 +209,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         // Retained publications.
         // ----------------------
         val payloadRetained = "Message payload $classCanonicalName.$methodName retained".toByteArray()
-        pubToken = mqttClient.publish(topicNames[0], payloadRetained, 2, true, null, ActionListener(notifier))
+        mqttClient.publish(topicNames[0], payloadRetained, 2, true, null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadRetained)
         if (!ok) {
@@ -236,9 +217,9 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         }
 
         // Check that unsubscribe and re subscribe resends the publication.
-        unsubToken = mqttClient.unsubscribe(topicNames, null, ActionListener(notifier))
+        mqttClient.unsubscribe(topicNames, null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
-        subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+        mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadRetained)
         if (!ok) {
@@ -247,7 +228,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
 
         // Check that subscribe without unsubscribe receives the
         // publication.
-        subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+        mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         ok = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadRetained)
         if (!ok) {
@@ -256,7 +237,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
 
         // Disconnect, reconnect and check that the retained publication is
         // still delivered.
-        disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+        mqttClient.disconnect(null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         mqttClient.close()
         mqttClient = MqttAndroidClient(mContext, serverURI!!, "testNonDurableSubs")
@@ -266,7 +247,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         mqttConnectOptions.isCleanSession = true
         connectToken = mqttClient.connect(mqttConnectOptions, null, ActionListener(notifier))
         connectToken.waitForCompletion(1000)
-        subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+        mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         ok = mqttV3Receiver.validateReceipt(
             topicNames[0], 2,
@@ -275,7 +256,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         if (!ok) {
             fail("Receive failed")
         }
-        disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+        mqttClient.disconnect(null, ActionListener(notifier))
         notifier.waitForCompletion(1000)
         mqttClient.close()
     }
@@ -284,24 +265,20 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
     @Throws(Throwable::class)
     fun testQoSPreserved() {
         val mqttClient: IMqttAsyncClient
-        val connectToken: IMqttToken
-        val subToken: IMqttToken
-        var pubToken: IMqttDeliveryToken?
-        val disconnectToken: IMqttToken
         val methodName = "testQoSPreserved"
         mqttClient = MqttAndroidClient(mContext, serverURI!!, "testQoSPreserved")
         val mqttV3Receiver = MqttV3Receiver(mqttClient, null)
         mqttClient.setCallback(mqttV3Receiver)
-        connectToken = mqttClient.connect(null, ActionListener(notifier))
+        mqttClient.connect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
         val topicNames = arrayOf("$methodName/Topic0", "$methodName/Topic1", "$methodName/Topic2")
         val topicQos = intArrayOf(0, 1, 2)
-        subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+        mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
         for (i in topicNames.indices) {
             val message = ("Message payload " + classCanonicalName + "." + methodName + " " + topicNames[i]).toByteArray()
             for (iQos in 0..2) {
-                pubToken = mqttClient.publish(topicNames[i], message, iQos, false, null, null)
+                mqttClient.publish(topicNames[i], message, iQos, false, null, null)
                 notifier.waitForCompletion(waitForCompletionTime.toLong())
                 val ok = mqttV3Receiver.validateReceipt(
                     topicNames[i],
@@ -312,7 +289,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
                 }
             }
         }
-        disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+        mqttClient.disconnect(null, ActionListener(notifier))
         notifier.waitForCompletion(waitForCompletionTime.toLong())
     }
 
@@ -328,10 +305,10 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
                 val options = MqttConnectOptions()
                 options.serverURIs = urls
                 Log.i(methodName, "HA connect")
-                val connectToken = client.connect(options, null, ActionListener(notifier))
+                client.connect(options, null, ActionListener(notifier))
                 notifier.waitForCompletion(waitForCompletionTime.toLong())
                 Log.i(methodName, "HA disconnect")
-                val disconnectToken = client.disconnect(null, ActionListener(notifier))
+                client.disconnect(null, ActionListener(notifier))
                 notifier.waitForCompletion(waitForCompletionTime.toLong())
                 Log.i(methodName, "HA success")
             } catch (e: Exception) {
@@ -349,20 +326,17 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
         var mqttClient: IMqttAsyncClient? = null
         try {
             mqttClient = MqttAndroidClient(mContext, serverURI!!, methodName)
-            val connectToken: IMqttToken
-            val subToken: IMqttToken
-            val pubToken: IMqttDeliveryToken
             val mqttV3Receiver = MqttV3Receiver(mqttClient, null)
             mqttClient.setCallback(mqttV3Receiver)
-            connectToken = mqttClient.connect(null, ActionListener(notifier))
+            mqttClient.connect(null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             val topicNames = arrayOf("testPubSub" + "/Topic")
             val topicQos = intArrayOf(0)
             val mqttMessage = MqttMessage("message for testPubSub".toByteArray())
             val message = mqttMessage.payload
-            subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+            mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
-            pubToken = mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener(notifier))
+            mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             TimeUnit.MILLISECONDS.sleep(3000)
             val ok = mqttV3Receiver.validateReceipt(topicNames[0], 0, message)
@@ -370,14 +344,10 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
                 fail("Receive failed")
             }
         } catch (exception: Exception) {
-            fail(
-                "Failed to instantiate:" + methodName + " exception="
-                        + exception
-            )
+            fail("Failed to instantiate:$methodName exception=$exception")
         } finally {
             try {
-                val disconnectToken: IMqttToken
-                disconnectToken = mqttClient!!.disconnect(null, ActionListener(notifier))
+                mqttClient!!.disconnect(null, ActionListener(notifier))
                 notifier.waitForCompletion(waitForCompletionTime.toLong())
                 mqttClient.close()
             } catch (ignored: Exception) {
@@ -388,25 +358,21 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
     @Throws(Throwable::class)
     fun testRetainedMessage() {
         val methodName = "testRetainedMessage"
-        var mqttClient: IMqttAsyncClient? = null
-        var mqttClientRetained: IMqttAsyncClient? = null
-        var disconnectToken: IMqttToken? = null
+        val mqttClient: IMqttAsyncClient?
+        val mqttClientRetained: IMqttAsyncClient?
         try {
             mqttClient = MqttAndroidClient(mContext, serverURI!!, methodName)
-            var connectToken: IMqttToken?
-            var subToken: IMqttToken?
-            val pubToken: IMqttDeliveryToken
             val mqttV3Receiver = MqttV3Receiver(mqttClient, null)
             mqttClient.setCallback(mqttV3Receiver)
-            connectToken = mqttClient.connect(null, ActionListener(notifier))
+            mqttClient.connect(null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             val topicNames = arrayOf("testRetainedMessage" + "/Topic")
             val topicQos = intArrayOf(0)
             val mqttMessage = MqttMessage("message for testPubSub".toByteArray())
             val message = mqttMessage.payload
-            subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+            mqttClient.subscribe(topicNames, topicQos, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
-            pubToken = mqttClient.publish(topicNames[0], message, 0, true, null, ActionListener(notifier))
+            mqttClient.publish(topicNames[0], message, 0, true, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             TimeUnit.MILLISECONDS.sleep(3000)
             var ok = mqttV3Receiver.validateReceipt(topicNames[0], 0, message)
@@ -414,7 +380,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
                 fail("Receive failed")
             }
             Log.i(methodName, "First client received message successfully")
-            disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+            mqttClient.disconnect(null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             mqttClient.close()
             mqttClientRetained = MqttAndroidClient(mContext, serverURI!!, "Retained")
@@ -422,10 +388,10 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
             val mqttV3ReceiverRetained = MqttV3Receiver(mqttClientRetained, null)
             mqttClientRetained.setCallback(mqttV3ReceiverRetained)
             Log.i(methodName, "Assigning callback...")
-            connectToken = mqttClientRetained.connect(null, ActionListener(notifier))
+            mqttClientRetained.connect(null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             Log.i(methodName, "Connect to mqtt server")
-            subToken = mqttClientRetained.subscribe(topicNames, topicQos, null, ActionListener(notifier))
+            mqttClientRetained.subscribe(topicNames, topicQos, null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             Log.i(methodName, "subscribe " + topicNames[0] + " QoS is " + topicQos[0])
             TimeUnit.MILLISECONDS.sleep(3000)
@@ -434,7 +400,7 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
                 fail("Receive retained message failed")
             }
             Log.i(methodName, "Second client received message successfully")
-            disconnectToken = mqttClientRetained.disconnect(null, ActionListener(notifier))
+            mqttClientRetained.disconnect(null, ActionListener(notifier))
             notifier.waitForCompletion(waitForCompletionTime.toLong())
             mqttClientRetained.close()
         } catch (exception: Exception) {
@@ -456,11 +422,9 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
             mqttClient = MqttAndroidClient(mContext, mqttSSLServerURI!!, "testSSLConnect")
             val options = MqttConnectOptions()
             options.socketFactory = mqttClient.getSSLSocketFactory(this.context.assets.open("test.bks"), keyStorePwd)
-            var connectToken: IMqttToken
-            var disconnectToken: IMqttToken
-            connectToken = mqttClient.connect(options, this.context, ActionListener(notifier))
+            var connectToken: IMqttToken = mqttClient.connect(options, this.context, ActionListener(notifier))
             connectToken.waitForCompletion(waitForCompletionTime.toLong())
-            disconnectToken = mqttClient.disconnect(null, ActionListener(notifier))
+            var disconnectToken: IMqttToken = mqttClient.disconnect(null, ActionListener(notifier))
             disconnectToken.waitForCompletion(waitForCompletionTime.toLong())
             connectToken = mqttClient.connect(options, this.context, ActionListener(notifier))
             connectToken.waitForCompletion(waitForCompletionTime.toLong())
@@ -480,10 +444,10 @@ class AndroidServiceWithActionListenerTest : ServiceTestCase<MqttService>(MqttSe
     @Throws(Exception::class)
     fun testSSLPubSub() {
         var mqttClient: MqttAndroidClient? = null
-        var connectToken: IMqttToken? = null
-        var disconnectToken: IMqttToken? = null
-        var subToken: IMqttToken? = null
-        var pubToken: IMqttDeliveryToken? = null
+        val connectToken: IMqttToken?
+        val disconnectToken: IMqttToken?
+        val subToken: IMqttToken?
+        val pubToken: IMqttDeliveryToken?
         try {
             mqttClient = MqttAndroidClient(mContext, mqttSSLServerURI!!, "testSSLPubSub")
             val options = MqttConnectOptions()
