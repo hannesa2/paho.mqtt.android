@@ -243,7 +243,7 @@ public class MqttService extends Service implements MqttTraceHandler {
     private NetworkConnectionIntentReceiver networkConnectionMonitor;
     private volatile boolean backgroundDataEnabled = true;
     // a way to pass ourself back to the activity
-    private MqttServiceBinder mqttServiceBinder;
+    public MqttServiceBinder mqttServiceBinder;
 
     public MqttService() {
         super();
