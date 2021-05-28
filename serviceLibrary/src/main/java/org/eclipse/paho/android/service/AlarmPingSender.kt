@@ -40,6 +40,13 @@ internal class AlarmPingSender(service: MqttService?) : MqttPingSender {
 
     @Volatile
     private var hasStarted = false
+
+    init {
+        requireNotNull(service) { "Neither service nor client can be null." }
+        this.service = service
+        that = this
+    }
+
     override fun init(comms: ClientComms) {
         this.comms = comms
         alarmReceiver = AlarmReceiver()
@@ -144,8 +151,8 @@ internal class AlarmPingSender(service: MqttService?) : MqttPingSender {
             val pm = service.getSystemService(Service.POWER_SERVICE) as PowerManager
             val wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag)
             wakelock.acquire(10 * 60 * 1000L /*10 minutes*/)
-            if (pingRunner != null) {
-                if (pingRunner!!.cancel(true)) {
+            pingRunner?.let {
+                if (it.cancel(true)) {
                     Timber.d("Previous ping async task was cancelled at:${System.currentTimeMillis()}")
                 }
             }
@@ -157,9 +164,4 @@ internal class AlarmPingSender(service: MqttService?) : MqttPingSender {
         }
     }
 
-    init {
-        requireNotNull(service) { "Neither service nor client can be null." }
-        this.service = service
-        that = this
-    }
 }
