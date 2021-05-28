@@ -43,21 +43,20 @@ class MqttReceiver(mqttClient: IMqttAsyncClient) : MqttCallback {
         val waitMilliseconds: Long = 10000
         val receivedMessage = receiveNext(waitMilliseconds)
             ?: return ValidateResult(false, "No message received in waitMilliseconds=$waitMilliseconds")
-        if (sendTopic != receivedMessage.topic) {
-            return ValidateResult(false, " Received invalid topic sent=" + sendTopic + " received topic=" + receivedMessage.topic)
-        }
-        if (expectedQos != receivedMessage.message.qos) {
-            return ValidateResult(false, "expectedQos=" + expectedQos + " != Received Qos=" + receivedMessage.message.qos)
-        }
-        if (!Arrays.equals(sentBytes, receivedMessage.message.payload)) {
-            return ValidateResult(
+
+        return if (sendTopic != receivedMessage.topic) {
+            ValidateResult(false, " Received invalid topic sent=" + sendTopic + " received topic=" + receivedMessage.topic)
+        } else if (expectedQos != receivedMessage.message.qos) {
+            ValidateResult(false, "expectedQos=" + expectedQos + " != Received Qos=" + receivedMessage.message.qos)
+        } else if (!Arrays.equals(sentBytes, receivedMessage.message.payload)) {
+            ValidateResult(
                 false,
                 "Sent    :${String(sentBytes!!)}\n" +
                         "Received:${String(receivedMessage.message.payload)}\n\n" +
                         "Received invalid payload !\n"
             )
-        }
-        return ValidateResult(true, "")
+        } else
+            ValidateResult(true, "")
     }
 
     /**
