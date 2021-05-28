@@ -5,7 +5,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId 'org.eclipse.paho.android.sample'
+        applicationId 'info.mqtt.android.extsample'
         minSdkVersion 21
         targetSdkVersion 30
         versionCode getGitCommitCount()

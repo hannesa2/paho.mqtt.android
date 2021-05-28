@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="org.eclipse.paho.android.sample.activity.HomeFragment">
+    tools:context="info.mqtt.android.extsample.activity.HomeFragment">
 
 
     <TextView

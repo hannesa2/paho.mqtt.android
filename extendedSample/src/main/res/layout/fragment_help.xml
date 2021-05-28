@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="org.eclipse.paho.android.sample.activity.HelpFragment">
+    tools:context="info.mqtt.android.extsample.activity.HelpFragment">
 
     <Button
         android:id="@+id/websiteButton"

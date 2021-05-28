@@ -12,7 +12,7 @@ android {
         // Android Studio 4.1 doesn't generate versionName in libraries any more
         buildConfigField "String", 'VERSION_NAME', "\"" + getTag() + "\""
 
-        testApplicationId "org.eclipse.paho.android.service.test"
+        testApplicationId "info.mgtt.android.service.test"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         packagingOptions {

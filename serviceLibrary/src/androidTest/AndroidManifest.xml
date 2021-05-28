@@ -1,4 +1,4 @@
-<manifest package="org.eclipse.paho.android.service.test"
+<manifest package="info.mqtt.android.service.test"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Permissions the Application Requires -->
@@ -10,7 +10,7 @@
 
     <application>
         <!-- Mqtt Service -->
-        <service android:name="org.eclipse.paho.android.service.MqttService">
+        <service android:name="info.mqtt.android.service.MqttService">
         </service>
 
     </application>
