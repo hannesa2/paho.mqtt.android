@@ -18,12 +18,6 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage;
 
-/**
- * <p>
- * Implementation of the IMqttToken interface for use from within the
- * MqttAndroidClient implementation
- */
-
 class MqttTokenAndroid implements IMqttToken {
 
     private IMqttActionListener listener;
