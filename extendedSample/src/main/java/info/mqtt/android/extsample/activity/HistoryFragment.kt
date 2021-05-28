@@ -11,6 +11,7 @@ import android.widget.ListView
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.internal.IReceivedMessageListener
 import info.mqtt.android.extsample.model.ReceivedMessage
 import timber.log.Timber
 
@@ -27,11 +28,13 @@ class HistoryFragment : Fragment() {
         Timber.d("History Fragment: ${connection?.id}")
         setHasOptionsMenu(true)
         messages = connection?.messages
-        connection?.addReceivedMessageListner { message ->
-            Timber.d("GOT A MESSAGE in history ${String(message.message.payload)}")
-            Timber.d("M: ${messages?.size}")
-            messageListAdapter!!.notifyDataSetChanged()
-        }
+        connection?.addReceivedMessageListener(object : IReceivedMessageListener {
+            override fun onMessageReceived(message: ReceivedMessage?) {
+                Timber.d("GOT A MESSAGE in history ${String(message?.message?.payload!!)}")
+                Timber.d("M: ${messages?.size}")
+                messageListAdapter!!.notifyDataSetChanged()
+            }
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
