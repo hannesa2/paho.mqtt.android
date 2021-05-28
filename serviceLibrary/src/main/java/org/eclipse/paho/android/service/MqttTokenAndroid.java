@@ -26,13 +26,13 @@ class MqttTokenAndroid implements IMqttToken {
 
     private volatile MqttException lastException;
 
-    private Object waitObject = new Object();
+    private final Object waitObject = new Object();
 
-    private MqttAndroidClient client;
+    private final MqttAndroidClient client;
 
     private Object userContext;
 
-    private String[] topics;
+    private final String[] topics;
 
     private IMqttToken delegate; // specifically for getMessageId
 
