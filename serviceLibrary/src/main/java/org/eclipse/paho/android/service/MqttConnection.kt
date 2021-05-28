@@ -224,9 +224,9 @@ internal class MqttConnection(
      */
     private fun deliverBacklog() {
         val backlog = service.messageStore.getAllArrivedMessages(clientHandle)
-        while (backlog!!.hasNext()) {
+        while (backlog.hasNext()) {
             val msgArrived = backlog.next()
-            val resultBundle = messageToBundle(msgArrived!!.messageId, msgArrived.topic, msgArrived.message)
+            val resultBundle = messageToBundle(msgArrived.messageId, msgArrived.topic, msgArrived.message)
             resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.MESSAGE_ARRIVED_ACTION)
             service.callbackToActivity(clientHandle, Status.OK, resultBundle)
         }
@@ -241,7 +241,7 @@ internal class MqttConnection(
      * @param message   the message itself
      * @return the bundle
      */
-    private fun messageToBundle(messageId: String?, topic: String?, message: MqttMessage?): Bundle {
+    private fun messageToBundle(messageId: String?, topic: String?, message: MqttMessage): Bundle {
         val result = Bundle()
         result.putString(MqttServiceConstants.CALLBACK_MESSAGE_ID, messageId)
         result.putString(MqttServiceConstants.CALLBACK_DESTINATION_NAME, topic)

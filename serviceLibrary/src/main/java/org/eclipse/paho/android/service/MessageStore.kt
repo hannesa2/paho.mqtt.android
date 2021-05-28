@@ -56,7 +56,7 @@ internal interface MessageStore {
      * @param clientHandle identifier for the client - if null, then messages for all
      * clients are returned
      */
-    fun getAllArrivedMessages(clientHandle: String?): Iterator<StoredMessage?>?
+    fun getAllArrivedMessages(clientHandle: String): Iterator<StoredMessage>
 
     /**
      * Discard stored messages, usually for a specific client
@@ -64,31 +64,7 @@ internal interface MessageStore {
      * @param clientHandle identifier for the client - if null, then messages for all
      * clients are discarded
      */
-    fun clearArrivedMessages(clientHandle: String?)
+    fun clearArrivedMessages(clientHandle: String)
     fun close()
 
-    /**
-     * External representation of a stored message
-     */
-    interface StoredMessage {
-        /**
-         * @return the identifier for the message within the store
-         */
-        val messageId: String?
-
-        /**
-         * @return the identifier of the client which stored this message
-         */
-        val clientHandle: String?
-
-        /**
-         * @return the topic on which the message was received
-         */
-        val topic: String?
-
-        /**
-         * @return the identifier of the client which stored this message
-         */
-        val message: MqttMessage?
-    }
 }
