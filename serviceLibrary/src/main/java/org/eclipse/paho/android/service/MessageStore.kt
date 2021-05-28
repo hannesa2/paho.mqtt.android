@@ -30,7 +30,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
  * used.
  *
  */
-internal interface MessageStore {
+interface MessageStore {
     /**
      * Store a message and return an identifier for it
      *
