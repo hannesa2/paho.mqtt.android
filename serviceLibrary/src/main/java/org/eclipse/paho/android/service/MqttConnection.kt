@@ -67,7 +67,7 @@ internal class MqttConnection(
     private val savedActivityTokens: MutableMap<IMqttDeliveryToken?, String> = HashMap()
     private val savedInvocationContexts: MutableMap<IMqttDeliveryToken?, String> = HashMap()
     private val wakeLockTag = javaClass.simpleName + " " + clientId + " " + "on host " + serverURI
-    var connectOptions: MqttConnectOptions? = null
+    private var connectOptions: MqttConnectOptions? = null
 
     //store connect ActivityToken for reconnect
     private var reconnectActivityToken: String? = null
@@ -424,7 +424,7 @@ internal class MqttConnection(
     /**
      * Subscribe to a topic
      *
-     * @param topic             a possibly wildcarded topic name
+     * @param topic             a possibly wildcard topic name
      * @param qos               requested quality of service for the topic
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
@@ -452,14 +452,14 @@ internal class MqttConnection(
     /**
      * Subscribe to one or more topics
      *
-     * @param topic             a list of possibly wildcarded topic names
+     * @param topic             a list of possibly wildcard topic names
      * @param qos               requested quality of service for each topic
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun subscribe(topic: Array<String?>?, qos: IntArray?, invocationContext: String?, activityToken: String) {
+    fun subscribe(topic: Array<String>, qos: IntArray?, invocationContext: String?, activityToken: String) {
         service.traceDebug(
-            "subscribe({" + Arrays.toString(topic) + "}," + Arrays
+            "subscribe({" + topic.contentToString() + "}," + Arrays
                 .toString(qos) + ",{" + invocationContext + "}, {" + activityToken + "}"
         )
         val resultBundle = Bundle()
@@ -481,14 +481,14 @@ internal class MqttConnection(
     }
 
     fun subscribe(
-        topicFilters: Array<String?>?,
-        qos: IntArray?,
+        topicFilters: Array<String>,
+        qos: IntArray,
         invocationContext: String?,
         activityToken: String,
-        messageListeners: Array<IMqttMessageListener?>?
+        messageListeners: Array<IMqttMessageListener>?
     ) {
         service.traceDebug(
-            "subscribe({" + Arrays.toString(topicFilters) + "}," + Arrays.toString(qos) + ",{"
+            "subscribe({" + topicFilters.contentToString() + "}," + qos.contentToString() + ",{"
                     + invocationContext + "}, {" + activityToken + "}"
         )
         val resultBundle = Bundle()
@@ -512,7 +512,7 @@ internal class MqttConnection(
     /**
      * Unsubscribe from a topic
      *
-     * @param topic             a possibly wildcarded topic name
+     * @param topic             a possibly wildcard topic name
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
@@ -539,12 +539,12 @@ internal class MqttConnection(
     /**
      * Unsubscribe from one or more topics
      *
-     * @param topic             a list of possibly wildcarded topic names
+     * @param topic             a list of possibly wildcard topic names
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun unsubscribe(topic: Array<String?>?, invocationContext: String?, activityToken: String) {
-        service.traceDebug("unsubscribe({" + Arrays.toString(topic) + "},{" + invocationContext + "}, {" + activityToken + "})")
+    fun unsubscribe(topic: Array<String>, invocationContext: String?, activityToken: String) {
+        service.traceDebug("unsubscribe({" + topic.contentToString() + "},{" + invocationContext + "}, {" + activityToken + "})")
         val resultBundle = Bundle()
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.UNSUBSCRIBE_ACTION)
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken)
@@ -574,7 +574,7 @@ internal class MqttConnection(
     /**
      * Callback for connectionLost
      *
-     * @param why the exeception causing the break in communications
+     * @param why the exception causing the break in communications
      */
     override fun connectionLost(why: Throwable?) {
         if (why != null) {
@@ -623,7 +623,7 @@ internal class MqttConnection(
      * Callback to indicate a message has been delivered (the exact meaning of
      * "has been delivered" is dependent on the QOS value)
      *
-     * @param messageToken the messge token provided when the message was originally sent
+     * @param messageToken the message token provided when the message was originally sent
      */
     override fun deliveryComplete(messageToken: IMqttDeliveryToken) {
         service.traceDebug("deliveryComplete($messageToken)")
@@ -636,7 +636,7 @@ internal class MqttConnection(
             service.callbackToActivity(clientHandle, Status.OK, resultBundle)
         }
 
-        // this notification will have kept the connection alive but send the previously sechudled ping anyway
+        // this notification will have kept the connection alive but send the previously scheduled ping anyway
     }
 
     /**
