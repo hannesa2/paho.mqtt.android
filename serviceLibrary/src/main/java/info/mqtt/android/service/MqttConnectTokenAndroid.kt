@@ -11,16 +11,14 @@ import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage
 
 internal class MqttConnectTokenAndroid(private val sessionPresent: Boolean) : IMqttToken {
 
-    fun setMessage(message: MqttMessage?) {}
-    fun notifyDelivery(delivered: MqttMessage?) {}
+    fun setMessage(message: MqttMessage?) = Unit
+    fun notifyDelivery(delivered: MqttMessage?) = Unit
 
     @Throws(MqttException::class)
-    override fun waitForCompletion() {
-    }
+    override fun waitForCompletion() = Unit
 
     @Throws(MqttException::class)
-    override fun waitForCompletion(timeout: Long) {
-    }
+    override fun waitForCompletion(timeout: Long) = Unit
 
     override fun isComplete(): Boolean {
         return false

@@ -32,7 +32,7 @@ internal class DatabaseMessageStore(service: MqttService, context: Context) : Me
      * Store an MQTT message
      *
      * @param clientHandle identifier for the client storing the message
-     * @param topic        The topic on which the message was published
+     * @param Topic        The topic on which the message was published
      * @param message      the arrived MQTT message
      * @return an identifier for the message, so that it can be removed when appropriate
      */
@@ -163,7 +163,7 @@ internal class DatabaseMessageStore(service: MqttService, context: Context) : Me
 
             override fun next(): StoredMessage {
                 val messageId = c!!.getString(c!!.getColumnIndex(MqttServiceConstants.MESSAGE_ID))
-                val clientHandle = c!!.getString(c!!.getColumnIndex(MqttServiceConstants.CLIENT_HANDLE))
+                val localClientHandle = c!!.getString(c!!.getColumnIndex(MqttServiceConstants.CLIENT_HANDLE))
                 val topic = c!!.getString(c!!.getColumnIndex(MqttServiceConstants.DESTINATION_NAME))
                 val payload = c!!.getBlob(c!!.getColumnIndex(MqttServiceConstants.PAYLOAD))
                 val qos = c!!.getInt(c!!.getColumnIndex(MqttServiceConstants.QOS))
@@ -178,7 +178,7 @@ internal class DatabaseMessageStore(service: MqttService, context: Context) : Me
 
                 // move on
                 hasNext = c!!.moveToNext()
-                return DbStoredData(messageId, clientHandle, topic, message)
+                return DbStoredData(messageId, localClientHandle, topic, message)
             }
 
             override fun remove() {

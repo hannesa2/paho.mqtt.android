@@ -21,6 +21,22 @@ class TextSelectComponent(context: Context, attr: AttributeSet?) : RelativeLayou
     private val registeredCallbacks = ArrayList<ITextSelectCallback>()
     private var setText: String?
 
+    init {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        inflater.inflate(R.layout.text_select, this)
+        val mainLabel = findViewById<TextView>(R.id.mainLabel)
+        subLabel = findViewById(R.id.subLabel)
+        val textSelectLayout = findViewById<RelativeLayout>(R.id.container)
+        val attributeArray = context.obtainStyledAttributes(attr, R.styleable.TextSelectComponent)
+        mainLabel.text = attributeArray.getString(R.styleable.TextSelectComponent_main_label)
+        subLabel.text = attributeArray.getString(R.styleable.TextSelectComponent_default_value)
+        inputTitle = attributeArray.getString(R.styleable.TextSelectComponent_input_title)
+        setText = attributeArray.getString(R.styleable.TextSelectComponent_default_value)
+        numberInput = attributeArray.getBoolean(R.styleable.TextSelectComponent_numberTxt, false)
+        textSelectLayout.setOnClickListener { showInputDialog() }
+        attributeArray.recycle()
+    }
+
     private fun showInputDialog() {
         val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         @SuppressLint("InflateParams")
@@ -81,19 +97,4 @@ class TextSelectComponent(context: Context, attr: AttributeSet?) : RelativeLayou
             setText = value.toString()
         }
 
-    init {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.text_select, this)
-        val mainLabel = findViewById<TextView>(R.id.mainLabel)
-        subLabel = findViewById(R.id.subLabel)
-        val textSelectLayout = findViewById<RelativeLayout>(R.id.container)
-        val attributeArray = context.obtainStyledAttributes(attr, R.styleable.TextSelectComponent)
-        mainLabel.text = attributeArray.getString(R.styleable.TextSelectComponent_main_label)
-        subLabel.text = attributeArray.getString(R.styleable.TextSelectComponent_default_value)
-        inputTitle = attributeArray.getString(R.styleable.TextSelectComponent_input_title)
-        setText = attributeArray.getString(R.styleable.TextSelectComponent_default_value)
-        numberInput = attributeArray.getBoolean(R.styleable.TextSelectComponent_numberTxt, false)
-        textSelectLayout.setOnClickListener { showInputDialog() }
-        attributeArray.recycle()
-    }
 }
