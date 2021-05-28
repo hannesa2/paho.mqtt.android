@@ -148,11 +148,11 @@ class MqttAndroidClient @JvmOverloads constructor(
      * connect will fail.
      */
     override fun close() {
-        if (mqttService != null) {
+        mqttService?.let {
             if (clientHandle == null) {
-                clientHandle = mqttService!!.getClient(serverURI, clientId, context.applicationInfo.packageName, persistence)
+                clientHandle = it.getClient(serverURI, clientId, context.applicationInfo.packageName, persistence)
             }
-            mqttService!!.close(clientHandle)
+            it.close(clientHandle)
         }
     }
 
@@ -1407,9 +1407,7 @@ class MqttAndroidClient @JvmOverloads constructor(
         mqttService!!.deleteBufferedMessage(clientHandle, bufferIndex)
     }
 
-    override fun getInFlightMessageCount(): Int {
-        return 0
-    }
+    override fun getInFlightMessageCount() = 0
 
     /**
      * Get the SSLSocketFactory using SSL key store and password
@@ -1500,24 +1498,6 @@ class MqttAndroidClient @JvmOverloads constructor(
     }
 
     /**
-     * The Acknowledgment mode for messages received from [MqttCallback.messageArrived]
-     */
-    enum class Ack {
-        /**
-         * As soon as the [MqttCallback.messageArrived] returns,
-         * the message has been acknowledged as received .
-         */
-        AUTO_ACK,
-
-        /**
-         * When [MqttCallback.messageArrived] returns, the message
-         * will not be acknowledged as received, the application will have to make an acknowledgment call
-         * to [MqttAndroidClient] using [MqttAndroidClient.acknowledgeMessage]
-         */
-        MANUAL_ACK
-    }
-
-    /**
      * ServiceConnection to process when we bind to our service
      */
     private inner class MyServiceConnection : ServiceConnection {
@@ -1525,8 +1505,7 @@ class MqttAndroidClient @JvmOverloads constructor(
             if (MqttServiceBinder::class.java.isAssignableFrom(binder.javaClass)) {
                 mqttService = (binder as MqttServiceBinder).service
                 serviceBound = true
-                // now that we have the service available, we can actually
-                // connect...
+                // now that we have the service available, we can actually connect
                 doConnect()
             }
         }
@@ -1537,7 +1516,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     }
 
     companion object {
-        private const val SERVICE_NAME = "org.eclipse.paho.android.service.MqttService"
+        private val SERVICE_NAME = MqttService::class.java.canonicalName
         private val pool = Executors.newCachedThreadPool()
     }
 
