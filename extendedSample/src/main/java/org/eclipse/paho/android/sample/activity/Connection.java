@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+
 /**
  * Represents a {@link MqttAndroidClient} and the actions it has performed
  */
@@ -36,29 +38,29 @@ public class Connection {
     /**
      * Collection of {@link java.beans.PropertyChangeListener}
      **/
-    private final ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
+    private final ArrayList<PropertyChangeListener> listeners = new ArrayList<>();
     /**
      * The list of this connection's subscriptions
      **/
-    private final Map<String, Subscription> subscriptions = new HashMap<String, Subscription>();
-    private final ArrayList<ReceivedMessage> messageHistory = new ArrayList<ReceivedMessage>();
-    private final ArrayList<IReceivedMessageListener> receivedMessageListeners = new ArrayList<IReceivedMessageListener>();
+    private final Map<String, Subscription> subscriptions = new HashMap<>();
+    private final ArrayList<ReceivedMessage> messageHistory = new ArrayList<>();
+    private final ArrayList<IReceivedMessageListener> receivedMessageListeners = new ArrayList<>();
     /**
      * ClientHandle for this Connection object
      **/
-    private String clientHandle = null;
+    private final String clientHandle;
     /**
      * The clientId of the client associated with this <code>Connection</code> object
      **/
-    private String clientId = null;
+    private String clientId;
     /**
      * The host that the {@link MqttAndroidClient} represented by this <code>Connection</code> is represented by
      **/
-    private String host = null;
+    private String host;
     /**
      * The port on the server that this client is connecting to
      **/
-    private int port = 0;
+    private int port;
     /**
      * {@link ConnectionStatus } of the {@link MqttAndroidClient} represented by this <code>Connection</code> object. Default value is
      * {@link ConnectionStatus#NONE}
@@ -67,15 +69,15 @@ public class Connection {
     /**
      * Te history of the {@link MqttAndroidClient} represented by this <code>Connection</code> object
      **/
-    private ArrayList<String> history = null;
+    private final ArrayList<String> history;
     /**
      * The {@link MqttAndroidClient} instance this class represents
      **/
-    private MqttAndroidClient client = null;
+    private MqttAndroidClient client;
     /**
      * The {@link Context} of the application this object is part of
      **/
-    private Context context = null;
+    private final Context context;
     /**
      * The {@link MqttConnectOptions} that were used to connect this client
      **/
@@ -83,7 +85,7 @@ public class Connection {
     /**
      * True if this connection is secured using TLS
      **/
-    private boolean tlsConnection = true;
+    private boolean tlsConnection;
     /**
      * Persistence id, used by {@link Persistence}
      **/
@@ -206,9 +208,10 @@ public class Connection {
      *
      * @return A string representing the state of the client
      */
+    @NonNull
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(clientId);
         sb.append("\n ");
 
@@ -386,9 +389,7 @@ public class Connection {
     }
 
     public ArrayList<Subscription> getSubscriptions() {
-        ArrayList<Subscription> subs = new ArrayList<Subscription>();
-        subs.addAll(subscriptions.values());
-        return subs;
+        return new ArrayList<>(subscriptions.values());
     }
 
     public void setSubscriptions(ArrayList<Subscription> newSubs) {
@@ -419,7 +420,7 @@ public class Connection {
                 notifyArgs[2] = topic;
 
                 //notify the user
-                Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, R.string.notifyTitle);
+                Notify.notification(context, context.getString(R.string.notification, notifyArgs), intent, R.string.notifyTitle);
             }
         }
 
@@ -433,34 +434,13 @@ public class Connection {
         return messageHistory;
     }
 
-    /**
-     * Connections status for  a connection
-     */
     public enum ConnectionStatus {
 
-        /**
-         * Client is Connecting
-         **/
         CONNECTING,
-        /**
-         * Client is Connected
-         **/
         CONNECTED,
-        /**
-         * Client is Disconnecting
-         **/
         DISCONNECTING,
-        /**
-         * Client is Disconnected
-         **/
         DISCONNECTED,
-        /**
-         * Client has encountered an Error
-         **/
         ERROR,
-        /**
-         * Status is unknown
-         **/
         NONE
     }
 

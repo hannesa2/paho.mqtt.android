@@ -15,14 +15,8 @@ import java.util.ArrayList;
 
 import timber.log.Timber;
 
-/**
- * This Class handles receiving information from the
- * {@link MqttAndroidClient} and updating the {@link Connection} associated with
- * the action
- */
 public class ActionListener implements IMqttActionListener {
 
-    private static final String TAG = "ActionListener";
     private static final String activityClass = "org.eclipse.paho.android.sample.activity.MainActivity";
     /**
      * The {@link Action} that is associated with this instance of
@@ -171,17 +165,14 @@ public class ActionListener implements IMqttActionListener {
 
     /**
      * A publish action was unsuccessful, notify user and update client history
-     *
-     * @param exception This argument is not used
      */
     private void publish(Throwable exception) {
         Connection connection = Connections.getInstance(context).getConnection(clientHandle);
         @SuppressLint("StringFormatMatches")
-        String action = context.getString(R.string.toast_pub_failed,
-                (Object[]) additionalArgs);
+        String action = context.getString(R.string.toast_pub_failed, (Object[]) additionalArgs);
         connection.addAction(action);
         Notify.toast(context, action, Toast.LENGTH_SHORT);
-        System.out.print("Publish failed");
+        Timber.e("Publish failed");
     }
 
     /**
@@ -191,11 +182,10 @@ public class ActionListener implements IMqttActionListener {
      */
     private void subscribe(Throwable exception) {
         Connection connection = Connections.getInstance(context).getConnection(clientHandle);
-        String action = context.getString(R.string.toast_sub_failed,
-                (Object[]) additionalArgs);
+        String action = context.getString(R.string.toast_sub_failed,                (Object[]) additionalArgs);
         connection.addAction(action);
         Notify.toast(context, action, Toast.LENGTH_SHORT);
-        System.out.print(action);
+        Timber.e(action);
     }
 
     /**
@@ -218,29 +208,16 @@ public class ActionListener implements IMqttActionListener {
         Connection connection = Connections.getInstance(context).getConnection(clientHandle);
         connection.changeConnectionStatus(Connection.ConnectionStatus.ERROR);
         connection.addAction("Client failed to connect");
-        System.out.println("Client failed to connect");
+        Timber.e("Client failed to connect");
     }
 
     /**
-     * Actions that can be performed Asynchronously <strong>and</strong> associated with a
-     * {@link ActionListener} object
+     * Actions that can be performed Asynchronously <strong>and</strong> associated with a {@link ActionListener} object
      */
     enum Action {
-        /**
-         * Connect Action
-         **/
         CONNECT,
-        /**
-         * Disconnect Action
-         **/
         DISCONNECT,
-        /**
-         * Subscribe Action
-         **/
         SUBSCRIBE,
-        /**
-         * Publish Action
-         **/
         PUBLISH
     }
 
