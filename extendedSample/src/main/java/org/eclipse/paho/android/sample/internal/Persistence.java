@@ -401,7 +401,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
             opts.setKeepAliveInterval(keepAlive);
             opts.setConnectionTimeout(timeout);
 
-            opts.setPassword(password != null ? password.toCharArray() : null);
+            opts.setPassword(password != null ? password.toCharArray() : "".toCharArray());
             opts.setUserName(username);
 
             if (topic != null) {
@@ -415,7 +415,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
             // Now we recover all subscriptions for this connection
             String[] args = {clientHandle};
-            System.out.println("SUB: " + connection.toString());
+            Timber.d("SUB: " + connection.toString());
 
             Cursor sub_c = db.query(TABLE_SUBSCRIPTIONS, subscriptionColumns, subscriptionWhereQuery, args, null, null, sort);
             ArrayList<Subscription> subscriptions = new ArrayList<Subscription>(sub_c.getCount());

@@ -30,28 +30,15 @@ import androidx.annotation.NonNull;
  * Represents a {@link MqttAndroidClient} and the actions it has performed
  */
 public class Connection {
-    /**
-     * Basic information about the client
-     */
 
-    private static final String activityClass = "org.eclipse.paho.android.sample.activity.MainActivity";
-    /**
-     * Collection of {@link java.beans.PropertyChangeListener}
-     **/
     private final ArrayList<PropertyChangeListener> listeners = new ArrayList<>();
-    /**
-     * The list of this connection's subscriptions
-     **/
+
     private final Map<String, Subscription> subscriptions = new HashMap<>();
     private final ArrayList<ReceivedMessage> messageHistory = new ArrayList<>();
     private final ArrayList<IReceivedMessageListener> receivedMessageListeners = new ArrayList<>();
-    /**
-     * ClientHandle for this Connection object
-     **/
+
     private final String clientHandle;
-    /**
-     * The clientId of the client associated with this <code>Connection</code> object
-     **/
+
     private String clientId;
     /**
      * The host that the {@link MqttAndroidClient} represented by this <code>Connection</code> is represented by
@@ -61,13 +48,10 @@ public class Connection {
      * The port on the server that this client is connecting to
      **/
     private int port;
-    /**
-     * {@link ConnectionStatus } of the {@link MqttAndroidClient} represented by this <code>Connection</code> object. Default value is
-     * {@link ConnectionStatus#NONE}
-     **/
+
     private ConnectionStatus status = ConnectionStatus.NONE;
     /**
-     * Te history of the {@link MqttAndroidClient} represented by this <code>Connection</code> object
+     * The history of the {@link MqttAndroidClient} represented by this <code>Connection</code> object
      **/
     private final ArrayList<String> history;
     /**
@@ -410,7 +394,7 @@ public class Connection {
             if (subscriptions.get(topic).isEnableNotifications()) {
                 //create intent to start activity
                 Intent intent = new Intent();
-                intent.setClassName(context, activityClass);
+                intent.setClassName(context, MainActivity.class.getCanonicalName());
                 intent.putExtra("handle", clientHandle);
 
                 //format string args
