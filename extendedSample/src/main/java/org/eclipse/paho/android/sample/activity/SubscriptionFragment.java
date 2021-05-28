@@ -27,6 +27,7 @@ import java.util.Map;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import timber.log.Timber;
 
 
 public class SubscriptionFragment extends Fragment {
@@ -72,9 +73,9 @@ public class SubscriptionFragment extends Fragment {
             public void onUnsubscribe(Subscription subscription) {
                 try {
                     connection.unsubscribe(subscription);
-                    System.out.println("Unsubscribed from: " + subscription.toString());
+                    Timber.d("Unsubscribed from: " + subscription.toString());
                 } catch (MqttException ex) {
-                    System.out.println("Failed to unsubscribe from " + subscription.toString() + ". " + ex.getMessage());
+                    Timber.d("Failed to unsubscribe from " + subscription.toString() + ". " + ex.getMessage());
                 }
             }
         });
@@ -86,7 +87,8 @@ public class SubscriptionFragment extends Fragment {
 
     private void showInputDialog() {
         LayoutInflater layoutInflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        @SuppressLint("InflateParams") View promptView = layoutInflater.inflate(R.layout.subscription_dialog, null);
+        @SuppressLint("InflateParams")
+        View promptView = layoutInflater.inflate(R.layout.subscription_dialog, null);
         final EditText topicText = promptView.findViewById(R.id.subscription_topic_edit_text);
 
         final Spinner qos = promptView.findViewById(R.id.subscription_qos_spinner);
@@ -119,7 +121,7 @@ public class SubscriptionFragment extends Fragment {
                 try {
                     connection.addNewSubscription(subscription);
                 } catch (MqttException ex) {
-                    System.out.println("MqttException whilst subscribing: " + ex.getMessage());
+                    Timber.d("MqttException whilst subscribing: " + ex.getMessage());
                 }
                 adapter.notifyDataSetChanged();
             }

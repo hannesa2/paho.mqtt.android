@@ -6,7 +6,7 @@
     <TextView
         android:id="@+id/message_topic_text"
         android:layout_width="fill_parent"
-        android:layout_height="26dip"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/message_text"
@@ -29,7 +29,7 @@
     <TextView
         android:id="@+id/message_date_text"
         android:layout_width="100dip"
-        android:layout_height="26dip"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/message_text"

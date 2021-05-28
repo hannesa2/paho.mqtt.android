@@ -67,7 +67,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private val tokenMap = SparseArray<IMqttToken?>()
 
     //The acknowledgment that a message has been processed by the application
-    private val messageAck: Ack
+    private val messageAck = ackType
 
     // The Android Service which will process our mqtt calls
     private var mqttService: MqttService? = null
@@ -81,7 +81,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private var connectToken: IMqttToken? = null
 
     // The MqttCallback list provided by the application
-    private var callbacksList: ArrayList<MqttCallback>? = ArrayList()
+    private var callbacksList: ArrayList<MqttCallback> = ArrayList()
     private var traceCallback: MqttTraceHandler? = null
     private var traceEnabled = false
 
@@ -104,22 +104,10 @@ class MqttAndroidClient @JvmOverloads constructor(
      * connect to an MQTT server
      * @param clientId    specifies the name by which this connection should be
      * identified to the server
-     * @param persistence the persistence class to use to store in-flight message. If
      * null then the default persistence mechanism is used
      * @param ackType     how the application wishes to acknowledge a message has been
      * processed.
      */
-    /**
-     * Constructor - create an MqttAndroidClient that can be used to communicate with an MQTT server on android
-     *
-     * @param serverURI specifies the protocol, host name and port to be used to
-     * connect to an MQTT server
-     * @param clientId  specifies the name by which this connection should be
-     * identified to the server
-     */
-    init {
-        messageAck = ackType
-    }
 
     /**
      * Determines if this client is currently connected to the server.
@@ -1055,10 +1043,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      * @see MqttCallback
      */
     override fun setCallback(callback: MqttCallback) {
-        if (callbacksList == null) {
-            callbacksList = ArrayList()
-        }
-        callbacksList!!.add(callback)
+        callbacksList.add(callback)
     }
 
     /**
@@ -1086,10 +1071,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      * @see MqttCallback
      */
     fun addCallback(callback: MqttCallback) {
-        if (callbacksList == null) {
-            callbacksList = ArrayList()
-        }
-        callbacksList!!.add(callback)
+        callbacksList.add(callback)
     }
 
     /**
@@ -1209,7 +1191,7 @@ class MqttAndroidClient @JvmOverloads constructor(
         token?.let {
             (it as MqttTokenAndroid).notifyComplete()
         }
-        callbacksList?.forEach {
+        callbacksList.forEach {
             it.connectionLost(null)
         }
     }
@@ -1219,7 +1201,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      */
     private fun connectionLostAction(data: Bundle?) {
         val reason = data!!.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
-        callbacksList?.forEach {
+        callbacksList.forEach {
             it.connectionLost(reason)
         }
     }
@@ -1228,11 +1210,9 @@ class MqttAndroidClient @JvmOverloads constructor(
         // This is called differently from a normal connect
         val reconnect = data!!.getBoolean(MqttServiceConstants.CALLBACK_RECONNECT, false)
         val serverURI = data.getString(MqttServiceConstants.CALLBACK_SERVER_URI)
-        if (callbacksList != null) {
-            for (callback in callbacksList!!) {
-                if (callback is MqttCallbackExtended) {
-                    callback.connectComplete(reconnect, serverURI)
-                }
+        callbacksList.forEach { callback ->
+            if (callback is MqttCallbackExtended) {
+                callback.connectComplete(reconnect, serverURI)
             }
         }
     }
@@ -1278,7 +1258,6 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     /**
      * Process notification of an unsubscribe operation
-     *
      */
     private fun unSubscribeAction(data: Bundle?) {
         val token = removeMqttToken(data)
@@ -1287,17 +1266,14 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     /**
      * Process notification of a published message having been delivered
-     *
      */
     private fun messageDeliveredAction(data: Bundle?) {
         val token = removeMqttToken(data)
         val status = data!!.getSerializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
         if (token != null) {
-            if (callbacksList != null) {
-                if (status == Status.OK && token is IMqttDeliveryToken) {
-                    for (callback in callbacksList!!) {
-                        callback.deliveryComplete(token as IMqttDeliveryToken?)
-                    }
+            if (status == Status.OK && token is IMqttDeliveryToken) {
+                callbacksList.forEach { callback ->
+                    callback.deliveryComplete(token as IMqttDeliveryToken?)
                 }
             }
         }
@@ -1305,28 +1281,25 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     /**
      * Process notification of a message's arrival
-     *
      */
     private fun messageArrivedAction(data: Bundle?) {
         val messageId = data!!.getString(MqttServiceConstants.CALLBACK_MESSAGE_ID)
         val destinationName = data.getString(MqttServiceConstants.CALLBACK_DESTINATION_NAME)
         val message: ParcelableMqttMessage = data.getParcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL)!!
-        if (callbacksList != null) {
-            try {
-                if (messageAck == Ack.AUTO_ACK) {
-                    for (callback in callbacksList!!) {
-                        callback.messageArrived(destinationName, message)
-                    }
-                    mqttService!!.acknowledgeMessageArrival(clientHandle, messageId)
-                } else {
-                    message.messageId = messageId
-                    for (callback in callbacksList!!) {
-                        callback.messageArrived(destinationName, message)
-                    }
+        try {
+            if (messageAck == Ack.AUTO_ACK) {
+                callbacksList.forEach { callback ->
+                    callback.messageArrived(destinationName, message)
                 }
-            } catch (e: Exception) {
-                mqttService!!.traceError("messageArrivedAction failed: $e")
+                mqttService!!.acknowledgeMessageArrival(clientHandle, messageId)
+            } else {
+                message.messageId = messageId
+                callbacksList.forEach { callback ->
+                    callback.messageArrived(destinationName, message)
+                }
             }
+        } catch (e: Exception) {
+            mqttService!!.traceError("messageArrivedAction failed: $e")
         }
     }
 

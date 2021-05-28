@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Random;
 
 import androidx.fragment.app.Fragment;
+import timber.log.Timber;
 
 
 public class EditConnectionFragment extends Fragment {
@@ -84,24 +85,20 @@ public class EditConnectionFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         lwtQos.setAdapter(adapter);
 
-
         if (this.getArguments() != null && this.getArguments().getString(ActivityConstants.CONNECTION_KEY) != null) {
-            /** This Form is referencing an existing connection. **/
-            //this.getArguments().getString(ActivityConstants.CONNECTION_KEY)
             Map<String, Connection> connections = Connections.getInstance(this.getActivity()).getConnections();
             String connectionKey = this.getArguments().getString(ActivityConstants.CONNECTION_KEY);
             Connection connection = connections.get(connectionKey);
-            System.out.println("Editing an existing connection: " + connection.handle());
+            Timber.d("Editing an existing connection: " + connection.handle());
             newConnection = false;
             formModel = new ConnectionModel(connection);
-            System.out.println("Form Model: " + formModel.toString());
+            Timber.d("Form Model: " + formModel.toString());
             formModel.setClientHandle(connection.handle());
 
-            populateFromConnectionModel(formModel);
         } else {
             formModel = new ConnectionModel();
-            populateFromConnectionModel(formModel);
         }
+        populateFromConnectionModel(formModel);
 
         setFormItemListeners();
 
@@ -352,8 +349,8 @@ public class EditConnectionFragment extends Fragment {
     }
 
     private void saveConnection() {
-        System.out.println("SAVING CONNECTION");
-        System.out.println(formModel.toString());
+        Timber.d("SAVING CONNECTION");
+        Timber.d(formModel.toString());
         if (newConnection) {
             // Generate a new Client Handle
             StringBuilder sb = new StringBuilder(length);

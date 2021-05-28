@@ -23,6 +23,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import timber.log.Timber;
 
 public class FragmentDrawer extends Fragment {
 
@@ -42,14 +43,14 @@ public class FragmentDrawer extends Fragment {
     }
 
     public void addConnection(Connection connection) {
-        System.out.println("Adding new Connection:  " + connection.getId());
+        Timber.d("Adding new Connection:  " + connection.getId());
         NavDrawerItem navItem = new NavDrawerItem(connection);
         data.add(navItem);
         adapter.notifyDataSetChanged();
     }
 
     public void updateConnection(Connection connection) {
-        System.out.println("Updating Connection: " + connection.getId());
+        Timber.d("Updating Connection: " + connection.getId());
         Iterator<NavDrawerItem> iterator = data.iterator();
         int index = 0;
         while (iterator.hasNext()) {
@@ -65,7 +66,7 @@ public class FragmentDrawer extends Fragment {
     }
 
     public void removeConnection(Connection connection) {
-        System.out.println("Removing connection from drawer: " + connection.getId());
+        Timber.d("Removing connection from drawer: " + connection.getId());
         Iterator<NavDrawerItem> iterator = data.iterator();
 
         while (iterator.hasNext()) {
@@ -129,7 +130,7 @@ public class FragmentDrawer extends Fragment {
 
             @Override
             public void onLongClick(int position) {
-                System.out.println("I want to delete: " + position);
+                Timber.d("I want to delete: " + position);
                 drawerListener.onDrawerItemLongSelected(position);
                 mDrawerLayout.closeDrawer(containerView);
             }
