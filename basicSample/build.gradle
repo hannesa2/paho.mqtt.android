@@ -5,7 +5,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId "paho.mqtt.java.example"
+        applicationId "info.mqtt.java.example"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode getGitCommitCount()
