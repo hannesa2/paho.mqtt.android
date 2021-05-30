@@ -1,10 +1,9 @@
 <resources>
-    <string name="app_name">Paho Client</string>
+    <string name="app_name">MQTT Client</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
 
     <string name="action_add_connection">Add Connection</string>
-
 
     <string name="add_connection_general_label">General</string>
     <string name="add_connection_client_id_label">Client ID</string>
@@ -68,7 +67,7 @@
 
     <!-- Strings for Help Fragment -->
     <string name="help_paho">Paho</string>
-    <string name="help_title">Eclipse Paho Android Example Utility</string>
+    <string name="help_title">Extended Android Example Utility</string>
     <string name="help_email_button">Get Help or send Feedback</string>
     <string name="help_paho_website">Go to the Paho Website</string>
     <string name="help_enable_logging">Enable Paho Logging</string>

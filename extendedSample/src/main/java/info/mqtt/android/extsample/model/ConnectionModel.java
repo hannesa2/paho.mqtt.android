@@ -6,7 +6,7 @@ import info.mqtt.android.extsample.activity.Connection;
 public class ConnectionModel {
 
     private String clientHandle = "";
-    private String clientId = "AndroidExampleClient";
+    private String clientId = "ExtendedSampleClient";
     private String serverHostName = "mqtt.eclipseprojects.io";
     private int serverPort = 1883;
     private boolean cleanSession = true;

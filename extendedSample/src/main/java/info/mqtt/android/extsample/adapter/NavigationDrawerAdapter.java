@@ -38,7 +38,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         NavDrawerItem current = data.get(position);
-        holder.title.setText(current.getTitle());
+        holder.navTitle.setText(current.getTitle());
         Drawable doneCloud = ContextCompat.getDrawable(context, R.drawable.ic_cloud_done_dark);
         holder.icon.setImageDrawable(doneCloud);
     }
@@ -49,12 +49,12 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        final TextView title;
+        final TextView navTitle;
         final ImageView icon;
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            title = itemView.findViewById(R.id.title);
+            navTitle = itemView.findViewById(R.id.navTitle);
             icon = itemView.findViewById(R.id.connection_icon);
         }
     }
