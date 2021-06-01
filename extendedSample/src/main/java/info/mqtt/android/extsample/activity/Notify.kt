@@ -1,26 +1,38 @@
 package info.mqtt.android.extsample.activity
 
+import android.app.NotificationChannel
 import android.content.Intent
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.graphics.Color
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import info.mqtt.android.extsample.R
 
-/**
- * Provides static methods for creating and showing notifications to the user.
- */
 internal object Notify {
 
-    private var MessageID = 0
+    private var MessageID = 120
+    private const val channelId = "channel-01"
+    private const val channelFireBaseMsg = "Channel MQTT"
 
     @JvmStatic
     fun notification(context: Context, messageString: String, intent: Intent?, notificationTitle: Int) {
 
         //Get the notification manage which we will use to display the notification
         val ns = Context.NOTIFICATION_SERVICE
-        val mNotificationManager = context.getSystemService(ns) as NotificationManager
+        val notificationManager = context.getSystemService(ns) as NotificationManager
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(channelId, channelFireBaseMsg, NotificationManager.IMPORTANCE_LOW)
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.RED
+            notificationChannel.enableVibration(true)
+            notificationChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+
         val `when` = System.currentTimeMillis()
 
         //get the notification title from the application's strings.xml file
@@ -33,7 +45,7 @@ internal object Notify {
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 
         //build the notification
-        val notificationCompat = NotificationCompat.Builder(context)
+        val notificationCompat = NotificationCompat.Builder(context, channelId)
         notificationCompat.setAutoCancel(true)
             .setContentTitle(contentTitle)
             .setContentIntent(pendingIntent)
@@ -42,18 +54,11 @@ internal object Notify {
             .setWhen(`when`)
             .setSmallIcon(R.mipmap.ic_launcher)
         val notification = notificationCompat.build()
-        //display the notification
-        mNotificationManager.notify(MessageID, notification)
+
+        notificationManager.notify(MessageID, notification)
         MessageID++
     }
 
-    /**
-     * Display a toast notification to the user
-     *
-     * @param context  Context from which to create a notification
-     * @param text     The text the toast should display
-     * @param duration The amount of time for the toast to appear to the user
-     */
     @JvmStatic
     fun toast(context: Context?, text: CharSequence?, duration: Int) {
         val toast = Toast.makeText(context, text, duration)

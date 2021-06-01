@@ -4,6 +4,7 @@
     tools:context=".MainActivity">
     <item
         android:id="@+id/connect_switch"
+        android:contentDescription="@string/action_add_connection"
         android:title=""
         app:actionLayout="@layout/switch_layout"
         app:showAsAction="always" />

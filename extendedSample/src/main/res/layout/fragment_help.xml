@@ -32,16 +32,6 @@
         android:padding="10dp"
         android:src="@drawable/paho_logo_full" />
 
-    <Switch
-        android:id="@+id/enable_logging_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/feedbackButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="12dp"
-        android:checked="false"
-        android:text="@string/help_enable_logging" />
-
     <TextView
         android:id="@+id/label"
         android:layout_width="fill_parent"
@@ -53,6 +43,16 @@
         android:text="@string/help_title"
         android:textSize="30sp"
         android:textStyle="bold" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/enable_logging_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/feedbackButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="12dp"
+        android:checked="false"
+        android:text="@string/help_enable_logging" />
 
 
 </RelativeLayout>
