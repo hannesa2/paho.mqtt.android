@@ -53,7 +53,7 @@ class PahoExampleActivity : AppCompatActivity() {
                 }
             }
 
-            override fun connectionLost(cause: Throwable) {
+            override fun connectionLost(cause: Throwable?) {
                 addToHistory("The Connection was lost.")
             }
 

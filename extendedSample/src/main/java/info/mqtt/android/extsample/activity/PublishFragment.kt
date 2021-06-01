@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Spinner
-import android.widget.Switch
 import android.text.TextWatcher
 import android.text.Editable
 import android.view.View
@@ -15,6 +14,7 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.R
 
@@ -39,7 +39,7 @@ class PublishFragment : Fragment() {
         val topicText = rootView.findViewById<EditText>(R.id.topic)
         val messageText = rootView.findViewById<EditText>(R.id.message)
         val qos = rootView.findViewById<Spinner>(R.id.qos_spinner)
-        val retain = rootView.findViewById<Switch>(R.id.retain_switch)
+        val retain = rootView.findViewById<SwitchCompat>(R.id.retain_switch)
         topicText.setText(topic)
         topicText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) = Unit
@@ -71,7 +71,7 @@ class PublishFragment : Fragment() {
         val publishButton = rootView.findViewById<Button>(R.id.publish_button)
         publishButton.setOnClickListener {
             Timber.d("Publishing: [topic: $topic, message: $message, QoS: $selectedQos, Retain: $retainValue]")
-            (requireActivity() as MainActivity).publish(connection, topic, message, selectedQos, retainValue)
+            connection?.let { it1 -> (requireActivity() as MainActivity).publish(it1, topic, message, selectedQos, retainValue) }
         }
         return rootView
     }

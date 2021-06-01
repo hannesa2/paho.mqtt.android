@@ -325,13 +325,13 @@
                 android:text="@string/add_connection_lwt_qos_label" />
         </LinearLayout>
 
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/clean_session_switch"
             style="@style/Switch"
             android:layout_below="@+id/divider3"
             android:text="@string/add_connection_clean_session_label" />
 
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/retain_switch"
             style="@style/Switch"
             android:layout_below="@+id/divider10"

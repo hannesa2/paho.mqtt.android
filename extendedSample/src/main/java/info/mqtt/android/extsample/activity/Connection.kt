@@ -175,7 +175,7 @@ class Connection private constructor(
             try {
                 val actionArgs = arrayOfNulls<String>(1)
                 actionArgs[0] = subscription.topic
-                val callback = ActionListener(context, ActionListener.Action.SUBSCRIBE, this, *actionArgs)
+                val callback = ActionListener(context, Action.SUBSCRIBE, this, *actionArgs)
                 client.subscribe(subscription.topic, subscription.qos, null, callback)
                 val persistence = Persistence(context)
                 val rowId = persistence.persistSubscription(subscription)
@@ -220,7 +220,7 @@ class Connection private constructor(
             if (subscriptions[topic]!!.isEnableNotifications) {
                 //create intent to start activity
                 val intent = Intent()
-                intent.setClassName(context, MainActivity::class.java.canonicalName)
+                intent.setClassName(context, MainActivity::class.java.name)
                 intent.putExtra("handle", clientHandle)
 
                 SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
