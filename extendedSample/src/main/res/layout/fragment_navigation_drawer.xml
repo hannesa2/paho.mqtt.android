@@ -29,22 +29,6 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-
-        <TextView
-            android:id="@+id/action_help"
-            android:layout_width="fill_parent"
-            android:layout_height="40dp"
-            android:drawableLeft="@drawable/ic_help"
-            android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="0dp"
-            android:paddingTop="10dp"
-            android:text="@string/help_and_feedback"
-            android:textColor="@color/textColorPrimary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
-
         <View
             android:id="@+id/divider1"
             style="@style/Divider" />

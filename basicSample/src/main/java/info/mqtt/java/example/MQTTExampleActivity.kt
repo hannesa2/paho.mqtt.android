@@ -21,7 +21,7 @@ import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PahoExampleActivity : AppCompatActivity() {
+class MQTTExampleActivity : AppCompatActivity() {
 
     private lateinit var mqttAndroidClient: MqttAndroidClient
     private lateinit var adapter: HistoryAdapter

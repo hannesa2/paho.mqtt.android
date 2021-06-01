@@ -28,7 +28,7 @@ jobs:
       - uses: actions/upload-artifact@v2.2.3
         if: ${{ always() }}
         with:
-          name: Espresso-test-paho.mqtt-report
+          name: Espresso-test-mqtt-report
           path: ./**/build/reports/androidTests/connected
       - name: Archive screenshots
         uses: actions/upload-artifact@v2.2.3
@@ -50,5 +50,5 @@ jobs:
         uses: actions/upload-artifact@v2.2.3
         if: ${{ always() }}
         with:
-          name: Paho-Lint-report
+          name: MQTT-Lint-report
           path: ./**/build/reports/lint-results.html

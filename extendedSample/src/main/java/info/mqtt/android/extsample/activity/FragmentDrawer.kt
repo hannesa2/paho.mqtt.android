@@ -85,11 +85,7 @@ class FragmentDrawer : Fragment() {
             drawerListener!!.onAddConnectionSelected()
             mDrawerLayout!!.closeDrawer(containerView!!)
         }
-        val helpTextView = layout.findViewById<TextView>(R.id.action_help)
-        helpTextView.setOnClickListener {
-            drawerListener!!.onHelpSelected()
-            mDrawerLayout!!.closeDrawer(containerView!!)
-        }
+
         adapter = NavigationDrawerAdapter(requireContext(), getData())
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
@@ -140,7 +136,6 @@ class FragmentDrawer : Fragment() {
         fun onDrawerItemSelected(position: Int)
         fun onDrawerItemLongSelected(position: Int)
         fun onAddConnectionSelected()
-        fun onHelpSelected()
     }
 
     internal class RecyclerTouchListener(context: Context?, recyclerView: RecyclerView, private val clickListener: ClickListener?) :

@@ -62,17 +62,8 @@
     <string name="subscribe_cancel">Cancel</string>
     <string name="qos_text">QoS: %1$d</string>
     <string name="notify_text">Notifications: %1$s</string>
-    <string name="help_and_feedback">Help &amp; Feedback</string>
 
-
-    <!-- Strings for Help Fragment -->
-    <string name="help_paho">Paho</string>
-    <string name="help_title">Extended Android Example Utility</string>
-    <string name="help_email_button">Get Help or send Feedback</string>
-    <string name="help_paho_website">Go to the Paho Website</string>
-    <string name="help_enable_logging">Enable Paho Logging</string>
     <string name="home_no_connections">No Connections</string>
-
 
     <!-- Home Fragment -->
     <string name="home_no_cons_message">It looks like there are no connections defined yet.</string>

@@ -80,11 +80,6 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         displayFragment(editConnectionFragment, title)
     }
 
-    override fun onHelpSelected() {
-        val helpFragment: Fragment = HelpFragment()
-        displayFragment(helpFragment, getString(R.string.help_and_feedback))
-    }
-
     private fun displayDeleteView(position: Int) {
         if (position == -1) {
             displayFragment(HomeFragment(), "Home")

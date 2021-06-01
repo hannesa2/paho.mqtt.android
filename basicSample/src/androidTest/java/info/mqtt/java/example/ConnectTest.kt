@@ -8,8 +8,6 @@ import androidx.test.rule.GrantPermissionRule
 import com.moka.lib.assertions.MatchOperator
 import com.moka.lib.assertions.WaitingAssertion
 import com.moka.utils.Screenshot
-import info.mqtt.java.example.PahoExampleActivity
-import info.mqtt.java.example.R
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,7 +16,7 @@ import org.junit.runner.RunWith
 class ConnectTest {
 
     @get:Rule
-    var mActivityTestRule = ActivityScenarioRule(PahoExampleActivity::class.java)
+    var mActivityTestRule = ActivityScenarioRule(MQTTExampleActivity::class.java)
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
