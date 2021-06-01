@@ -1,5 +1,6 @@
 package info.mqtt.android.extsample.activity
 
+import android.annotation.SuppressLint
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import android.os.Bundle
 import android.view.*
@@ -8,6 +9,10 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTabHost
 import java.util.HashMap
+import android.widget.TextView
+
+import android.view.LayoutInflater
+
 
 class ConnectionFragment : Fragment() {
     private var connection: Connection? = null
@@ -26,13 +31,24 @@ class ConnectionFragment : Fragment() {
         bundle.putString(ActivityConstants.CONNECTION_KEY, connection!!.handle())
 
         // Initialise the tab-host
-        tabHost = rootView.findViewById(android.R.id.tabhost)
-        tabHost.setup(requireActivity(), childFragmentManager, android.R.id.tabcontent)
+        tabHost = rootView.findViewById(R.id.tabhost)
+        tabHost.setup(requireActivity(), childFragmentManager, R.id.tabcontent)
         // Add a tab to the tabHost
-        tabHost.addTab(tabHost.newTabSpec("History").setIndicator("History"), HistoryFragment::class.java, bundle)
-        tabHost.addTab(tabHost.newTabSpec("Publish").setIndicator("Publish"), PublishFragment::class.java, bundle)
-        tabHost.addTab(tabHost.newTabSpec("Subscribe").setIndicator("Subscribe"), SubscriptionFragment::class.java, bundle)
+        tabHost.addTab(tabHost.newTabSpec("History").setIndicator(getTabIndicator("History", R.id.tab_id_1)), HistoryFragment::class.java, bundle)
+        tabHost.addTab(tabHost.newTabSpec("Publish").setIndicator(getTabIndicator("Publish", R.id.tab_id_2)), PublishFragment::class.java, bundle)
+        tabHost.addTab(tabHost.newTabSpec("Subscribe").setIndicator(getTabIndicator("Subscribe", R.id.tab_id_3)), SubscriptionFragment::class.java,
+            bundle)
         return rootView
+    }
+
+    @SuppressLint("InflateParams")
+    private fun getTabIndicator(title: String, viewId: Int): View {
+        val view: View = LayoutInflater.from(context).inflate(R.layout.tab_layout, null)
+        val tv = view.findViewById(R.id.text_view) as TextView
+        tv.text = title
+        tv.id = viewId
+        tv.tag = title
+        return view
     }
 
     private fun changeConnectedState(state: Boolean) {
