@@ -34,10 +34,20 @@ class ConnectionFragment : Fragment() {
         tabHost = rootView.findViewById(R.id.tabhost)
         tabHost.setup(requireActivity(), childFragmentManager, R.id.tabcontent)
         // Add a tab to the tabHost
-        tabHost.addTab(tabHost.newTabSpec("History").setIndicator(getTabIndicator("History", R.id.tab_id_1)), HistoryFragment::class.java, bundle)
-        tabHost.addTab(tabHost.newTabSpec("Publish").setIndicator(getTabIndicator("Publish", R.id.tab_id_2)), PublishFragment::class.java, bundle)
-        tabHost.addTab(tabHost.newTabSpec("Subscribe").setIndicator(getTabIndicator("Subscribe", R.id.tab_id_3)), SubscriptionFragment::class.java,
-            bundle)
+        tabHost.addTab(
+            tabHost.newTabSpec("History").setIndicator(getTabIndicator("History", R.id.tab_id_history)),
+            HistoryFragment::class.java,
+            bundle
+        )
+        tabHost.addTab(
+            tabHost.newTabSpec("Publish").setIndicator(getTabIndicator("Publish", R.id.tab_id_publish)),
+            PublishFragment::class.java,
+            bundle
+        )
+        tabHost.addTab(
+            tabHost.newTabSpec("Subscribe").setIndicator(getTabIndicator("Subscribe", R.id.tab_id_subscribe)), SubscriptionFragment::class.java,
+            bundle
+        )
         return rootView
     }
 

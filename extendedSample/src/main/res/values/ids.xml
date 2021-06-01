@@ -1,5 +1,5 @@
 <resources>
-    <item name="tab_id_1" type="id"/>
-    <item name="tab_id_2" type="id"/>
-    <item name="tab_id_3" type="id"/>
+    <item name="tab_id_history" type="id"/>
+    <item name="tab_id_publish" type="id"/>
+    <item name="tab_id_subscribe" type="id"/>
 </resources>
