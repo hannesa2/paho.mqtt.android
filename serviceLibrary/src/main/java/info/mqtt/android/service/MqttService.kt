@@ -27,16 +27,11 @@ import android.content.Context
 import android.os.PowerManager
 
 /**
- *
- *
  * The android service which interfaces with an MQTT client implementation
- *
- *
  *
  * The main API of MqttService is intended to pretty much mirror the
  * IMqttAsyncClient with appropriate adjustments for the Android environment.<br></br>
  * These adjustments usually consist of adding two parameters to each method :-
- *
  *
  *  * invocationContext - a string passed from the application to identify the
  * context of the operation (mainly included for support of the javascript API
@@ -44,20 +39,14 @@ import android.os.PowerManager
  *  * activityToken - a string passed from the Activity to relate back to a
  * callback method or other context-specific data
  *
- *
- *
  * To support multiple client connections, the bulk of the MQTT work is
  * delegated to MqttConnection objects. These are identified by "client
  * handle" strings, which is how the Activity, and the higher-level APIs refer
  * to them.
  *
- *
- *
  * Activities using this service are expected to start it and bind to it using
  * the BIND_AUTO_CREATE flag. The life cycle of this service is based on this
  * approach.
- *
- *
  *
  * Operations are highly asynchronous - in most cases results are returned to
  * the Activity by broadcasting one (or occasionally more) appropriate Intents,
@@ -198,8 +187,7 @@ class MqttService : Service(), MqttTraceHandler {
     // somewhere to persist received messages until we're sure that they've reached the application
     lateinit var messageStore: MessageStore
 
-    // callback id for making trace callbacks to the Activity
-    // needs to be set by the activity as appropriate
+    // callback id for making trace callbacks to the Activity needs to be set by the activity as appropriate
     private var traceCallbackId: String? = null
 
     var isTraceEnabled = false
@@ -220,25 +208,25 @@ class MqttService : Service(), MqttTraceHandler {
      * @param status       OK or Error
      * @param dataBundle   the data to be passed
      */
-    fun callbackToActivity(clientHandle: String?, status: Status?, dataBundle: Bundle?) {
+    fun callbackToActivity(clientHandle: String, status: Status?, dataBundle: Bundle?) {
         // Don't call traceDebug, as it will try to callbackToActivity leading to recursion.
         val callbackIntent = Intent(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
-        if (clientHandle != null) {
-            callbackIntent.putExtra(MqttServiceConstants.CALLBACK_CLIENT_HANDLE, clientHandle)
+        clientHandle?.let {
+            callbackIntent.putExtra(MqttServiceConstants.CALLBACK_CLIENT_HANDLE, it)
         }
         callbackIntent.putExtra(MqttServiceConstants.CALLBACK_STATUS, status)
-        if (dataBundle != null) {
-            callbackIntent.putExtras(dataBundle)
+        dataBundle?.let {
+            callbackIntent.putExtras(it)
         }
         LocalBroadcastManager.getInstance(this).sendBroadcast(callbackIntent)
     }
-    // The major API implementation follows :-
+
     /**
      * Get an MqttConnection object to represent a connection to a server
      *
      * @param serverURI   specifies the protocol, host name and port to be used to connect to an MQTT server
      * @param clientId    specifies the name by which this connection should be identified to the server
-     * @param contextId   specifies the app conext info to make a difference between apps
+     * @param contextId   specifies the app context info to make a difference between apps
      * @param persistence specifies the persistence layer to be used with this client
      * @return a string to be used by the Activity as a "handle" for this
      * MqttConnection
@@ -260,7 +248,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param activityToken  arbitrary identifier to be passed back to the Activity
      */
     @Throws(MqttException::class)
-    fun connect(clientHandle: String?, connectOptions: MqttConnectOptions?, activityToken: String?) {
+    fun connect(clientHandle: String, connectOptions: MqttConnectOptions?, activityToken: String?) {
         val client = getConnection(clientHandle)
         client.connect(connectOptions, null, activityToken)
     }
@@ -280,7 +268,7 @@ class MqttService : Service(), MqttTraceHandler {
      *
      * @param clientHandle identifies the MqttConnection to use
      */
-    fun close(clientHandle: String?) {
+    fun close(clientHandle: String) {
         val client = getConnection(clientHandle)
         client.close()
     }
@@ -329,7 +317,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param clientHandle identifies the MqttConnection to use
      * @return true if the specified client is connected to an MQTT server
      */
-    fun isConnected(clientHandle: String?): Boolean {
+    fun isConnected(clientHandle: String): Boolean {
         val client = getConnection(clientHandle)
         return client.isConnected
     }
@@ -347,11 +335,10 @@ class MqttService : Service(), MqttTraceHandler {
      * @return token for tracking the operation
      */
     fun publish(
-        clientHandle: String?, topic: String?, payload: ByteArray?, qos: Int, retained: Boolean, invocationContext: String?,
-        activityToken: String?
+        clientHandle: String, topic: String, payload: ByteArray, qos: Int, retained: Boolean, invocationContext: String?, activityToken: String?
     ): IMqttDeliveryToken? {
         val client = getConnection(clientHandle)
-        return client.publish(topic!!, payload, qos, retained, invocationContext, activityToken!!)
+        return client.publish(topic, payload, qos, retained, invocationContext, activityToken!!)
     }
 
     /**
@@ -365,14 +352,14 @@ class MqttService : Service(), MqttTraceHandler {
      * @return token for tracking the operation
      */
     fun publish(
-        clientHandle: String?,
-        topic: String?,
-        message: MqttMessage?,
+        clientHandle: String,
+        topic: String,
+        message: MqttMessage,
         invocationContext: String?,
-        activityToken: String?
+        activityToken: String
     ): IMqttDeliveryToken? {
         val client = getConnection(clientHandle)
-        return client.publish(topic!!, message!!, invocationContext, activityToken!!)
+        return client.publish(topic, message, invocationContext, activityToken)
     }
 
     /**
@@ -384,9 +371,9 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun subscribe(clientHandle: String?, topic: String?, qos: Int, invocationContext: String?, activityToken: String?) {
+    fun subscribe(clientHandle: String, topic: String, qos: Int, invocationContext: String?, activityToken: String) {
         val client = getConnection(clientHandle)
-        client.subscribe(topic!!, qos, invocationContext, activityToken!!)
+        client.subscribe(topic, qos, invocationContext, activityToken)
     }
 
     /**
@@ -398,9 +385,9 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun subscribe(clientHandle: String?, topic: Array<String>, qos: IntArray?, invocationContext: String?, activityToken: String?) {
+    fun subscribe(clientHandle: String, topic: Array<String>, qos: IntArray?, invocationContext: String?, activityToken: String) {
         val client = getConnection(clientHandle)
-        client.subscribe(topic, qos, invocationContext, activityToken!!)
+        client.subscribe(topic, qos, invocationContext, activityToken)
     }
 
     /**
@@ -429,9 +416,9 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun unsubscribe(clientHandle: String, myTopic: String, invocationContext: String?, activityToken: String?) {
+    fun unsubscribe(clientHandle: String, topic: String, invocationContext: String?, activityToken: String) {
         val client = getConnection(clientHandle)
-        client.unsubscribe(myTopic, invocationContext, activityToken!!)
+        client.unsubscribe(topic, invocationContext, activityToken)
     }
 
     /**
@@ -453,7 +440,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param clientHandle identifies the MqttConnection
      * @return an array (possibly empty) of tokens
      */
-    fun getPendingDeliveryTokens(clientHandle: String?): Array<IMqttDeliveryToken> {
+    fun getPendingDeliveryTokens(clientHandle: String): Array<IMqttDeliveryToken> {
         val client = getConnection(clientHandle)
         return client.pendingDeliveryTokens
     }
@@ -464,7 +451,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param clientHandle identifies the MqttConnection
      * @return the MqttConnection identified by this handle
      */
-    private fun getConnection(clientHandle: String?): MqttConnection {
+    private fun getConnection(clientHandle: String): MqttConnection {
         requireNotNull(clientHandle) { "Invalid ClientHandle" }
         return connections[clientHandle] ?: throw IllegalArgumentException("Invalid ClientHandle")
     }
@@ -477,7 +464,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param id           identifier for the MQTT message
      * @return [Status]
      */
-    fun acknowledgeMessageArrival(clientHandle: String?, id: String?): Status {
+    fun acknowledgeMessageArrival(clientHandle: String, id: String?): Status {
         return if (messageStore.discardArrived(clientHandle, id)) {
             Status.OK
         } else {
@@ -577,12 +564,14 @@ class MqttService : Service(), MqttTraceHandler {
     }
 
     private fun traceCallback(severity: String, message: String?) {
-        if (traceCallbackId != null && isTraceEnabled) {
-            val dataBundle = Bundle()
-            dataBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.TRACE_ACTION)
-            dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY, severity)
-            dataBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, message)
-            callbackToActivity(traceCallbackId, Status.ERROR, dataBundle)
+        traceCallbackId?.let {
+            if (isTraceEnabled) {
+                val dataBundle = Bundle()
+                dataBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.TRACE_ACTION)
+                dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY, severity)
+                dataBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, message)
+                callbackToActivity(it, Status.ERROR, dataBundle)
+            }
         }
     }
 
@@ -593,13 +582,13 @@ class MqttService : Service(), MqttTraceHandler {
      * @param e       the exception
      */
     override fun traceException(message: String?, e: Exception?) {
-        if (traceCallbackId != null) {
+        traceCallbackId?.let {
             val dataBundle = Bundle()
             dataBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.TRACE_ACTION)
             dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY, MqttServiceConstants.TRACE_EXCEPTION)
             dataBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, message)
             dataBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, e)
-            callbackToActivity(traceCallbackId, Status.ERROR, dataBundle)
+            callbackToActivity(it, Status.ERROR, dataBundle)
         }
     }
 
@@ -633,27 +622,27 @@ class MqttService : Service(), MqttTraceHandler {
     /**
      * Sets the DisconnectedBufferOptions for this client
      */
-    fun setBufferOpts(clientHandle: String?, bufferOpts: DisconnectedBufferOptions?) {
+    fun setBufferOpts(clientHandle: String, bufferOpts: DisconnectedBufferOptions?) {
         val client = getConnection(clientHandle)
         client.setBufferOpts(bufferOpts)
     }
 
-    fun getBufferedMessageCount(clientHandle: String?): Int {
+    fun getBufferedMessageCount(clientHandle: String): Int {
         val client = getConnection(clientHandle)
         return client.bufferedMessageCount
     }
 
-    fun getBufferedMessage(clientHandle: String?, bufferIndex: Int): MqttMessage {
+    fun getBufferedMessage(clientHandle: String, bufferIndex: Int): MqttMessage {
         val client = getConnection(clientHandle)
         return client.getBufferedMessage(bufferIndex)
     }
 
-    fun deleteBufferedMessage(clientHandle: String?, bufferIndex: Int) {
+    fun deleteBufferedMessage(clientHandle: String, bufferIndex: Int) {
         val client = getConnection(clientHandle)
         client.deleteBufferedMessage(bufferIndex)
     }
 
-    fun getInFlightMessageCount(clientHandle: String?): Int {
+    fun getInFlightMessageCount(clientHandle: String): Int {
         val client = getConnection(clientHandle)
         return client.inFlightMessageCount
     }
