@@ -2,7 +2,7 @@
 # MQTT Android Service
 
 
-The MQTT Android Service is an MQTT client library written in Java for developing applications on Android.
+The MQTT Android Service is an MQTT client library written in Kotlin.
 It has been created to provide reliable open-source implementations of open and standard messaging protocols aimed at new, existing, and emerging
 applications for Machine-to-Machine (M2M) and Internet of Things (IoT).
 MQTT reflects the inherent physical and cost constraints of device connectivity. Its objectives include effective levels of decoupling between devices and applications, designed to keep markets open and encourage the rapid growth of scalable Web and Enterprise middleware and applications.
