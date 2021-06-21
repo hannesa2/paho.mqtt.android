@@ -25,13 +25,13 @@ jobs:
           tag: default
           abi: x86
           cmdOptions: -noaudio -no-boot-anim -no-window
-      - uses: actions/upload-artifact@v2.2.3
+      - uses: actions/upload-artifact@v2.2.4
         if: ${{ always() }}
         with:
           name: Espresso-test-mqtt-report
           path: ./**/build/reports/androidTests/connected
       - name: Archive screenshots
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         if: ${{ always() }}
         with:
           name: MQ-Example-Screenshots
@@ -47,7 +47,7 @@ jobs:
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         if: ${{ always() }}
         with:
           name: MQTT-Lint-report
