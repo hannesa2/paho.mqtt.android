@@ -1,13 +1,15 @@
 package info.mqtt.java.example
 
-import java.util.ArrayList
-import androidx.recyclerview.widget.RecyclerView
-import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
-class HistoryAdapter(private val history: ArrayList<String>) : RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
+class HistoryAdapter() : RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
+
+    private val history: ArrayList<String> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.history_row, parent, false)

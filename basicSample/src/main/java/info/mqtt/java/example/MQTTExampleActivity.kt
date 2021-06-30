@@ -38,7 +38,7 @@ class MQTTExampleActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.history_recycler_view)
         val mLayoutManager: LayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = mLayoutManager
-        adapter = HistoryAdapter(ArrayList())
+        adapter = HistoryAdapter()
         recyclerView.adapter = adapter
         clientId += System.currentTimeMillis()
         mqttAndroidClient = MqttAndroidClient(applicationContext, serverUri, clientId)
