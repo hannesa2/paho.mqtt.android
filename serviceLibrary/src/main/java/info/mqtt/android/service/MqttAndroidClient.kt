@@ -36,16 +36,13 @@ import javax.net.ssl.TrustManagerFactory
  *  * disconnect
  *
  */
-class MqttAndroidClient @JvmOverloads constructor(
-    val context: Context, private val serverURI: String, private val clientId: String,
-    ackType: Ack = Ack.AUTO_ACK
-) : BroadcastReceiver(), IMqttAsyncClient {
+class MqttAndroidClient(val context: Context, private val serverURI: String, private val clientId: String, ackType: Ack = Ack.AUTO_ACK) :
+    BroadcastReceiver(), IMqttAsyncClient {
 
     // Listener for when the service is connected or disconnected
     private val serviceConnection = MyServiceConnection()
 
-    // We hold the various tokens in a collection and pass identifiers for them
-    // to the service
+    // We hold the various tokens in a collection and pass identifiers for them to the service
     private val tokenMap = SparseArray<IMqttToken?>()
 
     //The acknowledgment that a message has been processed by the application
@@ -81,13 +78,10 @@ class MqttAndroidClient @JvmOverloads constructor(
      * with an MQTT server on android
      *
      * @param context     used to pass context to the callback.
-     * @param serverURI   specifies the protocol, host name and port to be used to
-     * connect to an MQTT server
-     * @param clientId    specifies the name by which this connection should be
-     * identified to the server
-     * null then the default persistence mechanism is used
-     * @param ackType     how the application wishes to acknowledge a message has been
-     * processed.
+     * @param serverURI   specifies the protocol, host name and port to be used to connect to an MQTT server
+     * @param clientId    specifies the name by which this connection should be identified to the server null then the default persistence
+     * mechanism is used
+     * @param ackType     how the application wishes to acknowledge a message has been processed.
      */
 
     /**
@@ -100,16 +94,12 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Returns the client ID used by this client.
      *
-     *
      * All clients connected to the same server or server farm must have a
      * unique ID.
      *
-     *
      * @return the client ID used by this client.
      */
-    override fun getClientId(): String {
-        return clientId
-    }
+    override fun getClientId() = clientId
 
     /**
      * Returns the URI address of the server used by this client.
@@ -140,13 +130,9 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Connects to an MQTT server using the default options.
      *
-     *
      * The default options are specified in [MqttConnectOptions] class.
      *
-     *
-     * @return token used to track and wait for the connect to complete. The
-     * token will be passed to the callback methods if a callback is
-     * set.
+     * @return token used to track and wait for the connect to complete. The token will be passed to the callback methods if a callback is set.
      * @see .connect
      */
     override fun connect(): IMqttToken {
@@ -156,14 +142,10 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Connects to an MQTT server using the provided connect options.
      *
-     *
-     * The connection will be established using the options specified in the
-     * [MqttConnectOptions] parameter.
-     *
+     * The connection will be established using the options specified in the [MqttConnectOptions] parameter.
      *
      * @param options a set of connection parameters that override the defaults.
-     * @return token used to track and wait for the connect to complete. The
-     * token will be passed to any callback that has been set.
+     * @return token used to track and wait for the connect to complete. The token will be passed to any callback that has been set.
      * @see .connect
      */
     override fun connect(options: MqttConnectOptions): IMqttToken {
@@ -173,16 +155,11 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Connects to an MQTT server using the default options.
      *
-     *
      * The default options are specified in [MqttConnectOptions] class.
      *
-     *
-     * @param userContext optional object used to pass context to the callback. Use null
-     * if not required.
-     * @param callback    optional listener that will be notified when the connect
-     * completes. Use null if not required.
-     * @return token used to track and wait for the connect to complete. The
-     * token will be passed to any callback that has been set.
+     * @param userContext optional object used to pass context to the callback. Use null if not required.
+     * @param callback    optional listener that will be notified when the connect completes. Use null if not required.
+     * @return token used to track and wait for the connect to complete. The token will be passed to any callback that has been set.
      * @see .connect
      */
     override fun connect(userContext: Any?, callback: IMqttActionListener?): IMqttToken {
@@ -192,32 +169,19 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Connects to an MQTT server using the specified options.
      *
+     * The server to connect to is specified on the constructor. It is recommended to call [.setCallback] prior to
+     * connecting in order that messages destined for the client can be accepted as soon as the client is connected.
      *
-     * The server to connect to is specified on the constructor. It is
-     * recommended to call [.setCallback] prior to
-     * connecting in order that messages destined for the client can be accepted
-     * as soon as the client is connected.
-     *
-     *
-     *
-     *
-     *
-     * The method returns control before the connect completes. Completion can
-     * be tracked by:
-     *
+     * The method returns control before the connect completes. Completion can be tracked by:
      *
      *  * Waiting on the returned token [IMqttToken.waitForCompletion]
      * or
      *  * Passing in a callback [IMqttActionListener]
      *
-     *
      * @param options     a set of connection parameters that override the defaults.
-     * @param userContext optional object for used to pass context to the callback. Use
-     * null if not required.
-     * @param callback    optional listener that will be notified when the connect
-     * completes. Use null if not required.
-     * @return token used to track and wait for the connect to complete. The
-     * token will be passed to any callback that has been set.
+     * @param userContext optional object for used to pass context to the callback. Use null if not required.
+     * @param callback    optional listener that will be notified when the connect completes. Use null if not required.
+     * @return token used to track and wait for the connect to complete. The token will be passed to any callback that has been set.
      */
     override fun connect(options: MqttConnectOptions, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback)
@@ -225,11 +189,10 @@ class MqttAndroidClient @JvmOverloads constructor(
         connectToken = token
 
         /*
-         * The actual connection depends on the service, which we start and bind
-         * to here, but which we can't actually use until the serviceConnection
-         * onServiceConnected() method has run (asynchronously), so the
-         * connection itself takes place in the onServiceConnected() method
-         */if (mqttService == null) { // First time - must bind to the service
+         * The actual connection depends on the service, which we start and bind to here, but which we can't actually use until the serviceConnection
+         * onServiceConnected() method has run (asynchronously), so the connection itself takes place in the onServiceConnected() method
+         */
+        if (mqttService == null) { // First time - must bind to the service
             val serviceStartIntent = Intent()
             serviceStartIntent.setClassName(context, SERVICE_NAME)
             var service: Any? = null
@@ -297,15 +260,11 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Disconnects from the server.
      *
-     *
      * An attempt is made to quiesce the client allowing outstanding work to
      * complete before disconnecting. It will wait for a maximum of 30 seconds
-     * for work to quiesce before disconnecting. This method must not be called
-     * from inside [MqttCallback] methods.
+     * for work to quiesce before disconnecting. This method must not be called from inside [MqttCallback] methods.
      *
-     *
-     * @return token used to track and wait for disconnect to complete. The
-     * token will be passed to any callback that has been set.
+     * @return token used to track and wait for disconnect to complete. The token will be passed to any callback that has been set.
      * @see .disconnect
      */
     override fun disconnect(): IMqttToken {
@@ -318,19 +277,14 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Disconnects from the server.
      *
-     *
      * An attempt is made to quiesce the client allowing outstanding work to
      * complete before disconnecting. It will wait for a maximum of the
      * specified quiesce time for work to complete before disconnecting. This
      * method must not be called from inside [MqttCallback] methods.
      *
-     *
      * @param quiesceTimeout the amount of time in milliseconds to allow for existing work
-     * to finish before disconnecting. A value of zero or less means
-     * the client will not quiesce.
-     * @return token used to track and wait for disconnect to complete. The
-     * token will be passed to the callback methods if a callback is
-     * set.
+     * to finish before disconnecting. A value of zero or less means the client will not quiesce.
+     * @return token used to track and wait for disconnect to complete. The token will be passed to the callback methods if a callback is set.
      * @see .disconnect
      */
     override fun disconnect(quiesceTimeout: Long): IMqttToken {
@@ -343,19 +297,12 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Disconnects from the server.
      *
+     * An attempt is made to quiesce the client allowing outstanding work to complete before disconnecting. It will wait for a maximum of 30 seconds
+     * for work to quiesce before disconnecting. This method must not be called from inside [MqttCallback] methods.
      *
-     * An attempt is made to quiesce the client allowing outstanding work to
-     * complete before disconnecting. It will wait for a maximum of 30 seconds
-     * for work to quiesce before disconnecting. This method must not be called
-     * from inside [MqttCallback] methods.
-     *
-     *
-     * @param userContext optional object used to pass context to the callback. Use null
-     * if not required.
-     * @param callback    optional listener that will be notified when the disconnect
-     * completes. Use null if not required.
-     * @return token used to track and wait for the disconnect to complete. The
-     * token will be passed to any callback that has been set.
+     * @param userContext optional object used to pass context to the callback. Use null if not required.
+     * @param callback    optional listener that will be notified when the disconnect completes. Use null if not required.
+     * @return token used to track and wait for the disconnect to complete. The token will be passed to any callback that has been set.
      * @see .disconnect
      */
     override fun disconnect(userContext: Any?, callback: IMqttActionListener?): IMqttToken {
@@ -368,7 +315,6 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Disconnects from the server.
      *
-     *
      * The client will wait for [MqttCallback] methods to complete. It
      * will then wait for up to the quiesce timeout to allow for work which has
      * already been initiated to complete. For instance when a QoS 2 message has
@@ -376,35 +322,22 @@ class MqttAndroidClient @JvmOverloads constructor(
      * prevents new messages being accepted and does not send any messages that
      * have been accepted but not yet started delivery across the network to the
      * server. When work has completed or after the quiesce timeout, the client
-     * will disconnect from the server. If the cleanSession flag was set to
-     * false and next time it is also set to false in the connection, the
-     * messages made in QoS 1 or 2 which were not previously delivered will be
-     * delivered this time.
-     *
-     *
+     * will disconnect from the server. If the cleanSession flag was set to false and next time it is also set to false in the connection, the
+     * messages made in QoS 1 or 2 which were not previously delivered will be delivered this time.
      *
      * This method must not be called from inside [MqttCallback] methods.
      *
-     *
-     *
-     * The method returns control before the disconnect completes. Completion
-     * can be tracked by:
-     *
+     * The method returns control before the disconnect completes. Completioncan be tracked by:
      *
      *  * Waiting on the returned token [IMqttToken.waitForCompletion]
      * or
      *  * Passing in a callback [IMqttActionListener]
      *
-     *
      * @param quiesceTimeout the amount of time in milliseconds to allow for existing work
-     * to finish before disconnecting. A value of zero or less means
-     * the client will not quiesce.
-     * @param userContext    optional object used to pass context to the callback. Use null
-     * if not required.
-     * @param callback       optional listener that will be notified when the disconnect
-     * completes. Use null if not required.
-     * @return token used to track and wait for the disconnect to complete. The
-     * token will be passed to any callback that has been set.
+     * to finish before disconnecting. A value of zero or less means the client will not quiesce.
+     * @param userContext    optional object used to pass context to the callback. Use null if not required.
+     * @param callback       optional listener that will be notified when the disconnect completes. Use null if not required.
+     * @return token used to track and wait for the disconnect to complete. The token will be passed to any callback that has been set.
      */
     override fun disconnect(quiesceTimeout: Long, userContext: Any, callback: IMqttActionListener): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback)
@@ -415,19 +348,14 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     /**
      * Publishes a message to a topic on the server.
-     *
-     *
      * A convenience method, which will create a new [MqttMessage] object
      * with a byte array payload and the specified QoS, and then publish it.
      *
-     *
      * @param topic    to deliver the message to, for example "finance\/stock\/ibm".
      * @param payload  the byte array to use as the payload
-     * @param qos      the Quality of Service to deliver the message at. Valid values
-     * are 0, 1 or 2.
+     * @param qos      the Quality of Service to deliver the message at. Valid values are 0, 1 or 2.
      * @param retained whether or not this message should be retained by the server.
-     * @return token used to track and wait for the publish to complete. The
-     * token will be passed to any callback that has been set.
+     * @return token used to track and wait for the publish to complete. The token will be passed to any callback that has been set.
      * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
      * @see .publish
      */
@@ -442,8 +370,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      * @param topic   to deliver the message to, for example "finance/stock/ibm".
      * @param message to deliver to the server
-     * @return token used to track and wait for the publish to complete. The
-     * token will be passed to any callback that has been set.
+     * @return token used to track and wait for the publish to complete. The token will be passed to any callback that has been set.
      * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
      * @see .publish
      */
@@ -454,22 +381,18 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Publishes a message to a topic on the server.
      *
-     *
      * A convenience method, which will create a new [MqttMessage] object
      * with a byte array payload, the specified QoS and retained, then publish it.
-     *
      *
      * @param topic       to deliver the message to, for example "finance/stock/ibm".
      * @param payload     the byte array to use as the payload
      * @param qos         the Quality of Service to deliver the message at. Valid values
      * are 0, 1 or 2.
      * @param retained    whether or not this message should be retained by the server.
-     * @param userContext optional object used to pass context to the callback. Use null
-     * if not required.
+     * @param userContext optional object used to pass context to the callback. Use null if not required.
      * @param callback    optional listener that will be notified when message delivery
      * has completed to the requested quality of service
-     * @return token used to track and wait for the publish to complete. The
-     * token will be passed to any callback that has been set.
+     * @return token used to track and wait for the publish to complete. The token will be passed to any callback that has been set.
      * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
      * @see .publish
      */
@@ -488,31 +411,19 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Publishes a message to a topic on the server.
      *
-     *
      * Once this method has returned cleanly, the message has been accepted for
      * publication by the client and will be delivered on a background thread.
      * In the event the connection fails or the client stops, Messages will be
      * delivered to the requested quality of service once the connection is
      * re-established to the server on condition that:
      *
-     *
      *  * The connection is re-established with the same clientID
-     *  * The original connection was made with (@link
-     * MqttConnectOptions#setCleanSession(boolean)} set to false
-     *  * The connection is re-established with (@link
-     * MqttConnectOptions#setCleanSession(boolean)} set to false
-     *  * Depending when the failure occurs QoS 0 messages may not be
-     * delivered.
-     *
-     *
-     *
-     *
+     *  * The original connection was made with (@link MqttConnectOptions#setCleanSession(boolean)} set to false
+     *  * The connection is re-established with (@link MqttConnectOptions#setCleanSession(boolean)} set to false
+     *  * Depending when the failure occurs QoS 0 messages may not be elivered.
      *
      * When building an application, the design of the topic tree should take
      * into account the following principles of topic name syntax and semantics:
-     *
-     *
-     *
      *
      *  * A topic must be at least one character long.
      *  * Topic names are case sensitive. For example, *ACCOUNTS* and
@@ -525,26 +436,16 @@ class MqttAndroidClient @JvmOverloads constructor(
      * matches "+/+" and "/+", but not "+".
      *  * Do not include the null character (Unicode *\x0000*) in any topic.
      *
-     *
-     *
-     *
-     *
      * The following principles apply to the construction and content of a topic
      * tree:
-     *
-     *
-     *
      *
      *  * The length is limited to 64k but within that there are no limits to
      * the number of levels in a topic tree.
      *  * There can be any number of root nodes; that is, there can be any
      * number of topic trees.
      *
-     *
-     *
      * The method returns control before the publish completes. Completion can
      * be tracked by:
-     *
      *
      *  * Setting an [IMqttAsyncClient.setCallback] where
      * the [MqttCallback.deliveryComplete] method will
@@ -553,16 +454,11 @@ class MqttAndroidClient @JvmOverloads constructor(
      * or
      *  * Passing in a callback [IMqttActionListener] to this method
      *
-     *
      * @param topic to deliver the message to, for example "finance/stock/ibm".
      * @param message to deliver to the server
-     * @param userContext optional
-    object used to pass context to the callback. Use null
-     * if not required.
-     * @param callback optional listener that will be notified when message delivery
-     * has completed to the requested quality of service
-     * @ return token used to track and wait for the publish to complete. The
-     * token will be passed to callback methods if set.
+     * @param userContext optional object used to pass context to the callback. Use null if not required.
+     * @param callback optional listener that will be notified when message delivery has completed to the requested quality of service
+     * @ return token used to track and wait for the publish to complete. The token will be passed to callback methods if set.
      * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
      * @see MqttMessage
      */
@@ -579,12 +475,9 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      * @param topic the topic to subscribe to, which can include wildcards.
      * @param qos   the maximum quality of service at which to subscribe. Messages
-     * published at a lower quality of service will be received at
-     * the published QoS. Messages published at a higher quality of
-     * service will be received using the QoS specified on the
-     * subscription.
-     * @return token used to track and wait for the subscribe to complete. The
-     * token will be passed to callback methods if set.
+     * published at a lower quality of service will be received at the published QoS. Messages published at a higher quality of
+     * service will be received using the QoS specified on the subscription.
+     * @return token used to track and wait for the subscribe to complete. The token will be passed to callback methods if set.
      * @see .subscribe
      */
     override fun subscribe(topic: String, qos: Int): IMqttToken {
@@ -594,22 +487,15 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Subscribe to multiple topics, each topic may include wildcards.
      *
-     *
-     *
-     *
      * Provides an optimized way to subscribe to multiple topics compared to
      * subscribing to each one individually.
-     *
      *
      * @param topic one or more topics to subscribe to, which can include
      * wildcards
      * @param qos   the maximum quality of service at which to subscribe. Messages
-     * published at a lower quality of service will be received at
-     * the published QoS. Messages published at a higher quality of
-     * service will be received using the QoS specified on the
-     * subscription.
-     * @return token used to track and wait for the subscription to complete. The
-     * token will be passed to callback methods if set.
+     * published at a lower quality of service will be received at the published QoS. Messages published at a higher quality of
+     * service will be received using the QoS specified on the subscription.
+     * @return token used to track and wait for the subscription to complete. The token will be passed to callback methods if set.
      * @see .subscribe
      */
     override fun subscribe(topic: Array<String>, qos: IntArray): IMqttToken {
@@ -621,16 +507,11 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      * @param topic       the topic to subscribe to, which can include wildcards.
      * @param qos         the maximum quality of service at which to subscribe. Messages
-     * published at a lower quality of service will be received at
-     * the published QoS. Messages published at a higher quality of
-     * service will be received using the QoS specified on the
-     * subscription.
-     * @param userContext optional object used to pass context to the callback. Use null
-     * if not required.
-     * @param callback    optional listener that will be notified when subscribe has
-     * completed
-     * @return token used to track and wait for the subscribe to complete. The
-     * token will be passed to callback methods if set.
+     * published at a lower quality of service will be received at the published QoS. Messages published at a higher quality of
+     * service will be received using the QoS specified on the subscription.
+     * @param userContext optional object used to pass context to the callback. Use null if not required.
+     * @param callback    optional listener that will be notified when subscribe has completed
+     * @return token used to track and wait for the subscribe to complete. The token will be passed to callback methods if set.
      * @see .subscribe
      */
     override fun subscribe(topic: String, qos: Int, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
@@ -643,44 +524,28 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Subscribes to multiple topics, each topic may include wildcards.
      *
+     * Provides an optimized way to subscribe to multiple topics compared to subscribing to each one individually.
      *
-     * Provides an optimized way to subscribe to multiple topics compared to
-     * subscribing to each one individually.
+     * The [.setCallback] method should be called before this method, otherwise any received messages will be discarded.
      *
-     *
-     *
-     * The [.setCallback] method should be called before
-     * this method, otherwise any received messages will be discarded.
-     *
-     *
-     *
-     * If (@link MqttConnectOptions#setCleanSession(boolean)} was set to true,
+     *  If (@link MqttConnectOptions#setCleanSession(boolean)} was set to true,
      * when connecting to the server, the subscription remains in place until
      * either:
      *
-     *
      *  * The client disconnects
      *  * An unsubscribe method is called to unsubscribe the topic
-     *
-     *
      *
      * If (@link MqttConnectOptions#setCleanSession(boolean)} was set to false,
      * when connecting to the server, the subscription remains in place
      * until either:
      *
-     *
      *  * An unsubscribe method is called to unsubscribe the topic
      *  * The next time the client connects with cleanSession set to true
-     *
      *
      * With cleanSession set to false the MQTT server will store messages
      * on behalf of the client when the client is not connected. The next time
      * the client connects with the **same client ID** the server will
      * deliver the stored messages to the client.
-     *
-     *
-     *
-     *
      *
      * The "topic filter" string is used when subscription may contain special
      * characters, which allows you to subscribe to multiple topics at once.
@@ -700,23 +565,14 @@ class MqttAndroidClient @JvmOverloads constructor(
      * levels within a topic. For example, if you subscribe to <span><span class="filepath">finance/stock/ibm/#</span></span>, you receive messages
      * on these topics:
      *
-     *
      *  * <pre>finance/stock/ibm</pre>
      *  * <pre>finance/stock/ibm/closingprice</pre>
      *  * <pre>finance/stock/ibm/currentprice</pre>
-     *
-     *
-     *
-     *
      *
      * The multi-level wildcard can represent zero or more levels. Therefore,
      * *finance/#* can also match the singular *finance*, where
      * *#* represents zero levels. The topic level separator is
      * meaningless in this context, because there are no levels to separate.
-     *
-     *
-     *
-     *
      *
      * The <span>multi-level</span> wildcard can be specified only on its own or
      * next to the topic level separator character. Therefore, *#* and
@@ -724,9 +580,6 @@ class MqttAndroidClient @JvmOverloads constructor(
      * <span>The multi-level wildcard must be the last character used within the
      * topic tree. For example, *finance/#* is valid but
      * *finance/#/closingprice* is not valid.</span>
-     *
-     *
-     *
      *
      * <dt>Single-level wildcard</dt>
      * <dd>
@@ -739,10 +592,6 @@ class MqttAndroidClient @JvmOverloads constructor(
      * wildcard matches only a single level, *finance/+* does not match
      * *finance*.
      *
-     *
-     *
-     *
-     *
      * Use the single-level wildcard at any level in the topic tree, and in
      * conjunction with the multilevel wildcard. Specify the single-level
      * wildcard next to the topic level separator, except when it is specified
@@ -752,32 +601,21 @@ class MqttAndroidClient @JvmOverloads constructor(
      * example, *finance/+* and *finance/+/ibm* are both
      * valid.</span>
      *
-     *
-     *
-     *
-     *
      * The method returns control before the subscribe completes. Completion can
      * be tracked by:
-     *
      *
      *  * Waiting on the supplied token [MqttToken.waitForCompletion]
      * or
      *  * Passing in a callback [IMqttActionListener] to this method
      *
-     *
      * @param topic       one or more topics to subscribe to, which can include
      * wildcards
      * @param qos         the maximum quality of service to subscribe each topic
-     * at.Messages published at a lower quality of service will be
-     * received at the published QoS. Messages published at a higher
-     * quality of service will be received using the QoS specified on
-     * the subscription.
-     * @param userContext optional object used to pass context to the callback. Use null
-     * if not required.
-     * @param callback    optional listener that will be notified when subscribe has
-     * completed
-     * @return token used to track and wait for the subscribe to complete. The
-     * token will be passed to callback methods if set.
+     * at.Messages published at a lower quality of service will be received at the published QoS. Messages published at a higher
+     * quality of service will be received using the QoS specified on the subscription.
+     * @param userContext optional object used to pass context to the callback. Use null if not required.
+     * @param callback    optional listener that will be notified when subscribe has completed
+     * @return token used to track and wait for the subscribe to complete. The token will be passed to callback methods if set.
      * @throws IllegalArgumentException if the two supplied arrays are not the same size.
      */
     override fun subscribe(topic: Array<String>, qos: IntArray, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
@@ -793,15 +631,11 @@ class MqttAndroidClient @JvmOverloads constructor(
      * @param topicFilter     the topic to subscribe to, which can include wildcards.
      * @param qos             the maximum quality of service at which to subscribe. Messages
      * published at a lower quality of service will be received at the published
-     * QoS.  Messages published at a higher quality of service will be received using
-     * the QoS specified on the subscribe.
-     * @param userContext     optional object used to pass context to the callback. Use
-     * null if not required.
-     * @param callback        optional listener that will be notified when subscribe
-     * has completed
+     * QoS.  Messages published at a higher quality of service will be received using the QoS specified on the subscribe.
+     * @param userContext     optional object used to pass context to the callback. Use null if not required.
+     * @param callback        optional listener that will be notified when subscribe has completed
      * @param messageListener a callback to handle incoming messages
-     * @return token used to track and wait for the subscribe to complete. The token
-     * will be passed to callback methods if set.
+     * @return token used to track and wait for the subscribe to complete. The token will be passed to callback methods if set.
      * @see .subscribe
      */
     override fun subscribe(
@@ -817,11 +651,9 @@ class MqttAndroidClient @JvmOverloads constructor(
      * @param topicFilter     the topic to subscribe to, which can include wildcards.
      * @param qos             the maximum quality of service at which to subscribe. Messages
      * published at a lower quality of service will be received at the published
-     * QoS.  Messages published at a higher quality of service will be received using
-     * the QoS specified on the subscribe.
+     * QoS.  Messages published at a higher quality of service will be received using the QoS specified on the subscribe.
      * @param messageListener a callback to handle incoming messages
-     * @return token used to track and wait for the subscribe to complete. The token
-     * will be passed to callback methods if set.
+     * @return token used to track and wait for the subscribe to complete. The token will be passed to callback methods if set.
      * @see .subscribe
      */
     override fun subscribe(topicFilter: String, qos: Int, messageListener: IMqttMessageListener): IMqttToken {
@@ -831,19 +663,15 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Subscribe to multiple topics, each of which may include wildcards.
      *
-     *
-     *
      * Provides an optimized way to subscribe to multiple topics compared to
      * subscribing to each one individually.
      *
      * @param topicFilters     one or more topics to subscribe to, which can include wildcards
      * @param qos              the maximum quality of service at which to subscribe. Messages
      * published at a lower quality of service will be received at the published
-     * QoS.  Messages published at a higher quality of service will be received using
-     * the QoS specified on the subscribe.
+     * QoS.  Messages published at a higher quality of service will be received using the QoS specified on the subscribe.
      * @param messageListeners an array of callbacks to handle incoming messages
-     * @return token used to track and wait for the subscribe to complete. The token
-     * will be passed to callback methods if set.
+     * @return token used to track and wait for the subscribe to complete. The token will be passed to callback methods if set.
      * @see .subscribe
      */
     override fun subscribe(topicFilters: Array<String>, qos: IntArray, messageListeners: Array<IMqttMessageListener>): IMqttToken {
@@ -853,23 +681,17 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Subscribe to multiple topics, each of which may include wildcards.
      *
-     *
-     *
      * Provides an optimized way to subscribe to multiple topics compared to
      * subscribing to each one individually.
      *
      * @param topicFilters     one or more topics to subscribe to, which can include wildcards
-     * @param qos              the maximum quality of service at which to subscribe. Messages
-     * published at a lower quality of service will be received at the published
-     * QoS.  Messages published at a higher quality of service will be received using
-     * the QoS specified on the subscribe.
-     * @param userContext      optional object used to pass context to the callback. Use
-     * null if not required.
-     * @param callback         optional listener that will be notified when subscribe
-     * has completed
+     * @param qos              the maximum quality of service at which to subscribe. Messages published at a lower quality of service will be
+     * received at the published
+     * QoS.  Messages published at a higher quality of service will be received using the QoS specified on the subscribe.
+     * @param userContext      optional object used to pass context to the callback. Use null if not required.
+     * @param callback         optional listener that will be notified when subscribe has completed
      * @param messageListeners an array of callbacks to handle incoming messages
-     * @return token used to track and wait for the subscribe to complete. The token
-     * will be passed to callback methods if set.
+     * @return token used to track and wait for the subscribe to complete. The token will be passed to callback methods if set.
      * @see .subscribe
      */
     override fun subscribe(
@@ -885,10 +707,8 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Requests the server unsubscribe the client from a topic.
      *
-     * @param topic the topic to unsubscribe from. It must match a topic specified
-     * on an earlier subscribe.
-     * @return token used to track and wait for the unsubscribe to complete. The
-     * token will be passed to callback methods if set.
+     * @param topic the topic to unsubscribe from. It must match a topic specified on an earlier subscribe.
+     * @return token used to track and wait for the unsubscribe to complete. The token will be passed to callback methods if set.
      * @see .unsubscribe
      */
     override fun unsubscribe(topic: String): IMqttToken {
@@ -898,10 +718,8 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Requests the server to unsubscribe the client from one or more topics.
      *
-     * @param topic one or more topics to unsubscribe from. Each topic must match
-     * one specified on an earlier subscription.
-     * @return token used to track and wait for the unsubscribe to complete. The
-     * token will be passed to callback methods if set.
+     * @param topic one or more topics to unsubscribe from. Each topic must match one specified on an earlier subscription.
+     * @return token used to track and wait for the unsubscribe to complete. The token will be passed to callback methods if set.
      * @see .unsubscribe
      */
     override fun unsubscribe(topic: Array<String>): IMqttToken {
@@ -911,14 +729,10 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Requests the server to unsubscribe the client from a topics.
      *
-     * @param topic       the topic to unsubscribe from. It must match a topic specified
-     * on an earlier subscribe.
-     * @param userContext optional object used to pass context to the callback. Use null
-     * if not required.
-     * @param callback    optional listener that will be notified when unsubscribe has
-     * completed
-     * @return token used to track and wait for the unsubscribe to complete. The
-     * token will be passed to callback methods if set.
+     * @param topic       the topic to unsubscribe from. It must match a topic specified on an earlier subscribe.
+     * @param userContext optional object used to pass context to the callback. Use null if not required.
+     * @param callback    optional listener that will be notified when unsubscribe has completed
+     * @return token used to track and wait for the unsubscribe to complete. The token will be passed to callback methods if set.
      * @see .unsubscribe
      */
     override fun unsubscribe(topic: String, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
@@ -931,37 +745,26 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Requests the server to unsubscribe the client from one or more topics.
      *
-     *
      * Unsubcribing is the opposite of subscribing. When the server receives the
      * unsubscribe request it looks to see if it can find a matching
      * subscription for the client and then removes it. After this point the
      * server will send no more messages to the client for this subscription.
      *
-     *
-     *
      * The topic(s) specified on the unsubscribe must match the topic(s)
      * specified in the original subscribe request for the unsubscribe to
      * succeed
      *
-     *
-     *
      * The method returns control before the unsubscribe completes. Completion
      * can be tracked by:
-     *
      *
      *  * Waiting on the returned token [MqttToken.waitForCompletion]
      * or
      *  * Passing in a callback [IMqttActionListener] to this method
      *
-     *
-     * @param topic       one or more topics to unsubscribe from. Each topic must match
-     * one specified on an earlier subscription.
-     * @param userContext optional object used to pass context to the callback. Use null
-     * if not required.
-     * @param callback    optional listener that will be notified when unsubscribe has
-     * completed
-     * @return token used to track and wait for the unsubscribe to complete. The
-     * token will be passed to callback methods if set.
+     * @param topic       one or more topics to unsubscribe from. Each topic must match one specified on an earlier subscription.
+     * @param userContext optional object used to pass context to the callback. Use null if not required.
+     * @param callback    optional listener that will be notified when unsubscribe has completed
+     * @return token used to track and wait for the unsubscribe to complete. The token will be passed to callback methods if set.
      */
     override fun unsubscribe(topic: Array<String>, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback)
@@ -978,20 +781,16 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Returns the delivery tokens for any outstanding publish operations.
      *
-     *
      * If a client has been restarted and there are messages that were in the
      * process of being delivered when the client stopped, this method returns a
      * token for each in-flight message to enable the delivery to be tracked.
      * Alternately the [MqttCallback.deliveryComplete]
      * callback can be used to track the delivery of outstanding messages.
      *
-     *
-     *
      * If a client connects with cleanSession true then there will be no
      * delivery tokens as the cleanSession option deletes all earlier state. For
      * state to be remembered the client must connect with cleanSession set to
      * false
-     *
      *
      * @return zero or more delivery tokens
      */
@@ -1002,16 +801,12 @@ class MqttAndroidClient @JvmOverloads constructor(
     /**
      * Sets a callback listener to use for events that happen asynchronously.
      *
-     *
      * There are a number of events that the listener will be notified about.
      * These include:
-     *
      *
      *  * A new message has arrived and is ready to be processed
      *  * The connection to the server has been lost
      *  * Delivery of a message to the server has completed
-     *
-     *
      *
      * Other events that track the progress of an individual operation such as
      * connect and subscribe can be tracked using the [MqttToken] returned
@@ -1392,11 +1187,8 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     /**
      * Get the SSLSocketFactory using SSL key store and password
-     *
-     *
      * A convenience method, which will help user to create a SSLSocketFactory
      * object
-     *
      *
      * @param keyStore the SSL key store which is generated by some SSL key tool,
      * such as keytool in Java JDK
@@ -1409,15 +1201,13 @@ class MqttAndroidClient @JvmOverloads constructor(
     @Throws(MqttSecurityException::class)
     fun getSSLSocketFactory(keyStore: InputStream?, password: String): SSLSocketFactory {
         return try {
-            val ctx: SSLContext
             val sslSockFactory: SSLSocketFactory
-            val ts: KeyStore
-            ts = KeyStore.getInstance("BKS")
+            val ts: KeyStore = KeyStore.getInstance("BKS")
             ts.load(keyStore, password.toCharArray())
             val tmf = TrustManagerFactory.getInstance("X509")
             tmf.init(ts)
             val tm = tmf.trustManagers
-            ctx = SSLContext.getInstance("TLSv1")
+            val ctx: SSLContext = SSLContext.getInstance("TLSv1")
             ctx.init(null, tm, null)
             sslSockFactory = ctx.socketFactory
             sslSockFactory
@@ -1497,7 +1287,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     }
 
     companion object {
-        private val SERVICE_NAME = MqttService::class.java.canonicalName
+        private val SERVICE_NAME = MqttService::class.java.name
         private val pool = Executors.newCachedThreadPool()
     }
 
