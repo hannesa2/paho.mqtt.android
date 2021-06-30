@@ -95,7 +95,7 @@ class ActionListener(
      * @param token     This argument is not used
      * @param exception The exception which indicates why the action failed
      */
-    override fun onFailure(token: IMqttToken, exception: Throwable) {
+    override fun onFailure(token: IMqttToken?, exception: Throwable) {
         when (action) {
             Action.CONNECT -> connect(exception)
             Action.DISCONNECT -> disconnect(exception)
