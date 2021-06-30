@@ -45,11 +45,11 @@ class MQTTExampleActivity : AppCompatActivity() {
         mqttAndroidClient.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(reconnect: Boolean, serverURI: String) {
                 if (reconnect) {
-                    addToHistory("Reconnected to : $serverURI")
+                    addToHistory("Reconnected: $serverURI")
                     // Because Clean Session is true, we need to re-subscribe
                     subscribeToTopic()
                 } else {
-                    addToHistory("Connected to: $serverURI")
+                    addToHistory("Connected: $serverURI")
                 }
             }
 
@@ -66,7 +66,7 @@ class MQTTExampleActivity : AppCompatActivity() {
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
         mqttConnectOptions.isCleanSession = false
-        addToHistory("Connecting to $serverUri")
+        addToHistory("Connecting: $serverUri")
         mqttAndroidClient.connect(mqttConnectOptions, null, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 val disconnectedBufferOptions = DisconnectedBufferOptions()
@@ -79,7 +79,7 @@ class MQTTExampleActivity : AppCompatActivity() {
             }
 
             override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                addToHistory("Failed to connect to: $serverUri")
+                addToHistory("Failed to connect: $serverUri")
             }
         })
     }
@@ -95,7 +95,7 @@ class MQTTExampleActivity : AppCompatActivity() {
     fun subscribeToTopic() {
         mqttAndroidClient.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
-                addToHistory("Subscribed!")
+                addToHistory("Subscribed! $subscriptionTopic")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
