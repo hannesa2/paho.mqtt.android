@@ -95,7 +95,8 @@ class ActionListener(
      * @param token     This argument is not used
      * @param exception The exception which indicates why the action failed
      */
-    override fun onFailure(token: IMqttToken?, exception: Throwable) {
+    override fun onFailure(token: IMqttToken, exception: Throwable) {
+        Timber.e(exception, "token=$token")
         when (action) {
             Action.CONNECT -> connect(exception)
             Action.DISCONNECT -> disconnect(exception)
