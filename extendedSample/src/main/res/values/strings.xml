@@ -74,10 +74,6 @@
     <string name="message_time_fmt">Time: %1$s</string>
     <string name="publish">Publish</string>
     <string name="topic_fmt">Topic: %1$s</string>
-    <string name="enabled">Enabled</string>
-
-
-    <string name="disabled">Disabled</string>
     <string name="placeholder_main_label">Main Label</string>
 
 
