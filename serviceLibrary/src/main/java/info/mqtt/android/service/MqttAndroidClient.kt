@@ -197,7 +197,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
             serviceStartIntent.setClassName(context, SERVICE_NAME)
             var service: Any? = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && foregroundServiceNotification != null) {
-                serviceStartIntent.putExtra(MqttService.PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION, foregroundServiceNotification)
+                serviceStartIntent.putExtra(MqttService.MQTT_FOREGROUND_SERVICE_NOTIFICATION, foregroundServiceNotification)
                 serviceStartIntent.putExtra(MqttService.MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, foregroundServiceNotificationId)
                 service = context.startForegroundService(serviceStartIntent)
             } else {
