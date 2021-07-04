@@ -203,7 +203,7 @@ class Connection private constructor(
     }
 
     companion object {
-        private const val FOREGROUND = true
+        private const val FOREGROUND = false
 
         fun createConnection(
             clientHandle: String,
