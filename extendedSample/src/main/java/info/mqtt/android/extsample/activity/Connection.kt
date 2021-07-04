@@ -36,19 +36,18 @@ class Connection private constructor(
     private val listeners = ArrayList<PropertyChangeListener>()
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
     val messages = ArrayList<ReceivedMessage>()
+    private val history: ArrayList<String> = ArrayList()
     private val receivedMessageListeners = ArrayList<IReceivedMessageListener>()
 
     private var status = ConnectionStatus.NONE
 
-    private val history: ArrayList<String> = ArrayList()
     var connectionOptions: MqttConnectOptions? = null
         private set
 
-    private var persistenceId: Long = -1
+    var persistenceId: Long = -1
 
     init {
-        val sb = "Client: $id created"
-        addAction(sb)
+        addHistory("Client: $id created")
     }
 
     fun updateConnection(clientId: String, host: String, port: Int, tlsConnection: Boolean) {
@@ -65,15 +64,13 @@ class Connection private constructor(
     }
 
     @SuppressLint("SimpleDateFormat")
-    fun addAction(action: String) {
+    fun addHistory(action: String) {
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
         history.add(action + timestamp)
         notifyListeners(PropertyChangeEvent(this, ActivityConstants.historyProperty, null, null))
     }
 
-    fun handle(): String {
-        return clientHandle
-    }
+    fun handle() = clientHandle
 
     val isConnected: Boolean
         get() = status == ConnectionStatus.CONNECTED
@@ -138,8 +135,8 @@ class Connection private constructor(
      * @param propertyChangeEvent - The property Change event
      */
     private fun notifyListeners(propertyChangeEvent: PropertyChangeEvent) {
-        for (listener in listeners) {
-            listener.propertyChange(propertyChangeEvent)
+        listeners.forEach {
+            it.propertyChange(propertyChangeEvent)
         }
     }
 
@@ -150,24 +147,6 @@ class Connection private constructor(
      */
     val isSSL: Int
         get() = if (tlsConnection) 1 else 0
-
-    /**
-     * Assign a persistence ID to this object
-     *
-     * @param id the persistence id to assign
-     */
-    fun assignPersistenceId(id: Long) {
-        persistenceId = id
-    }
-
-    /**
-     * Returns the persistence ID assigned to this object
-     *
-     * @return the persistence ID assigned to this object
-     */
-    fun persistenceId(): Long {
-        return persistenceId
-    }
 
     @Throws(MqttException::class)
     fun addNewSubscription(subscription: Subscription) {
@@ -212,7 +191,7 @@ class Connection private constructor(
     }
 
     @SuppressLint("SimpleDateFormat")
-    fun messageArrived(topic: String, message: MqttMessage) {
+    fun addMessage(topic: String, message: MqttMessage) {
         val msg = ReceivedMessage(topic, message)
         messages.add(0, msg)
         if (subscriptions.containsKey(topic)) {
@@ -243,21 +222,8 @@ class Connection private constructor(
     }
 
     companion object {
-        /**
-         * Creates a connection from persisted information in the database store, attempting
-         * to create a [MqttAndroidClient] and the client handle.
-         *
-         * @param clientId      The id of the client
-         * @param host          the server which the client is connecting to
-         * @param port          the port on the server which the client will attempt to connect to
-         * @param context       the application context
-         * @param tlsConnection true if the connection is secured by SSL
-         * @return a new instance of `Connection`
-         */
-        @JvmStatic
         fun createConnection(clientHandle: String, clientId: String, host: String, port: Int, context: Context, tlsConnection: Boolean): Connection {
-            val uri: String
-            uri = if (tlsConnection) {
+            val uri: String = if (tlsConnection) {
                 "ssl://$host:$port"
             } else {
                 "tcp://$host:$port"

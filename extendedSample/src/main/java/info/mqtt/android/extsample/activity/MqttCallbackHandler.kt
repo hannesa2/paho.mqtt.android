@@ -17,7 +17,7 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
     override fun connectionLost(cause: Throwable?) {
         Timber.d("Connection Lost: ${cause?.message}")
         val connection = getInstance(context).getConnection(clientHandle)
-        connection?.addAction("Connection Lost")
+        connection?.addHistory("Connection Lost")
         connection?.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED)
         val message = context.getString(R.string.connection_lost, connection?.id, connection?.hostName)
 
@@ -30,21 +30,17 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
 
     @Throws(Exception::class)
     override fun messageArrived(topic: String, message: MqttMessage) {
-
-        //Get connection object associated with this object
-        val connection = getInstance(context).getConnection(clientHandle)
-        connection?.messageArrived(topic, message)
-        //get the string from strings.xml and format
         val messageString = "${message.payload} $topic qos=${message.qos} retained:${message.isRetained}"
         Timber.i(messageString)
 
-        //update client history
-        connection?.addAction(messageString)
+        //Get connection object associated with this object
+        getInstance(context).getConnection(clientHandle)?.apply {
+            addMessage(topic, message)
+            addHistory(messageString)
+        }
     }
 
-    override fun deliveryComplete(token: IMqttDeliveryToken) {
-        // Do nothing
-    }
+    override fun deliveryComplete(token: IMqttDeliveryToken) = Unit
 
     companion object {
         private val activityClass = MainActivity::class.java.name

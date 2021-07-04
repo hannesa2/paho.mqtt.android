@@ -39,7 +39,7 @@ class Persistence(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         if (newRowId == -1L) {
             throw PersistenceException("Failed to persist connection: " + connection.handle())
         } else { //Successfully persisted assigning persistenceID
-            connection.assignPersistenceId(newRowId)
+            connection.persistenceId = newRowId
         }
     }
 
@@ -47,7 +47,7 @@ class Persistence(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         val db = writableDatabase
         val whereClause = BaseColumns._ID + "=?"
         val whereArgs = arrayOfNulls<String>(1)
-        whereArgs[0] = connection.persistenceId().toString()
+        whereArgs[0] = connection.persistenceId.toString()
         db.update(TABLE_CONNECTIONS, getValues(connection), whereClause, whereArgs)
     }
 
@@ -205,7 +205,7 @@ class Persistence(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
             //now create the connection object
             connection = createConnection(clientHandle, clientID, host, port, context!!, ssl)
             connection.addConnectionOptions(opts)
-            connection.assignPersistenceId(id)
+            connection.persistenceId = id
 
             // Now we recover all subscriptions for this connection
             val args = arrayOf(clientHandle)
@@ -243,7 +243,7 @@ class Persistence(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
      */
     fun deleteConnection(connection: Connection) {
         val db = writableDatabase
-        db.delete(TABLE_CONNECTIONS, BaseColumns._ID + "=?", arrayOf(connection.persistenceId().toString()))
+        db.delete(TABLE_CONNECTIONS, BaseColumns._ID + "=?", arrayOf(connection.persistenceId.toString()))
         db.close()
         //don't care if it failed, means it's not in the db therefore no need to delete
     }

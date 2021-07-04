@@ -37,7 +37,7 @@ class ActionListener(
         val connection = getInstance(context).getConnection(clientHandle)
         @SuppressLint("StringFormatMatches")
         val actionTaken = context.getString(R.string.toast_pub_success, *additionalArgs)
-        connection!!.addAction(actionTaken)
+        connection!!.addHistory(actionTaken)
         toast(context, actionTaken, Toast.LENGTH_SHORT)
         print("Published")
     }
@@ -50,7 +50,7 @@ class ActionListener(
     private fun subscribe() {
         val connection = getInstance(context).getConnection(clientHandle)
         val actionTaken = context.getString(R.string.toast_sub_success, *additionalArgs)
-        connection!!.addAction(actionTaken)
+        connection!!.addHistory(actionTaken)
         toast(context, actionTaken, Toast.LENGTH_SHORT)
         print(actionTaken)
     }
@@ -64,7 +64,7 @@ class ActionListener(
         val connection = getInstance(context).getConnection(clientHandle)
         connection!!.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED)
         val actionTaken = context.getString(R.string.toast_disconnected)
-        connection.addAction(actionTaken)
+        connection.addHistory(actionTaken)
         Timber.i("${connection.handle()} disconnected")
         //build intent
         val intent = Intent()
@@ -80,7 +80,7 @@ class ActionListener(
     private fun connect() {
         val connection = getInstance(context).getConnection(clientHandle)
         connection!!.changeConnectionStatus(Connection.ConnectionStatus.CONNECTED)
-        connection.addAction("Client Connected")
+        connection.addHistory("Client Connected")
         Timber.i("${connection.handle()} connected.")
         val subscriptions = this.connection.getSubscriptions()
         for (sub in subscriptions) {
@@ -114,7 +114,7 @@ class ActionListener(
         val connection = getInstance(context).getConnection(clientHandle)
         @SuppressLint("StringFormatMatches")
         val action = context.getString(R.string.toast_pub_failed, *additionalArgs)
-        connection!!.addAction(action)
+        connection!!.addHistory(action)
         toast(context, action, Toast.LENGTH_SHORT)
         Timber.e("Publish failed")
     }
@@ -127,7 +127,7 @@ class ActionListener(
     private fun subscribe(exception: Throwable) {
         val connection = getInstance(context).getConnection(clientHandle)
         val action = context.getString(R.string.toast_sub_failed, *additionalArgs)
-        connection!!.addAction(action)
+        connection!!.addHistory(action)
         toast(context, action, Toast.LENGTH_SHORT)
         Timber.e(action)
     }
@@ -140,7 +140,7 @@ class ActionListener(
     private fun disconnect(exception: Throwable) {
         val connection = getInstance(context).getConnection(clientHandle)
         connection!!.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED)
-        connection.addAction("Disconnect Failed - an error occured")
+        connection.addHistory("Disconnect Failed - an error occured")
     }
 
     /**
@@ -151,7 +151,7 @@ class ActionListener(
     private fun connect(exception: Throwable) {
         val connection = getInstance(context).getConnection(clientHandle)
         connection!!.changeConnectionStatus(Connection.ConnectionStatus.ERROR)
-        connection.addAction("Client failed to connect")
+        connection.addHistory("Client failed to connect")
         Timber.e("Client failed to connect")
     }
 
