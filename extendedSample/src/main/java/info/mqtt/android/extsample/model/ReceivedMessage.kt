@@ -6,7 +6,7 @@ import java.util.*
 class ReceivedMessage(val topic: String, val message: MqttMessage) {
     val timestamp: Date = Date()
     override fun toString(): String {
-        return "ReceivedMessage{" +
+        return "Received{" +
                 "topic='" + topic + '\'' +
                 ", message=" + message +
                 ", timestamp=" + timestamp +

@@ -224,7 +224,7 @@ class Connection private constructor(
                 intent.putExtra("handle", clientHandle)
 
                 SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
-                notification(context, context.getString(R.string.notification, id, String(message.payload), topic), intent, R.string.notifyTitle)
+                notification(context, context.getString(R.string.notification, String(message.payload), topic), intent, R.string.notifyTitle)
             }
         }
         for (listener in receivedMessageListeners) {

@@ -41,11 +41,11 @@
     <string name="manage_edit">Edit Connection</string>
     <string name="notifyTitle">MQTT Message Received</string>
 
-    <string name="notifyTitle_connectionLost">MQTT Client Has Lost Connection</string>
+    <string name="notifyTitle_connectionLost">Lost connection</string>
 
     <!-- Strings that need formatting  -->
     <string name="timestamp">&lt;br/&gt; &lt;small&gt; %1$s &lt;/small&gt;</string>
-    <string name="notification">%1$s has received %2$s on topic %3$s</string>
+    <string name="notification">received %1$s topic=%2$s</string>
     <string name="toast_pub_success">Published message: %1$s to topic: %2$s</string>
     <string name="toast_sub_success">Subscribed to %1$s</string>
     <string name="toast_disconnected">Disconnected</string>

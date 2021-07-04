@@ -13,10 +13,9 @@ import info.mqtt.android.extsample.R
 internal object Notify {
 
     private var MessageID = 120
-    private const val channelId = "channel-01"
-    private const val channelFireBaseMsg = "Channel MQTT"
+    private const val channelId = "chn-01"
+    private const val channelFireBaseMsg = "Chn MQTT"
 
-    @JvmStatic
     fun notification(context: Context, messageString: String, intent: Intent?, notificationTitle: Int) {
 
         //Get the notification manage which we will use to display the notification
