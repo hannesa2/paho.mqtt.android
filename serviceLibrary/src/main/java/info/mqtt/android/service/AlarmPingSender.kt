@@ -31,8 +31,8 @@ import android.os.PowerManager
  *
  * @see MqttPingSender
  */
-internal class AlarmPingSender(service: MqttService?) : MqttPingSender {
-    private var comms: ClientComms? = null
+internal class AlarmPingSender(service: MqttService) : MqttPingSender {
+    private var clientComms: ClientComms? = null
     private val service: MqttService
     private var alarmReceiver: BroadcastReceiver? = null
     private val that: AlarmPingSender
@@ -42,27 +42,26 @@ internal class AlarmPingSender(service: MqttService?) : MqttPingSender {
     private var hasStarted = false
 
     init {
-        requireNotNull(service) { "Neither service nor client can be null." }
         this.service = service
         that = this
     }
 
     override fun init(comms: ClientComms) {
-        this.comms = comms
+        this.clientComms = comms
         alarmReceiver = AlarmReceiver()
     }
 
     override fun start() {
-        val action = MqttServiceConstants.PING_SENDER + comms!!.client.clientId
+        val action = MqttServiceConstants.PING_SENDER + clientComms!!.client.clientId
         Timber.d("Register AlarmReceiver to MqttService$action")
         service.registerReceiver(alarmReceiver, IntentFilter(action))
         pendingIntent = PendingIntent.getBroadcast(service, 0, Intent(action), PendingIntent.FLAG_UPDATE_CURRENT)
-        schedule(comms!!.keepAlive)
+        schedule(clientComms!!.keepAlive)
         hasStarted = true
     }
 
     override fun stop() {
-        Timber.d("Unregister AlarmReceiver to MqttService ${comms!!.client.clientId}")
+        Timber.d("Unregister AlarmReceiver to MqttService ${clientComms!!.client.clientId}")
         if (hasStarted) {
             if (pendingIntent != null) {
                 // Cancel Alarm.
@@ -138,7 +137,7 @@ internal class AlarmPingSender(service: MqttService?) : MqttPingSender {
      * This class sends PingReq packet to MQTT broker
      */
     internal inner class AlarmReceiver : BroadcastReceiver() {
-        private val wakeLockTag = MqttServiceConstants.PING_WAKELOCK + that.comms!!.client.clientId
+        private val wakeLockTag = MqttServiceConstants.PING_WAKELOCK + that.clientComms!!.client.clientId
         private var pingRunner: PingAsyncTask? = null
 
         @SuppressLint("Wakelock")
@@ -157,7 +156,7 @@ internal class AlarmPingSender(service: MqttService?) : MqttPingSender {
                 }
             }
             pingRunner = PingAsyncTask()
-            pingRunner!!.execute(comms)
+            pingRunner!!.execute(clientComms)
             if (wakelock.isHeld) {
                 wakelock.release()
             }

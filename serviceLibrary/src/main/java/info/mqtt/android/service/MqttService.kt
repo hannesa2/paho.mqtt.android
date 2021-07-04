@@ -200,9 +200,55 @@ class MqttService : Service(), MqttTraceHandler {
 
     var mqttServiceBinder: MqttServiceBinder? = null
 
+    override fun onCreate() {
+        super.onCreate()
+
+        // create a binder that will let the Activity UI send commands to the Service
+        mqttServiceBinder = MqttServiceBinder(this)
+
+        // create somewhere to buffer received messages until we know that they have been passed to the application
+        messageStore = DatabaseMessageStore(this, this)
+    }
+
+
+    override fun onDestroy() {
+        for (client in connections.values) {
+            client.disconnect(null, null)
+        }
+
+        // clear down
+        if (mqttServiceBinder != null) {
+            mqttServiceBinder = null
+        }
+        unregisterBroadcastReceivers()
+        messageStore.close()
+        super.onDestroy()
+    }
+
+    override fun onBind(intent: Intent): IBinder? {
+        // What we pass back to the Activity on binding - a reference to ourself, and the activityToken we were given when started
+        val activityToken = intent.getStringExtra(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN)
+        mqttServiceBinder!!.activityToken = activityToken
+        return mqttServiceBinder
+    }
+
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        // run till explicitly stopped, restart when process restarted
+        registerBroadcastReceivers()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val foregroundServiceNotification = intent.getParcelableExtra<Notification>(MQTT_FOREGROUND_SERVICE_NOTIFICATION)
+            if (foregroundServiceNotification != null) {
+                startForeground(
+                    intent.getIntExtra(MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, 1),
+                    foregroundServiceNotification
+                )
+            }
+        }
+        return START_STICKY
+    }
+
     /**
-     * pass data back to the Activity, by building a suitable Intent object and
-     * broadcasting it
+     * pass data back to the Activity, by building a suitable Intent object and broadcasting it
      *
      * @param clientHandle source of the data
      * @param status       OK or Error
@@ -228,8 +274,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param clientId    specifies the name by which this connection should be identified to the server
      * @param contextId   specifies the app context info to make a difference between apps
      * @param persistence specifies the persistence layer to be used with this client
-     * @return a string to be used by the Activity as a "handle" for this
-     * MqttConnection
+     * @return a string to be used by the Activity as a "handle" for this MqttConnection
      */
     fun getClient(serverURI: String, clientId: String, contextId: String, persistence: MqttClientPersistence?): String {
         val clientHandle = "$serverURI:$clientId:$contextId"
@@ -459,73 +504,9 @@ class MqttService : Service(), MqttTraceHandler {
             Status.ERROR
         }
     }
-    // Extend Service
-    /**
-     * @see android.app.Service.onCreate
-     */
-    override fun onCreate() {
-        super.onCreate()
-
-        // create a binder that will let the Activity UI send
-        // commands to the Service
-        mqttServiceBinder = MqttServiceBinder(this)
-
-        // create somewhere to buffer received messages until
-        // we know that they have been passed to the application
-        messageStore = DatabaseMessageStore(this, this)
-    }
 
     /**
-     * @see android.app.Service.onDestroy
-     */
-    override fun onDestroy() {
-        // disconnect immediately
-        for (client in connections.values) {
-            client.disconnect(null, null)
-        }
-
-        // clear down
-        if (mqttServiceBinder != null) {
-            mqttServiceBinder = null
-        }
-        unregisterBroadcastReceivers()
-        messageStore.close()
-        super.onDestroy()
-    }
-
-    /**
-     * @see android.app.Service.onBind
-     */
-    override fun onBind(intent: Intent): IBinder? {
-        // What we pass back to the Activity on binding - a reference to ourself, and the activityToken
-        // we were given when started
-        val activityToken = intent.getStringExtra(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN)
-        mqttServiceBinder!!.activityToken = activityToken
-        return mqttServiceBinder
-    }
-
-    /**
-     * @see android.app.Service.onStartCommand
-     */
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        // run till explicitly stopped, restart when
-        // process restarted
-        registerBroadcastReceivers()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val foregroundServiceNotification = intent.getParcelableExtra<Notification>(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION)
-            if (foregroundServiceNotification != null) {
-                startForeground(
-                    intent.getIntExtra(MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, 1),
-                    foregroundServiceNotification
-                )
-            }
-        }
-        return START_STICKY
-    }
-
-    /**
-     * Identify the callbackId to be passed when making tracing calls back into
-     * the Activity
+     * Identify the callbackId to be passed when making tracing calls back into the Activity
      *
      * @param traceCallbackId identifier to the callback into the Activity
      */
@@ -664,6 +645,6 @@ class MqttService : Service(), MqttTraceHandler {
 
     companion object {
         val MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID = MqttService::class.java.simpleName + ".FOREGROUND_SERVICE_NOTIFICATION_ID"
-        val PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION = MqttService::class.java.simpleName + ".FOREGROUND_SERVICE_NOTIFICATION"
+        val MQTT_FOREGROUND_SERVICE_NOTIFICATION = MqttService::class.java.simpleName + ".FOREGROUND_SERVICE_NOTIFICATION"
     }
 }
