@@ -30,8 +30,7 @@ class HistoryFragment : Fragment() {
         messages = connection?.messages
         connection?.addReceivedMessageListener(object : IReceivedMessageListener {
             override fun onMessageReceived(message: ReceivedMessage?) {
-                Timber.d("GOT A MESSAGE in history ${String(message?.message?.payload!!)}")
-                Timber.d("M: ${messages?.size}")
+                Timber.d("Message in history ${String(message?.message?.payload!!)} ${messages?.size}")
                 messageListAdapter!!.notifyDataSetChanged()
             }
         })
