@@ -61,11 +61,6 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
     override fun onDrawerItemSelected(position: Int) {
         displayView(position)
     }
