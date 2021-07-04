@@ -35,7 +35,6 @@ internal class AlarmPingSender(service: MqttService) : MqttPingSender {
     private var clientComms: ClientComms? = null
     private val service: MqttService
     private var alarmReceiver: BroadcastReceiver? = null
-    private val that: AlarmPingSender
     private var pendingIntent: PendingIntent? = null
 
     @Volatile
@@ -43,7 +42,6 @@ internal class AlarmPingSender(service: MqttService) : MqttPingSender {
 
     init {
         this.service = service
-        that = this
     }
 
     override fun init(comms: ClientComms) {
@@ -137,7 +135,7 @@ internal class AlarmPingSender(service: MqttService) : MqttPingSender {
      * This class sends PingReq packet to MQTT broker
      */
     internal inner class AlarmReceiver : BroadcastReceiver() {
-        private val wakeLockTag = MqttServiceConstants.PING_WAKELOCK + that.clientComms!!.client.clientId
+        private val wakeLockTag = MqttServiceConstants.PING_WAKELOCK + clientComms!!.client.clientId
         private var pingRunner: PingAsyncTask? = null
 
         @SuppressLint("Wakelock")
