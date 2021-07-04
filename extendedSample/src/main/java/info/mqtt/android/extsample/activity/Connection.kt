@@ -219,7 +219,7 @@ class Connection private constructor(
     }
 
     companion object {
-        private const val FOREGROUND = true
+        private const val FOREGROUND = false
 
         fun createConnection(clientHandle: String, clientId: String, host: String, port: Int, context: Context, tlsConnection: Boolean): Connection {
             val uri: String = if (tlsConnection) {
