@@ -137,9 +137,7 @@ internal class MqttConnection(
                     MemoryPersistence()
                 } else {
                     // use that to setup MQTT client persistence storage
-                    MqttDefaultFilePersistence(
-                        myDir.absolutePath
-                    )
+                    MqttDefaultFilePersistence(myDir.absolutePath)
                 }
             }
             val listener: IMqttActionListener = object : MqttConnectionListener(resultBundle) {
@@ -149,10 +147,10 @@ internal class MqttConnection(
                     service.traceDebug("connect success!")
                 }
 
-                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                    resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, exception.localizedMessage)
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, exception?.localizedMessage)
                     resultBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, exception)
-                    service.traceError("connect fail, call connect to reconnect.reason:" + exception.message)
+                    service.traceError("connect fail, call connect to reconnect.reason: ${exception?.message}")
                     doAfterConnectFail(resultBundle)
                 }
             }
@@ -586,16 +584,9 @@ internal class MqttConnection(
         try {
             if (!connectOptions!!.isAutomaticReconnect) {
                 myClient!!.disconnect(null, object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken) {
-                        // No action
-                    }
+                    override fun onSuccess(asyncActionToken: IMqttToken) = Unit
 
-                    override fun onFailure(
-                        asyncActionToken: IMqttToken,
-                        exception: Throwable
-                    ) {
-                        // No action
-                    }
+                    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) = Unit
                 })
             } else {
                 // Using the new Automatic reconnect functionality.
@@ -770,16 +761,15 @@ internal class MqttConnection(
             try {
                 val listener: IMqttActionListener = object : MqttConnectionListener(resultBundle) {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        // since the device's cpu can go to sleep, acquire a
-                        // wakelock and drop it later.
+                        // since the device's cpu can go to sleep, acquire a wakelock and drop it later.
                         service.traceDebug("Reconnect Success!")
                         service.traceDebug("DeliverBacklog when reconnect.")
                         resultBundle.putBoolean(MqttServiceConstants.SESSION_PRESENT, asyncActionToken.sessionPresent)
                         doAfterConnectSuccess(resultBundle)
                     }
 
-                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                        resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, exception.localizedMessage)
+                    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                        resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, exception?.localizedMessage)
                         resultBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, exception)
                         service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
                         doAfterConnectFail(resultBundle)
@@ -844,8 +834,8 @@ internal class MqttConnection(
             service.callbackToActivity(clientHandle, Status.OK, resultBundle)
         }
 
-        override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-            resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, exception.localizedMessage)
+        override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+            resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, exception?.localizedMessage)
             resultBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, exception)
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
         }
