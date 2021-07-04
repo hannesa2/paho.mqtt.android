@@ -3,9 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
-        android:id="@+id/connect_switch"
-        android:contentDescription="@string/action_add_connection"
-        android:title=""
-        app:actionLayout="@layout/switch_layout"
-        app:showAsAction="always" />
+        android:id="@+id/menuLogcat"
+        android:contentDescription="Logcat"
+        android:icon="@drawable/ic_logcat"
+        android:title="Logcat"
+        app:showAsAction="ifRoom" />
+
 </menu>
+

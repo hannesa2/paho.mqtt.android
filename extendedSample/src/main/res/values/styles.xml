@@ -81,6 +81,18 @@
         <item name="android:layout_alignParentLeft">true</item>
     </style>
 
+    <style name="DetailTheme" parent="Theme.MaterialComponents.Light.DarkActionBar.Bridge">
+        <item name="colorPrimary">@color/ColorPrimary</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="colorAssertLine">#ff0000</item>
+        <item name="colorDebugLine">?android:attr/textColorSecondary</item>
+        <item name="colorErrorLine">#ff0000</item>
+        <item name="colorInfoLine">?android:attr/textColorPrimary</item>
+        <item name="colorVerboseLine">#888888</item>
+        <item name="colorWarningLine">#ff00ff</item>
+    </style>
 
 </resources>
 
