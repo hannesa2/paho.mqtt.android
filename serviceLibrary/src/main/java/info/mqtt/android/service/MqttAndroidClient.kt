@@ -813,8 +813,6 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * from each non-blocking method or using setting a
      * [IMqttActionListener] on the non-blocking method.
      *
-     *
-     *
      * @param callback which will be invoked for certain asynchronous events
      * @see MqttCallback
      */
@@ -825,23 +823,17 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     /**
      * Adds a callback listener to use for events that happen asynchronously.
      *
-     *
      * There are a number of events that the listener will be notified about.
      * These include:
-     *
      *
      *  * A new message has arrived and is ready to be processed
      *  * The connection to the server has been lost
      *  * Delivery of a message to the server has completed
      *
-     *
-     *
      * Other events that track the progress of an individual operation such as
      * connect and subscribe can be tracked using the [MqttToken] returned
      * from each non-blocking method or using setting a
      * [IMqttActionListener] on the non-blocking method.
-     *
-     *
      *
      * @param callback which will be invoked for certain asynchronous events
      * @see MqttCallback
@@ -874,15 +866,10 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     }
 
     /**
-     *
-     *
      * Process incoming Intent objects representing the results of operations
      * and asynchronous activities such as message received
      *
-     *
-     *
-     * **Note:** This is only a public method because the Android
-     * APIs require such.<br></br>
+     * **Note:** This is only a public method because the Android APIs require such.<br></br>
      * This method should not be explicitly invoked.
      *
      */

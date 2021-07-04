@@ -69,15 +69,14 @@
         <item name="android:textSize">13sp</item>
     </style>
 
-
     <style name="spinnerTextFieldLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:paddingLeft">30dp</item>
         <item name="android:paddingRight">30dp</item>
-        <item name="android:paddingTop">15dp</item>
-        <item name="android:paddingBottom">15dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
         <item name="android:layout_alignParentLeft">true</item>
     </style>
 
