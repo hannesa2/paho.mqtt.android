@@ -78,7 +78,7 @@ class MQTTExampleActivity : AppCompatActivity() {
                 subscribeToTopic()
             }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                 addToHistory("Failed to connect: $serverUri")
             }
         })
@@ -98,7 +98,7 @@ class MQTTExampleActivity : AppCompatActivity() {
                 addToHistory("Subscribed! $subscriptionTopic")
             }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                 addToHistory("Failed to subscribe $exception")
             }
         })

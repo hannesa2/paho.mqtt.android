@@ -101,7 +101,7 @@ internal class AlarmPingSender(service: MqttService?) : MqttPingSender {
                     success = true
                 }
 
-                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                     Timber.d("Ping async task : Failed.")
                     success = false
                 }

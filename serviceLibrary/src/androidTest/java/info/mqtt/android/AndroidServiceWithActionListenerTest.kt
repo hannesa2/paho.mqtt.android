@@ -488,7 +488,7 @@ class AndroidServiceWithActionListenerTest {
 
     private inner class ActionListener : IMqttActionListener {
 
-        override fun onFailure(token: IMqttToken, exception: Throwable) {
+        override fun onFailure(token: IMqttToken?, exception: Throwable?) {
             Assert.fail("onFailure $exception")
         }
 
