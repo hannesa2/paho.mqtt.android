@@ -40,6 +40,7 @@ class ExtendedPublishTest {
         onView(withId(R.id.action_add_connection)).perform(click())
         onView(withContentDescription(R.string.action_add_connection)).perform(click())
 
+        Screenshot.takeScreenshot("AddConnect")
         onView(withId(R.id.history_list_view)).check(matches(Matchers.withListSize(0)))
 
         onView(withId(R.id.switchForActionBar)).perform(click())
