@@ -25,6 +25,8 @@ import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.os.PowerManager
+import info.mqtt.android.service.storage.DatabaseMessageStore
+import info.mqtt.android.service.storage.MessageStore
 
 /**
  * The android service which interfaces with an MQTT client implementation

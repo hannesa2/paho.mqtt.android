@@ -1,4 +1,4 @@
-package info.mqtt.android.service
+package info.mqtt.android.service.storage
 
 import android.database.sqlite.SQLiteDatabase
 import org.eclipse.paho.client.mqttv3.MqttMessage
@@ -9,6 +9,9 @@ import android.database.SQLException
 import java.lang.UnsupportedOperationException
 import kotlin.Throws
 import android.database.sqlite.SQLiteOpenHelper
+import info.mqtt.android.service.MqttService
+import info.mqtt.android.service.MqttServiceConstants
+import info.mqtt.android.service.MqttTraceHandler
 import java.util.*
 
 internal class DatabaseMessageStore(service: MqttService, context: Context) : MessageStore {
