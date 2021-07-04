@@ -33,6 +33,7 @@ class EditConnectionFragment : Fragment() {
     private lateinit var lwtRetain: SwitchCompat
     private lateinit var formModel: ConnectionModel
     private var newConnection = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -200,7 +201,6 @@ class EditConnectionFragment : Fragment() {
     }
 
     private fun saveConnection() {
-        Timber.d("SAVING CONNECTION")
         Timber.d(formModel.toString())
         if (newConnection) {
             // Generate a new Client Handle
@@ -210,10 +210,10 @@ class EditConnectionFragment : Fragment() {
             }
             val clientHandle = sb.toString() + '-' + formModel.serverHostName + '-' + formModel.clientId
             formModel.clientHandle = clientHandle
-            (activity as MainActivity?)!!.persistAndConnect(formModel)
+            (activity as MainActivity).persistAndConnect(formModel)
         } else {
             // Update an existing connection
-            (activity as MainActivity?)!!.updateAndConnect(formModel)
+            (activity as MainActivity).updateAndConnect(formModel)
         }
     }
 

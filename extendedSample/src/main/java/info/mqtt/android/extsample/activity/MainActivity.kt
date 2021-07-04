@@ -1,16 +1,19 @@
 package info.mqtt.android.extsample.activity
 
+import android.content.Intent
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.activity.Connection.Companion.createConnection
 import info.mqtt.android.extsample.activity.FragmentDrawer.FragmentDrawerListener
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import info.mqtt.android.extsample.R
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import info.hannes.logcat.BothLogActivity
 import info.mqtt.android.extsample.model.ConnectionModel
 import timber.log.Timber
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
@@ -203,6 +206,20 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         actionArgs[1] = topic
         val callback = ActionListener(this, Action.PUBLISH, connection, *actionArgs)
         connection.client.publish(topic!!, message.toByteArray(), qos, retain, null, callback)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menuLogcat -> {
+                startActivity(Intent(this, BothLogActivity::class.java))
+            }
+        }
+        return false
     }
 
     /**
