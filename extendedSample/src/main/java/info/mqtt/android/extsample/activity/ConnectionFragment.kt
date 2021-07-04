@@ -12,6 +12,7 @@ import java.util.HashMap
 import android.widget.TextView
 
 import android.view.LayoutInflater
+import info.mqtt.android.extsample.utils.connect
 
 
 class ConnectionFragment : Fragment() {
@@ -72,10 +73,10 @@ class ConnectionFragment : Fragment() {
         connectSwitch = menu.findItem(R.id.connect_switch).actionView.findViewById(R.id.switchForActionBar)
         connectSwitch?.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                connection?.let { (requireActivity() as MainActivity).connect(it) }
+                connection?.connect(requireActivity())
                 changeConnectedState(true)
             } else {
-                connection?.let { (requireActivity() as MainActivity).disconnect(it) }
+                connection?.client?.disconnect()
                 changeConnectedState(false)
             }
         }

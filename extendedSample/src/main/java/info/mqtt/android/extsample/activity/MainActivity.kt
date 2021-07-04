@@ -202,18 +202,6 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         return connOpts
     }
 
-    fun connect(connection: Connection) {
-        val actionArgs = arrayOfNulls<String>(1)
-        actionArgs[0] = connection.id
-        val callback = ActionListener(this, Action.CONNECT, connection, *actionArgs)
-        connection.client.setCallback(MqttCallbackHandler(this, connection.handle()))
-        connection.client.connect(connection.connectionOptions!!, null, callback)
-    }
-
-    fun disconnect(connection: Connection) {
-        connection.client.disconnect()
-    }
-
     fun publish(connection: Connection, topic: String?, message: String, qos: Int, retain: Boolean) {
         val actionArgs = arrayOfNulls<String>(2)
         actionArgs[0] = message
