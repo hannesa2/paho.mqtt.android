@@ -1,4 +1,4 @@
-package info.mqtt.android.service
+package info.mqtt.android.service.storage
 
 import org.eclipse.paho.client.mqttv3.MqttMessage
 

@@ -1,4 +1,4 @@
-package info.mqtt.android.service
+package info.mqtt.android.service.ping
 
 import org.eclipse.paho.client.mqttv3.MqttPingSender
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
@@ -22,6 +22,8 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.os.PowerManager
+import info.mqtt.android.service.MqttService
+import info.mqtt.android.service.MqttServiceConstants
 
 /**
  * Default ping sender implementation on Android. It is based on AlarmManager.
