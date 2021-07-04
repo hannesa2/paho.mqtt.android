@@ -1,25 +1,29 @@
 package info.mqtt.android.service.ping
 
-import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.os.AsyncTask
-import android.os.Build
-import android.os.PowerManager
-import android.os.SystemClock
-import info.mqtt.android.service.MqttService
-import info.mqtt.android.service.MqttServiceConstants
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.MqttPingSender
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
+import android.content.BroadcastReceiver
+import android.app.PendingIntent
+import kotlin.jvm.Volatile
 import timber.log.Timber
+import android.content.IntentFilter
+import android.content.Intent
+import android.app.AlarmManager
+import java.lang.IllegalArgumentException
+import android.os.SystemClock
+import android.os.Build
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.MqttException
+import java.lang.Exception
+import android.annotation.SuppressLint
+import android.app.Service
+import android.content.Context
+import android.os.PowerManager
+import info.mqtt.android.service.MqttService
+import info.mqtt.android.service.MqttServiceConstants
+import kotlinx.coroutines.*
+import kotlin.system.measureTimeMillis
 
 /**
  * Default ping sender implementation on Android. It is based on AlarmManager.
@@ -82,54 +86,30 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
         alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent)
     }
 
-    private inner class PingAsyncTask : AsyncTask<ClientComms?, Void?, Boolean>() {
+    fun backgroundExecute(comms: ClientComms?): Boolean {
         var success = false
-        var count = 0
-
-        override fun doInBackground(vararg comms: ClientComms?): Boolean {
-            Timber.d("start")
-            val token: IMqttToken? = comms[0]?.checkForActivity(object : IMqttActionListener {
-                override fun onSuccess(asyncActionToken: IMqttToken) {
-                    success = true
-                    Timber.d("Ping async task success. $count")
-                }
-
-                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    Timber.d("Ping async task failed. $count")
-                    success = false
-                }
-            })
-            try {
-                while (token == null && count < 10) {
-                    try {
-                        Thread.sleep(100)
-                        count++
-                    } catch (e: Exception) {
-                    }
-                }
-                if (token != null) {
-                    token.waitForCompletion()
-                } else {
-                    Timber.d("Ping command was not sent by the client. $count")
-                }
-            } catch (e: MqttException) {
-                Timber.d("Ignore MQTT exception : ${e.message} $count")
-            } catch (ex: Exception) {
-                Timber.d("Ignore exception : ${ex.message} $count")
+        val token: IMqttToken? = comms?.checkForActivity(object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                success = true
             }
-            Timber.d("Completed Success=$success $count")
-            return success
-        }
 
-        override fun onPostExecute(success: Boolean) {
-            if (!success) {
-                Timber.d("Success=$success")
+            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                Timber.d("Ping task : Failed.")
+                success = false
             }
+        })
+        try {
+            if (token != null) {
+                token.waitForCompletion()
+            } else {
+                Timber.d("Ping background : Ping command was not sent by the client.")
+            }
+        } catch (e: MqttException) {
+            Timber.d("Ping background : Ignore MQTT exception : ${e.message}")
+        } catch (ex: Exception) {
+            Timber.d("Ping background : Ignore unknown exception : ${ex.message}")
         }
-
-        override fun onCancelled(success: Boolean) {
-            Timber.d("Canceled=$success")
-        }
+        return success
     }
 
     /*
@@ -137,7 +117,6 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
      */
     internal inner class AlarmReceiver : BroadcastReceiver() {
         private val wakeLockTag = MqttServiceConstants.PING_WAKELOCK + clientComms!!.client.clientId
-        private var pingRunner: PingAsyncTask? = null
 
         @SuppressLint("Wakelock")
         override fun onReceive(context: Context, intent: Intent) {
@@ -148,18 +127,29 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
             // a wake lock to wait for ping finished.
             val pm = service.getSystemService(Service.POWER_SERVICE) as PowerManager
             val wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag)
-            wakelock.acquire(10 * 60 * 1000L /*10 minutes*/)
-            pingRunner?.let {
-                if (it.cancel(true)) {
-                    Timber.d("Previous ping async task was cancelled at:${System.currentTimeMillis()}")
+            wakelock.acquire(TIMEOUT)
+
+            // without blocking the main thread
+            CoroutineScope(Dispatchers.IO).launch {
+                measureTimeMillis {
+                    @Suppress("BlockingMethodInNonBlockingContext")
+                    val response = CoroutineScope(Dispatchers.IO).async {
+                        return@async backgroundExecute(clientComms)
+                    }.await()
+                    Timber.d("Request done $response")
+
+                    if (wakelock.isHeld) {
+                        wakelock.release()
+                    }
+                }.also {
+                    Timber.d("Completed in $it ms")
                 }
             }
-            pingRunner = PingAsyncTask()
-            pingRunner!!.execute(clientComms)
-            if (wakelock.isHeld) {
-                wakelock.release()
-            }
         }
+    }
+
+    companion object {
+        private const val TIMEOUT = 10 * 60 * 1000L // 10 minutes
     }
 
 }
