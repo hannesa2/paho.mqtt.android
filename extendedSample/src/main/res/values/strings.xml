@@ -42,7 +42,6 @@
     <string name="notifyTitle">MQTT Message Received</string>
 
     <string name="notifyTitle_connectionLost">MQTT Client Has Lost Connection</string>
-    <string name="messageRecieved">Received message %1$s &lt;br/&gt; &lt;small&gt;Topic: %2$s &lt;/small&gt; </string>
 
     <!-- Strings that need formatting  -->
     <string name="timestamp">&lt;br/&gt; &lt;small&gt; %1$s &lt;/small&gt;</string>

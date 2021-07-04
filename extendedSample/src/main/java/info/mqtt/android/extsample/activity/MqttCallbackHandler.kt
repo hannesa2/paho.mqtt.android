@@ -35,8 +35,7 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
         val connection = getInstance(context).getConnection(clientHandle)
         connection?.messageArrived(topic, message)
         //get the string from strings.xml and format
-        val messageString = context
-            .getString(R.string.messageRecieved, String(message.payload), "$topic;qos:${message.qos};retained:${message.isRetained}")
+        val messageString = "${message.payload} $topic qos=${message.qos} retained:${message.isRetained}"
         Timber.i(messageString)
 
         //update client history
@@ -48,6 +47,6 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
     }
 
     companion object {
-        private val activityClass = MainActivity::class.java.canonicalName
+        private val activityClass = MainActivity::class.java.name
     }
 }
