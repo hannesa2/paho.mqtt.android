@@ -50,7 +50,7 @@ class ExtendedPublishTest {
         onView(withId(R.id.subscribe_button)).perform(click())
         onView(withId(R.id.subscription_topic_edit_text)).perform(typeText("/AnotherTest"))
         Screenshot.takeScreenshot("Subscribe")
-        onView(withText("OK")).perform(click());
+        onView(withText("OK")).perform(click())
 
         onView(withId(R.id.tab_id_publish)).perform(click())
         onView(withId(R.id.topic)).perform(replaceText("/AnotherTest"))
@@ -60,7 +60,7 @@ class ExtendedPublishTest {
 
         onView(withId(R.id.tab_id_history)).perform(click())
 
-        Thread.sleep(1000)
+        Thread.sleep(1500)
 
         onView(withId(R.id.history_list_view)).check(matches(Matchers.withListSizeBigger(0)))
 
