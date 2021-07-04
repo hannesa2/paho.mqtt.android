@@ -31,18 +31,13 @@ import android.os.PowerManager
  *
  * @see MqttPingSender
  */
-internal class AlarmPingSender(service: MqttService) : MqttPingSender {
+internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     private var clientComms: ClientComms? = null
-    private val service: MqttService
     private var alarmReceiver: BroadcastReceiver? = null
     private var pendingIntent: PendingIntent? = null
 
     @Volatile
     private var hasStarted = false
-
-    init {
-        this.service = service
-    }
 
     override fun init(comms: ClientComms) {
         this.clientComms = comms
