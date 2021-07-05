@@ -30,6 +30,7 @@ class ConnectionFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.fragment_connection, container, false)
 
         tabLayout = rootView.findViewById(R.id.tablayout)
+        tabLayout.addTab(tabLayout.newTab().setText("History").setId(0))
         tabLayout.addTab(tabLayout.newTab().setText("Messages").setId(1))
         tabLayout.addTab(tabLayout.newTab().setText("Publish").setId(2))
         tabLayout.addTab(tabLayout.newTab().setText("Subscribe").setId(3))
@@ -40,6 +41,7 @@ class ConnectionFragment : Fragment() {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 when (tab?.id) {
+                    0 -> displayFragment(HistoryFragment())
                     1 -> displayFragment(MessagesFragment())
                     2 -> displayFragment(PublishFragment())
                     3 -> displayFragment(SubscriptionFragment())
@@ -52,8 +54,8 @@ class ConnectionFragment : Fragment() {
     }
 
     private fun changeConnectedState(state: Boolean) {
-        tabLayout.getTabAt(0)?.view?.isClickable = state
         tabLayout.getTabAt(1)?.view?.isClickable = state
+        tabLayout.getTabAt(2)?.view?.isClickable = state
         connectSwitch?.isChecked = state
     }
 

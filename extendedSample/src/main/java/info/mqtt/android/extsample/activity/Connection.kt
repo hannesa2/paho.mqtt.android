@@ -36,7 +36,7 @@ class Connection private constructor(
     private val listeners = ArrayList<PropertyChangeListener>()
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
     val messages = ArrayList<ReceivedMessage>()
-    private val history: ArrayList<String> = ArrayList()
+    val history: ArrayList<String> = ArrayList()
     private val receivedMessageListeners = ArrayList<IReceivedMessageListener>()
 
     private var status = ConnectionStatus.NONE
