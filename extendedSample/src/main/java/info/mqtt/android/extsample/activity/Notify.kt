@@ -1,5 +1,6 @@
 package info.mqtt.android.extsample.activity
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.content.Intent
 import android.app.NotificationManager
@@ -58,7 +59,44 @@ internal object Notify {
         MessageID++
     }
 
-    @JvmStatic
+    fun foregroundNotification(context: Context, connectionName: String, intent: Intent?, notificationTitle: Int): Notification {
+        //Get the notification manage which we will use to display the notification
+        val ns = Context.NOTIFICATION_SERVICE
+        val notificationManager = context.getSystemService(ns) as NotificationManager
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(channelId, channelFireBaseMsg, NotificationManager.IMPORTANCE_LOW)
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.RED
+            notificationChannel.enableVibration(true)
+            notificationChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+
+        val `when` = System.currentTimeMillis()
+
+        //get the notification title from the application's strings.xml file
+        val contentTitle: CharSequence = context.getString(notificationTitle)
+
+        //the message that will be displayed as the ticker
+        val ticker = "$contentTitle $connectionName"
+
+        //build the pending intent that will start the appropriate activity
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+        //build the notification
+        val notificationCompat = NotificationCompat.Builder(context, channelId)
+        notificationCompat.setAutoCancel(true)
+            .setContentTitle(contentTitle)
+            .setContentIntent(pendingIntent)
+            .setContentText(connectionName)
+            .setTicker(ticker)
+            .setWhen(`when`)
+            .setSmallIcon(R.mipmap.ic_launcher)
+        return notificationCompat.build()
+    }
+
     fun toast(context: Context?, text: CharSequence?, duration: Int) {
         val toast = Toast.makeText(context, text, duration)
         toast.show()

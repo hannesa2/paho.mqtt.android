@@ -36,6 +36,15 @@ dependencies {
 }
 ```
 
+#### Android O foreground service
+
+Android >= O you should use it as foreground service
+```
+val client = MqttAndroidClient(context, uri, clientId).apply {
+    setForegroundService(foregroundNotification, 3)
+}
+```
+
 ## License
 ```
 Copyright 2021
