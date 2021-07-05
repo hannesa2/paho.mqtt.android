@@ -1,6 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginTop="56dp"
     android:orientation="vertical">
 
@@ -13,38 +13,10 @@
         android:text="@string/publish" />
 
     <LinearLayout
-        android:id="@+id/lwt_message_group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/divider8"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/message"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="30dp"
-            android:ems="10"
-            android:hint="-message-"
-            android:inputType="textMultiLine"
-            android:lines="4" />
-
-        <TextView
-            android:id="@+id/lwt_message_label"
-            style="@style/spinnerTextFieldLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_connection_lwt_message_label" />
-    </LinearLayout>
-
-
-    <LinearLayout
         android:id="@+id/lwt_qos_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/divider9"
+        android:layout_below="@+id/divider10"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:orientation="horizontal">
@@ -62,55 +34,48 @@
             android:text="@string/add_connection_lwt_qos_label" />
     </LinearLayout>
 
-
-    <LinearLayout
-        android:id="@+id/topic_group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/topic"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="30dp"
-            android:ems="10"
-            android:hint="-topic-"
-            android:inputType="textMultiLine"
-            android:lines="1" />
-
-        <TextView
-            android:id="@+id/message_text"
-            style="@style/spinnerTextFieldLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_connection_lwt_topic_label" />
-    </LinearLayout>
-
+    <View
+        android:id="@+id/divider10"
+        style="@style/Divider"
+        android:layout_below="@+id/lwt_message_group" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/retain_switch"
         style="@style/Switch"
-        android:layout_below="@+id/divider10"
+        android:layout_below="@+id/lwt_qos_group"
         android:checked="false"
         android:text="@string/add_connection_lwt_retain_label" />
 
-    <View
-        android:id="@+id/divider10"
-        style="@style/Divider"
-        android:layout_below="@+id/lwt_qos_group" />
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/topic_group"
+        android:layout_width="match_parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/topic_label">
 
-    <View
-        android:id="@+id/divider9"
-        style="@style/Divider"
-        android:layout_below="@+id/lwt_message_group" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/topic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-    <View
-        android:id="@+id/divider8"
-        style="@style/Divider"
-        android:layout_below="@+id/topic_group" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/lwt_message_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_below="@+id/topic_group"
+        android:hint="@string/add_connection_lwt_message_label">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 
 </RelativeLayout>
