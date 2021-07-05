@@ -40,6 +40,7 @@
     <string name="manage_delete">Delete Connection</string>
     <string name="manage_edit">Edit Connection</string>
     <string name="notifyTitle">MQTT Message Received</string>
+    <string name="notifyForeground">Keep server connection</string>
 
     <string name="notifyTitle_connectionLost">Lost connection</string>
 

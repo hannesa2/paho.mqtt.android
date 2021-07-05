@@ -70,7 +70,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     private var serviceBound = false
 
     // notification for Foreground Service
-    private var foregroundServiceNotificationId = 1
+    private var foregroundServiceNotificationId = -1
     private var foregroundServiceNotification: Notification? = null
 
     /**
@@ -1135,17 +1135,8 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      *
      * @param notification notification to be used when MqttService runs in foreground mode
      */
-    fun setForegroundServiceNotification(notification: Notification?) {
+    fun setForegroundService(notification: Notification, id: Int) {
         foregroundServiceNotification = notification
-    }
-
-    /**
-     * Sets ID of the foreground service notification.
-     * If this method is not used then the default ID 1 will be used.
-     *
-     * @param id The identifier for foreground service notification
-     */
-    fun setForegroundServiceNotificationId(id: Int) {
         foregroundServiceNotificationId = id
     }
 
