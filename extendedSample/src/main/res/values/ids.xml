@@ -1,5 +1,5 @@
 <resources>
-    <item name="tab_id_history" type="id"/>
+    <item name="tab_id_message" type="id"/>
     <item name="tab_id_publish" type="id"/>
     <item name="tab_id_subscribe" type="id"/>
 </resources>

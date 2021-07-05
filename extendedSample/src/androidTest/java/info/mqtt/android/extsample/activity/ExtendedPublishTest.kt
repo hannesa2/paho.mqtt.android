@@ -59,7 +59,7 @@ class ExtendedPublishTest {
         Screenshot.takeScreenshot("publish")
         onView(withId(R.id.publish_button)).perform(click())
 
-        onView(withId(R.id.tab_id_history)).perform(click())
+        onView(withId(R.id.tab_id_message)).perform(click())
 
         Thread.sleep(1500)
 
