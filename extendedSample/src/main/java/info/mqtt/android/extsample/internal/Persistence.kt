@@ -209,12 +209,12 @@ class Persistence(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
             // Now we recover all subscriptions for this connection
             val args = arrayOf(clientHandle)
-            Timber.d("SUB: $connection")
+            Timber.d("recover all subscriptions for: $connection")
             val subC = db.query(TABLE_SUBSCRIPTIONS, subscriptionColumns, subscriptionWhereQuery, args, null, null, sort)
             val subscriptions = ArrayList<Subscription>(subC.count)
             for (x in 0 until subC.count) {
                 if (!subC.moveToNext()) { //move to the next item throw persistence exception, if it fails
-                    throw PersistenceException("Failed restoring subscription - count: " + subC.count + "loop iteration: " + x)
+                    throw PersistenceException("Failed restoring subscription - count: ${subC.count} loop iteration: $x")
                 }
                 val subId = subC.getLong(subC.getColumnIndexOrThrow(BaseColumns._ID))
                 val subClientHandle = subC.getString(subC.getColumnIndexOrThrow(COLUMN_CLIENT_HANDLE))
