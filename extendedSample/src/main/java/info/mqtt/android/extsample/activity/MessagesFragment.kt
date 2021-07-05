@@ -1,7 +1,6 @@
 package info.mqtt.android.extsample.activity
 
 import info.mqtt.android.extsample.components.MessageListItemAdapter
-import java.util.ArrayList
 import android.os.Bundle
 import info.mqtt.android.extsample.internal.Connections
 import android.view.LayoutInflater
@@ -15,22 +14,21 @@ import info.mqtt.android.extsample.internal.IReceivedMessageListener
 import info.mqtt.android.extsample.model.ReceivedMessage
 import timber.log.Timber
 
-class HistoryFragment : Fragment() {
+class MessagesFragment : Fragment() {
 
     private var messageListAdapter: MessageListItemAdapter? = null
-    private var messages: ArrayList<ReceivedMessage>? = null
+    private lateinit var connection: Connection
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val connections = Connections.getInstance(requireActivity()).connections
-        val connection = connections[requireArguments().getString(ActivityConstants.CONNECTION_KEY)]
+        connection = connections[requireArguments().getString(ActivityConstants.CONNECTION_KEY)]!!
         setHasOptionsMenu(true)
-        Timber.d("History Fragment: ${connection?.id}")
+        Timber.d(connection.id)
         setHasOptionsMenu(true)
-        messages = connection?.messages
-        connection?.addReceivedMessageListener(object : IReceivedMessageListener {
+        connection.addReceivedMessageListener(object : IReceivedMessageListener {
             override fun onMessageReceived(message: ReceivedMessage?) {
-                Timber.d("Message in history ${String(message?.message?.payload!!)} ${messages?.size}")
+                Timber.d("Message in history ${String(message?.message?.payload!!)} ${connection.messages.size}")
                 messageListAdapter!!.notifyDataSetChanged()
             }
         })
@@ -38,12 +36,12 @@ class HistoryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_connection_history, container, false)
-        messageListAdapter = MessageListItemAdapter(requireContext(), messages ?: arrayListOf())
+        messageListAdapter = MessageListItemAdapter(requireContext(), connection.messages)
         val messageHistoryListView = rootView.findViewById<ListView>(R.id.history_list_view)
         messageHistoryListView.adapter = messageListAdapter
         val clearButton = rootView.findViewById<Button>(R.id.history_clear_button)
         clearButton.setOnClickListener {
-            messages!!.clear()
+            connection.messages.clear()
             messageListAdapter!!.notifyDataSetChanged()
         }
 

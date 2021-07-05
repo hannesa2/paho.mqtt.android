@@ -36,8 +36,8 @@ class ConnectionFragment : Fragment() {
         tabHost.setup(requireActivity(), childFragmentManager, R.id.tabcontent)
         // Add a tab to the tabHost
         tabHost.addTab(
-            tabHost.newTabSpec("History").setIndicator(getTabIndicator("History", R.id.tab_id_history)),
-            HistoryFragment::class.java,
+            tabHost.newTabSpec("Messages").setIndicator(getTabIndicator("Messages", R.id.tab_id_message)),
+            MessagesFragment::class.java,
             bundle
         )
         tabHost.addTab(

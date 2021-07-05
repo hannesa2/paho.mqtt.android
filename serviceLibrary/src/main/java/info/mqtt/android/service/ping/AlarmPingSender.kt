@@ -74,7 +74,7 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
 
     override fun schedule(delayInMilliseconds: Long) {
         val nextAlarmInMilliseconds = SystemClock.elapsedRealtime() + delayInMilliseconds
-        Timber.d("Schedule next alarm at $nextAlarmInMilliseconds")
+        Timber.d("Schedule next alarm at $nextAlarmInMilliseconds ms")
         val alarmManager = service.getSystemService(Service.ALARM_SERVICE) as AlarmManager
         if (Build.VERSION.SDK_INT >= 23) {
             // In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force

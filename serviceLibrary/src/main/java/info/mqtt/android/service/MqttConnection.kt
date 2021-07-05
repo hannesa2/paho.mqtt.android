@@ -577,7 +577,7 @@ internal class MqttConnection(
      */
     override fun connectionLost(why: Throwable?) {
         if (why != null) {
-            service.traceDebug("connectionLost(" + why.message + ")")
+            service.traceDebug("connectionLost(${why.message})")
         } else {
             service.traceDebug("connectionLost(NO_REASON)")
         }
