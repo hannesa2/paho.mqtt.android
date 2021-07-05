@@ -52,7 +52,6 @@
     <string name="toast_disconnected">Disconnected</string>
     <string name="toast_pub_failed">Failed to publish message: %1$s to topic: %2$s</string>
     <string name="toast_sub_failed">Failed to subscribe to %1$s</string>
-    <string name="connection_lost">%1$s lost connection %2$s</string>
     <string name="topic_label">Topic</string>
 
     <!-- Strings for Subscriptions Fragment -->
