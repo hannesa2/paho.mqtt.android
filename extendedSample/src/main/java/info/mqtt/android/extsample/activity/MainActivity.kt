@@ -101,8 +101,7 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
             val bundle = Bundle()
             bundle.putString(ActivityConstants.CONNECTION_KEY, connectionMap!![position])
             fragment.arguments = bundle
-            val connections: Map<String, Connection> = getInstance(this)
-                .connections
+            val connections: Map<String, Connection> = getInstance(this).connections
             val connection = connections[connectionMap!![position]]
             val title = connection!!.id
             displayFragment(fragment, title)
@@ -170,13 +169,13 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         connectionMap!!.add(model.clientHandle)
         drawerFragment!!.addConnection(connection)
         connection.client.connect(connOpts, null, callback)
-        val fragment: Fragment = ConnectionFragment()
+        val connectFragment: Fragment = ConnectionFragment()
         val bundle = Bundle()
         bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle())
         bundle.putBoolean(ActivityConstants.CONNECTED, true)
-        fragment.arguments = bundle
+        connectFragment.arguments = bundle
         val title = connection.id
-        displayFragment(fragment, title)
+        displayFragment(connectFragment, title)
     }
 
     private fun optionsFromModel(model: ConnectionModel): MqttConnectOptions {
