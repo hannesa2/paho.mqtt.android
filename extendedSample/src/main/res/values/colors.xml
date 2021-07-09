@@ -7,5 +7,6 @@
     <color name="textColorSecondary">#727272</color>
     <color name="dividerColor">#00B6B6</color>
     <color name="colorAccent">#8C4DFF</color>
+    <color name="black">#000000</color>
 </resources>
 

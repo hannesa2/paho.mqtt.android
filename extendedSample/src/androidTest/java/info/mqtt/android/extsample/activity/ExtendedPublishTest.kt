@@ -45,7 +45,7 @@ class ExtendedPublishTest {
 
         onView(withId(R.id.switchForActionBar)).perform(click())
         onView(withId(R.id.history_list_view)).check(matches(Matchers.withListSize(0)))
-        onView(withId(R.id.tab_id_subscribe)).perform(click())
+        onView(withId(3)).perform(click())
         //onView(withTagValue(`is`("Subscribe" as Any))).perform(click())
 
         onView(withId(R.id.subscribe_button)).perform(click())
@@ -53,13 +53,13 @@ class ExtendedPublishTest {
         Screenshot.takeScreenshot("Subscribe")
         onView(withText("OK")).perform(click())
 
-        onView(withId(R.id.tab_id_publish)).perform(click())
+        onView(withId(2)).perform(click())
         onView(withId(R.id.topic)).perform(replaceText("/AnotherTest"))
         onView(withId(R.id.message)).perform(replaceText("msg"))
         Screenshot.takeScreenshot("publish")
         onView(withId(R.id.publish_button)).perform(click())
 
-        onView(withId(R.id.tab_id_message)).perform(click())
+        onView(withId(1)).perform(click())
 
         Thread.sleep(1500)
 
