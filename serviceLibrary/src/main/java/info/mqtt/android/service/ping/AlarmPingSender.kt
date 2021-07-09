@@ -1,29 +1,25 @@
 package info.mqtt.android.service.ping
 
-import org.eclipse.paho.client.mqttv3.MqttPingSender
-import org.eclipse.paho.client.mqttv3.internal.ClientComms
-import android.content.BroadcastReceiver
-import android.app.PendingIntent
-import kotlin.jvm.Volatile
-import timber.log.Timber
-import android.content.IntentFilter
-import android.content.Intent
-import android.app.AlarmManager
-import java.lang.IllegalArgumentException
-import android.os.SystemClock
-import android.os.Build
-import android.os.AsyncTask
-import java.lang.Void
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.MqttException
-import java.lang.Exception
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.AsyncTask
+import android.os.Build
 import android.os.PowerManager
+import android.os.SystemClock
 import info.mqtt.android.service.MqttService
 import info.mqtt.android.service.MqttServiceConstants
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttPingSender
+import org.eclipse.paho.client.mqttv3.internal.ClientComms
+import timber.log.Timber
 
 /**
  * Default ping sender implementation on Android. It is based on AlarmManager.
@@ -83,48 +79,56 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent)
         } else
             Timber.d("Alarm schedule using setExact, delay: $delayInMilliseconds")
-            alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent)
+        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent)
     }
 
     private inner class PingAsyncTask : AsyncTask<ClientComms?, Void?, Boolean>() {
         var success = false
+        var count = 0
 
         override fun doInBackground(vararg comms: ClientComms?): Boolean {
+            Timber.d("start")
             val token: IMqttToken? = comms[0]?.checkForActivity(object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
                     success = true
+                    Timber.d("Ping async task success. $count")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    Timber.d("Ping async task : Failed.")
+                    Timber.d("Ping async task failed. $count")
                     success = false
                 }
             })
             try {
+                while (token == null && count < 10) {
+                    try {
+                        Thread.sleep(100)
+                        count++
+                    } catch (e: Exception) {
+                    }
+                }
                 if (token != null) {
                     token.waitForCompletion()
                 } else {
-                    Timber.d("Ping async background : Ping command was not sent by the client.")
+                    Timber.d("Ping command was not sent by the client. $count")
                 }
             } catch (e: MqttException) {
-                Timber.d("Ping async background : Ignore MQTT exception : ${e.message}")
+                Timber.d("Ignore MQTT exception : ${e.message} $count")
             } catch (ex: Exception) {
-                Timber.d("Ping async background : Ignore unknown exception : ${ex.message}")
+                Timber.d("Ignore exception : ${ex.message} $count")
             }
-            if (!success) {
-                Timber.d("Ping async background task completed at ${System.currentTimeMillis()} Success is $success")
-            }
+            Timber.d("Completed Success=$success $count")
             return success
         }
 
         override fun onPostExecute(success: Boolean) {
             if (!success) {
-                Timber.d("Ping async task onPostExecute() Success is $success")
+                Timber.d("Success=$success")
             }
         }
 
         override fun onCancelled(success: Boolean) {
-            Timber.d("Ping async task onCancelled() Success is $success")
+            Timber.d("Canceled=$success")
         }
     }
 
