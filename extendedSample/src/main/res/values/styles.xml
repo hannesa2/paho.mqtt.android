@@ -93,5 +93,8 @@
         <item name="colorWarningLine">#ff00ff</item>
     </style>
 
-</resources>
+    <style name="MapTabTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+        <item name="android:textSize">14sp</item>
+    </style>
 
+</resources>
