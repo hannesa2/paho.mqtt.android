@@ -41,10 +41,8 @@ class ExtendedPublishTest {
         onView(withContentDescription(R.string.action_add_connection)).perform(click())
 
         Screenshot.takeScreenshot("AddConnect")
-        onView(withId(R.id.history_list_view)).check(matches(Matchers.withListSize(0)))
 
         onView(withId(R.id.switchForActionBar)).perform(click())
-        onView(withId(R.id.history_list_view)).check(matches(Matchers.withListSize(0)))
         onView(withId(3)).perform(click())
         //onView(withTagValue(`is`("Subscribe" as Any))).perform(click())
 
