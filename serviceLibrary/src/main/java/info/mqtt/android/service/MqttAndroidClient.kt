@@ -55,7 +55,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     private var clientHandle: String? = null
     private var tokenNumber = 0
     private var persistence: MqttClientPersistence? = null
-    private var connectOptions: MqttConnectOptions? = null
+    private var clientConnectOptions: MqttConnectOptions? = null
     private var connectToken: IMqttToken? = null
 
     // The MqttCallback list provided by the application
@@ -185,7 +185,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      */
     override fun connect(options: MqttConnectOptions, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback)
-        connectOptions = options
+        clientConnectOptions = options
         connectToken = token
 
         /*
@@ -250,7 +250,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
         mqttService!!.setTraceCallbackId(clientHandle)
         val activityToken = storeToken(connectToken)
         try {
-            mqttService!!.connect(clientHandle!!, connectOptions, activityToken)
+            mqttService!!.connect(clientHandle!!, clientConnectOptions, activityToken)
         } catch (e: MqttException) {
             val listener = connectToken!!.actionCallback
             listener?.onFailure(connectToken, e)
