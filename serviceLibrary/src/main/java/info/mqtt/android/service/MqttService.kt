@@ -234,11 +234,11 @@ class MqttService : Service(), MqttTraceHandler {
         return mqttServiceBinder
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // run till explicitly stopped, restart when process restarted
         registerBroadcastReceivers()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val foregroundServiceNotification = intent.getParcelableExtra<Notification>(MQTT_FOREGROUND_SERVICE_NOTIFICATION)
+            val foregroundServiceNotification = intent?.getParcelableExtra<Notification>(MQTT_FOREGROUND_SERVICE_NOTIFICATION)
             if (foregroundServiceNotification != null) {
                 startForeground(
                     intent.getIntExtra(MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, 1),
