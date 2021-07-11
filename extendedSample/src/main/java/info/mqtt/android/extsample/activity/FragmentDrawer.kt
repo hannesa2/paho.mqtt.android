@@ -1,27 +1,26 @@
 package info.mqtt.android.extsample.activity
 
 import android.content.Context
-import info.mqtt.android.extsample.model.NavDrawerItem
-import androidx.drawerlayout.widget.DrawerLayout
-import info.mqtt.android.extsample.adapter.NavigationDrawerAdapter
-import timber.log.Timber
 import android.os.Bundle
 import android.view.*
-import info.mqtt.android.extsample.R
-import androidx.recyclerview.widget.RecyclerView
-import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import android.view.GestureDetector.SimpleOnGestureListener
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import java.util.ArrayList
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
+import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.adapter.NavigationDrawerAdapter
+import info.mqtt.android.extsample.model.NavDrawerItem
+import timber.log.Timber
 
 class FragmentDrawer : Fragment() {
     private val data: MutableList<NavDrawerItem> = ArrayList()
     private var drawerToggle: ActionBarDrawerToggle? = null
-    private var mDrawerLayout: DrawerLayout? = null
+    private var drawerLayout: DrawerLayout? = null
     private lateinit var adapter: NavigationDrawerAdapter
     private var containerView: View? = null
     private var drawerListener: FragmentDrawerListener? = null
@@ -83,7 +82,7 @@ class FragmentDrawer : Fragment() {
         val addConnectionTextView = layout.findViewById<TextView>(R.id.action_add_connection)
         addConnectionTextView.setOnClickListener {
             drawerListener!!.onAddConnectionSelected()
-            mDrawerLayout!!.closeDrawer(containerView!!)
+            drawerLayout!!.closeDrawer(containerView!!)
         }
 
         adapter = NavigationDrawerAdapter(requireContext(), getData())
@@ -92,21 +91,21 @@ class FragmentDrawer : Fragment() {
         recyclerView.addOnItemTouchListener(RecyclerTouchListener(activity, recyclerView, object : ClickListener {
             override fun onClick(position: Int) {
                 drawerListener!!.onDrawerItemSelected(position)
-                mDrawerLayout!!.closeDrawer(containerView!!)
+                drawerLayout!!.closeDrawer(containerView!!)
             }
 
             override fun onLongClick(position: Int) {
                 Timber.d("I want to delete: $position")
                 drawerListener!!.onDrawerItemLongSelected(position)
-                mDrawerLayout!!.closeDrawer(containerView!!)
+                drawerLayout!!.closeDrawer(containerView!!)
             }
         }))
         return layout
     }
 
-    fun setUp(fragmentId: Int, drawerLayout: DrawerLayout?, toolbar: Toolbar) {
+    fun setUp(fragmentId: Int, givenDrawerLayout: DrawerLayout, toolbar: Toolbar) {
         containerView = requireActivity().findViewById(fragmentId)
-        mDrawerLayout = drawerLayout
+        drawerLayout = givenDrawerLayout
         drawerToggle = object : ActionBarDrawerToggle(activity, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
             override fun onDrawerOpened(drawerView: View) {
                 super.onDrawerOpened(drawerView)
@@ -123,8 +122,8 @@ class FragmentDrawer : Fragment() {
                 toolbar.alpha = 1 - slideOffset / 2
             }
         }
-        mDrawerLayout!!.setDrawerListener(drawerToggle)
-        mDrawerLayout!!.post { drawerToggle!!.syncState() }
+        drawerLayout!!.addDrawerListener(drawerToggle!!)
+        drawerLayout!!.post { drawerToggle!!.syncState() }
     }
 
     interface ClickListener {
@@ -148,7 +147,7 @@ class FragmentDrawer : Fragment() {
             override fun onLongPress(e: MotionEvent) {
                 val child = recyclerView.findChildViewUnder(e.x, e.y)
                 if (child != null && clickListener != null) {
-                    clickListener.onLongClick(recyclerView.getChildPosition(child))
+                    clickListener.onLongClick(recyclerView.getChildAdapterPosition(child))
                 }
             }
         })
@@ -156,7 +155,7 @@ class FragmentDrawer : Fragment() {
         override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
             val child = rv.findChildViewUnder(e.x, e.y)
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                clickListener.onClick(rv.getChildPosition(child))
+                clickListener.onClick(rv.getChildAdapterPosition(child))
             }
             return false
         }

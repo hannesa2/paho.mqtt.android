@@ -1,18 +1,13 @@
 package info.mqtt.android.service
 
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import kotlin.Throws
-import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage
 
 
 internal class MqttConnectTokenAndroid(private val sessionPresent: Boolean) : IMqttToken {
-
-    fun setMessage(message: MqttMessage?) = Unit
-    fun notifyDelivery(delivered: MqttMessage?) = Unit
 
     @Throws(MqttException::class)
     override fun waitForCompletion() = Unit

@@ -1,15 +1,15 @@
 package info.mqtt.android.extsample.activity
 
-import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
-import info.mqtt.android.extsample.activity.Notify.toast
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttToken
 import android.annotation.SuppressLint
 import android.content.Context
-import info.mqtt.android.extsample.R
-import android.widget.Toast
-import timber.log.Timber
 import android.content.Intent
+import android.widget.Toast
+import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.activity.Notify.toast
+import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import timber.log.Timber
 
 class ActionListener(
     private val context: Context,
@@ -24,7 +24,7 @@ class ActionListener(
             Action.CONNECT -> connect()
             Action.DISCONNECT -> disconnect()
             Action.SUBSCRIBE -> subscribe()
-            Action.PUBLISH -> publish()
+            Action.PUBLISH -> publishNotify()
         }
     }
 
@@ -33,13 +33,13 @@ class ActionListener(
      * object associated with the client this action belongs to, then notify the
      * user of success
      */
-    private fun publish() {
+    private fun publishNotify() {
         val connection = getInstance(context).getConnection(clientHandle)
+
         @SuppressLint("StringFormatMatches")
         val actionTaken = context.getString(R.string.toast_pub_success, *additionalArgs)
         connection!!.addHistory(actionTaken)
         toast(context, actionTaken, Toast.LENGTH_SHORT)
-        print("Published")
     }
 
     /**
@@ -102,7 +102,7 @@ class ActionListener(
                 Action.CONNECT -> connect(it)
                 Action.DISCONNECT -> disconnect(it)
                 Action.SUBSCRIBE -> subscribe(it)
-                Action.PUBLISH -> publish(it)
+                Action.PUBLISH -> publishNotify(it)
             }
         }
     }
@@ -110,10 +110,11 @@ class ActionListener(
     /**
      * A publish action was unsuccessful, notify user and update client history
      */
-    private fun publish(exception: Throwable) {
+    private fun publishNotify(exception: Throwable) {
         val connection = getInstance(context).getConnection(clientHandle)
+
         @SuppressLint("StringFormatMatches")
-        val action = context.getString(R.string.toast_pub_failed, *additionalArgs)
+        val action = context.getString(R.string.toast_pub_failed, *additionalArgs) + " " + exception.message
         connection!!.addHistory(action)
         toast(context, action, Toast.LENGTH_SHORT)
         Timber.e("Publish failed")
@@ -126,7 +127,7 @@ class ActionListener(
      */
     private fun subscribe(exception: Throwable) {
         val connection = getInstance(context).getConnection(clientHandle)
-        val action = context.getString(R.string.toast_sub_failed, *additionalArgs)
+        val action = context.getString(R.string.toast_sub_failed, *additionalArgs) + " " + exception.message
         connection!!.addHistory(action)
         toast(context, action, Toast.LENGTH_SHORT)
         Timber.e(action)
@@ -140,7 +141,7 @@ class ActionListener(
     private fun disconnect(exception: Throwable) {
         val connection = getInstance(context).getConnection(clientHandle)
         connection!!.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED)
-        connection.addHistory("Disconnect Failed - an error occured")
+        connection.addHistory("Disconnect Failed - an error occurred ${exception.message}")
     }
 
     /**
@@ -152,11 +153,11 @@ class ActionListener(
         val connection = getInstance(context).getConnection(clientHandle)
         connection!!.changeConnectionStatus(Connection.ConnectionStatus.ERROR)
         connection.addHistory("Client failed to connect")
-        Timber.e("Client failed to connect")
+        Timber.e("Client failed to connect ${exception.message}")
     }
 
     companion object {
-        private const val activityClass = "info.mqtt.android.extsample.activity.MainActivity"
+        private var activityClass = MainActivity::class.java.name
     }
 
 }
