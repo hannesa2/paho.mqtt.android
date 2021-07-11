@@ -1,16 +1,15 @@
 package info.mqtt.android.extsample.activity
 
 import android.os.Bundle
-import info.mqtt.android.extsample.internal.Connections
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.internal.Connections
 import timber.log.Timber
-import java.util.HashMap
 
 class ManageConnectionFragment : Fragment() {
     private var connection: Connection? = null
@@ -21,7 +20,7 @@ class ManageConnectionFragment : Fragment() {
         super.onCreate(savedInstanceState)
         connections = Connections.getInstance(requireActivity()).connections
         connectionKey = requireArguments().getString(ActivityConstants.CONNECTION_KEY)
-        connection = connections.get(connectionKey)
+        connection = connections[connectionKey]
         setHasOptionsMenu(false)
     }
 
@@ -35,9 +34,9 @@ class ManageConnectionFragment : Fragment() {
             Timber.d("Deleting Connection: $name.")
             connections.remove(connectionKey)
             Connections.getInstance(requireActivity()).removeConnection(connection!!)
-            val fragmentTransaction = fragmentManager?.beginTransaction()
-            fragmentTransaction?.replace(R.id.container_body, HomeFragment())
-            fragmentTransaction?.commit()
+            val fragmentTransaction = parentFragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.container_body, HomeFragment())
+            fragmentTransaction.commit()
             (activity as MainActivity?)!!.removeConnectionRow(connection)
         }
         val editButton = rootView.findViewById<Button>(R.id.edit_button)
@@ -47,9 +46,9 @@ class ManageConnectionFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString(ActivityConstants.CONNECTION_KEY, connection!!.handle())
             editConnectionFragment.arguments = bundle
-            val fragmentTransaction = fragmentManager?.beginTransaction()
-            fragmentTransaction?.replace(R.id.container_body, editConnectionFragment)
-            fragmentTransaction?.commit()
+            val fragmentTransaction = parentFragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.container_body, editConnectionFragment)
+            fragmentTransaction.commit()
         }
 
         return rootView
