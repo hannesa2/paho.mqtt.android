@@ -7,7 +7,6 @@ import info.mqtt.android.service.MqttAndroidClient
 import info.mqtt.android.extsample.internal.IReceivedMessageListener
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import info.mqtt.android.extsample.R
-import kotlin.Throws
 import org.eclipse.paho.client.mqttv3.MqttException
 import info.mqtt.android.extsample.internal.Persistence
 import info.mqtt.android.extsample.internal.PersistenceException
@@ -148,7 +147,6 @@ class Connection private constructor(
     val isSSL: Int
         get() = if (tlsConnection) 1 else 0
 
-    @Throws(MqttException::class)
     fun addNewSubscription(subscription: Subscription) {
         if (!subscriptions.containsKey(subscription.topic)) {
             try {
@@ -166,7 +164,6 @@ class Connection private constructor(
         }
     }
 
-    @Throws(MqttException::class)
     fun unsubscribe(subscription: Subscription) {
         if (subscriptions.containsKey(subscription.topic)) {
             client.unsubscribe(subscription.topic)
