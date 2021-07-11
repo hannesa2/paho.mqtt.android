@@ -36,7 +36,6 @@
     <string name="subscription_new">New Subscription</string>
     <string name="manage_title">Manage Connection</string>
 
-
     <string name="manage_delete">Delete Connection</string>
     <string name="manage_edit">Edit Connection</string>
     <string name="notifyTitle">MQTT Message Received</string>
@@ -45,7 +44,6 @@
     <string name="notifyTitle_connectionLost">Lost connection</string>
 
     <!-- Strings that need formatting  -->
-    <string name="timestamp">&lt;br/&gt; &lt;small&gt; %1$s &lt;/small&gt;</string>
     <string name="notification">received %1$s topic=%2$s</string>
     <string name="toast_pub_success">Published message: %1$s to topic: %2$s</string>
     <string name="toast_sub_success">Subscribed to %1$s</string>
@@ -68,19 +66,16 @@
     <string name="home_no_cons_message">It looks like there are no connections defined yet.</string>
     <string name="message_time">Time:</string>
 
-
     <!-- messages -->
     <string name="message_time_fmt">Time: %1$s</string>
     <string name="publish">Publish</string>
     <string name="topic_fmt">Topic: %1$s</string>
     <string name="placeholder_main_label">Main Label</string>
 
-
     <!-- placeholders -->
     <string name="placeholder_sub_label">Sub Label</string>
     <string name="placeholder_example">Example application</string>
     <string name="message_topic">Topic: </string>
-
 
     <!-- Message List Item -->
     <string-array name="qos_options">
@@ -88,6 +83,5 @@
         <item name="qos_1">1</item>
         <item name="qos_2">2</item>
     </string-array>
-
 
 </resources>

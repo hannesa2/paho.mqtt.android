@@ -37,7 +37,7 @@ class SubscriptionFragment : Fragment() {
         connection = connections[connectionHandle]!!
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSubscriptionsBinding.inflate(inflater, container, false)
         val rootView = binding.root
         binding.subscribeButton.setOnClickListener { showInputDialog() }
