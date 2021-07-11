@@ -2,7 +2,10 @@ package info.mqtt.android.extsample.internal
 
 import android.content.Context
 import info.mqtt.android.extsample.activity.Connection
-import java.util.HashMap
+import info.mqtt.android.extsample.room.AppDatabase
+import info.mqtt.android.extsample.room.PersistenceDao
+import info.mqtt.android.extsample.utils.toConnection
+import info.mqtt.android.extsample.utils.toConnectionEntity
 import timber.log.Timber
 
 
@@ -10,17 +13,13 @@ class Connections private constructor(context: Context) {
 
     var connections: HashMap<String, Connection> = HashMap()
 
-    private var persistence: Persistence = Persistence(context)
+    private var persistence: PersistenceDao = AppDatabase.getDatabase(context).persistenceDao()
 
     init {
-        try {
-            val connectionList = persistence.restoreConnections(context)
-            for (connection in connectionList) {
-                Timber.d("Connection was persisted.. ${connection.handle()}")
-                connections[connection.handle()] = connection
-            }
-        } catch (e: PersistenceException) {
-            Timber.e(e)
+        val connectionDaoList = persistence.all.map { it.toConnection(context) }
+        connectionDaoList.forEach {
+            Timber.d("Connection was persisted.. ${it.handle()}")
+            connections[it.handle()] = it
         }
     }
 
@@ -30,27 +29,22 @@ class Connections private constructor(context: Context) {
 
     fun addConnection(connection: Connection) {
         connections[connection.handle()] = connection
-        try {
-            persistence.persistConnection(connection)
-        } catch (e: PersistenceException) {
-            Timber.e(e)
-        }
+        persistence.insert(connection.toConnectionEntity())
     }
 
     fun removeConnection(connection: Connection) {
         connections.remove(connection.handle())
-        persistence.deleteConnection(connection)
+        persistence.delete(connection.toConnectionEntity())
     }
 
     fun updateConnection(connection: Connection) {
         connections[connection.handle()] = connection
-        persistence.updateConnection(connection)
+        persistence.updateAll(connection.toConnectionEntity())
     }
 
     companion object {
         private var instance: Connections? = null
 
-        @JvmStatic
         @Synchronized
         fun getInstance(context: Context): Connections {
             if (instance == null) {
