@@ -1,25 +1,24 @@
 package info.mqtt.android.extsample.activity
 
 import android.content.Intent
-import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
-import info.mqtt.android.extsample.activity.Connection.Companion.createConnection
-import info.mqtt.android.extsample.activity.FragmentDrawer.FragmentDrawerListener
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import info.mqtt.android.extsample.R
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import info.hannes.logcat.BothLogActivity
+import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.activity.Connection.Companion.createConnection
+import info.mqtt.android.extsample.activity.FragmentDrawer.FragmentDrawerListener
+import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.model.ConnectionModel
-import timber.log.Timber
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import timber.log.Timber
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
-import java.util.ArrayList
 
 class MainActivity : AppCompatActivity(), FragmentDrawerListener {
 
@@ -118,6 +117,7 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
     }
 
     fun updateAndConnect(model: ConnectionModel) {
+        val connOpts = optionsFromModel(model)
         val connections: Map<String, Connection> = getInstance(this).connections
         Timber.i("Updating connection: ${connections.keys}")
         val connection = connections[model.clientHandle]
@@ -134,8 +134,6 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         val callback = ActionListener(this, Action.CONNECT, connection, *actionArgs)
         connection.client.setCallback(MqttCallbackHandler(this, model.clientHandle))
         connection.client.setTraceCallback(MqttTraceCallback())
-        val connOpts = optionsFromModel(model)
-        connection.addConnectionOptions(connOpts)
         getInstance(this).updateConnection(connection)
         drawerFragment!!.updateConnection(connection)
         connection.client.connect(connOpts, null, callback)
@@ -155,7 +153,9 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
      */
     fun persistAndConnect(model: ConnectionModel) {
         Timber.i("Persisting new connection:${model.clientHandle}")
-        val connection = createConnection(model.clientHandle, model.clientId, model.serverHostName, model.serverPort, this, model.isTlsConnection)
+        val connOpts = optionsFromModel(model)
+        val connection =
+            createConnection(model.clientHandle, model.clientId, model.serverHostName, model.serverPort, this, model.isTlsConnection, connOpts)
         connection.registerChangeListener(changeListener)
         connection.changeConnectionStatus(Connection.ConnectionStatus.CONNECTING)
         val actionArgs = arrayOfNulls<String>(1)
@@ -163,8 +163,6 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         val callback = ActionListener(this, Action.CONNECT, connection, *actionArgs)
         connection.client.setCallback(MqttCallbackHandler(this, model.clientHandle))
         connection.client.setTraceCallback(MqttTraceCallback())
-        val connOpts = optionsFromModel(model)
-        connection.addConnectionOptions(connOpts)
         getInstance(this).addConnection(connection)
         connectionMap!!.add(model.clientHandle)
         drawerFragment!!.addConnection(connection)

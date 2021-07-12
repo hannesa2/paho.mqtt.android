@@ -2,21 +2,20 @@ package info.mqtt.android.extsample.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
-import info.mqtt.android.extsample.activity.Notify.notification
-import info.mqtt.android.service.MqttAndroidClient
-import info.mqtt.android.extsample.internal.IReceivedMessageListener
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import android.content.Intent
 import info.mqtt.android.extsample.R
-import org.eclipse.paho.client.mqttv3.MqttException
+import info.mqtt.android.extsample.activity.Notify.notification
+import info.mqtt.android.extsample.internal.IReceivedMessageListener
 import info.mqtt.android.extsample.internal.Persistence
 import info.mqtt.android.extsample.internal.PersistenceException
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import android.content.Intent
 import info.mqtt.android.extsample.model.ReceivedMessage
 import info.mqtt.android.extsample.model.Subscription
+import info.mqtt.android.service.MqttAndroidClient
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
-import java.lang.StringBuilder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,7 +29,8 @@ class Connection private constructor(
     var port: Int,
     private val context: Context,
     var client: MqttAndroidClient,
-    private var tlsConnection: Boolean
+    private var tlsConnection: Boolean,
+    var connectionOptions: MqttConnectOptions
 ) {
     private val listeners = ArrayList<PropertyChangeListener>()
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
@@ -39,9 +39,6 @@ class Connection private constructor(
     private val receivedMessageListeners = ArrayList<IReceivedMessageListener>()
 
     private var status = ConnectionStatus.NONE
-
-    var connectionOptions: MqttConnectOptions? = null
-        private set
 
     var persistenceId: Long = -1
 
@@ -108,15 +105,6 @@ class Connection private constructor(
             return false
         }
         return clientHandle == other.clientHandle
-    }
-
-    /**
-     * Add the connectOptions used to connect the client to the server
-     *
-     * @param connectOptions the connectOptions used to connect to the server
-     */
-    fun addConnectionOptions(connectOptions: MqttConnectOptions?) {
-        connectionOptions = connectOptions
     }
 
     /**
@@ -221,7 +209,15 @@ class Connection private constructor(
     companion object {
         private const val FOREGROUND = true
 
-        fun createConnection(clientHandle: String, clientId: String, host: String, port: Int, context: Context, tlsConnection: Boolean): Connection {
+        fun createConnection(
+            clientHandle: String,
+            clientId: String,
+            host: String,
+            port: Int,
+            context: Context,
+            tlsConnection: Boolean,
+            connectionOptions: MqttConnectOptions
+        ): Connection {
             val uri: String = if (tlsConnection) {
                 "ssl://$host:$port"
             } else {
@@ -235,7 +231,7 @@ class Connection private constructor(
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && FOREGROUND)
                     setForegroundService(foregroundNotification, 77)
             }
-            return Connection(clientHandle, clientId, host, port, context, client, tlsConnection)
+            return Connection(clientHandle, clientId, host, port, context, client, tlsConnection, connectionOptions)
         }
     }
 

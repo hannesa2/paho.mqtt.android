@@ -11,5 +11,5 @@ fun Connection.connect(context: Context) {
     actionArgs[0] = this.id
     val callback = ActionListener(context, Action.CONNECT, this, *actionArgs)
     this.client.setCallback(MqttCallbackHandler(context, this.handle()))
-    this.client.connect(this.connectionOptions!!, null, callback)
+    this.client.connect(this.connectionOptions, null, callback)
 }

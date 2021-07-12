@@ -53,7 +53,7 @@ class Persistence(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     private fun getValues(connection: Connection): ContentValues {
         val conOpts = connection.connectionOptions
-        val lastWill = conOpts!!.willMessage
+        val lastWill = conOpts.willMessage
         val values = ContentValues()
 
         //put the column values object
@@ -203,8 +203,7 @@ class Persistence(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
             }
 
             //now create the connection object
-            connection = createConnection(clientHandle, clientID, host, port, context!!, ssl)
-            connection.addConnectionOptions(opts)
+            connection = createConnection(clientHandle, clientID, host, port, context!!, ssl, opts)
             connection.persistenceId = id
 
             // Now we recover all subscriptions for this connection
