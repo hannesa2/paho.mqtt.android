@@ -817,6 +817,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * @see MqttCallback
      */
     override fun setCallback(callback: MqttCallback) {
+        callbacksList.clear()
         callbacksList.add(callback)
     }
 
