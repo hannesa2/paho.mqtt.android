@@ -26,18 +26,11 @@ jobs:
         env:
           VERSION: ${{ github.ref }}
       - run: |
-          PRE_RELEASE=""
-          if [[ ${{steps.tagger.outputs.tag}} == *"beta"* ]]; then
-            PRE_RELEASE="-p"
-          fi
-          if [[ ${{steps.tagger.outputs.tag}} == *"alpha"* ]]; then
-            PRE_RELEASE="-p"
-          fi
           assetsAAR=$(find . -name *release.aar | while read -r asset ; do echo "-a $asset" ; done)
           VERSION=$(echo $VERSION | cut -d'/' -f3)
           assetsJAR=$(find . -name IOIO*${VERSION}.jar | while read -r asset ; do echo "-a $asset" ; done)
           tag_name="${GITHUB_REF##*/}"
-          hub release create $PRE_RELEASE ${assetsAAR} ${assetsJAR} -m "$tag_name" "$tag_name"
+          hub release create ${assetsAAR} ${assetsJAR} -m "$tag_name" "$tag_name"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.ref }}
