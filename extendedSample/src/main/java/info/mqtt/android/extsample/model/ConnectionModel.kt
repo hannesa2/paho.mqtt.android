@@ -27,30 +27,30 @@ class ConnectionModel {
         clientId = connection.id
         serverHostName = connection.hostName
         serverPort = connection.port
-        isCleanSession = connection.connectionOptions!!.isCleanSession
-        username = if (connection.connectionOptions!!.userName == null) {
+        isCleanSession = connection.connectionOptions.isCleanSession
+        username = if (connection.connectionOptions.userName == null) {
             ""
         } else {
-            connection.connectionOptions!!.userName
+            connection.connectionOptions.userName
         }
-        password = if (connection.connectionOptions!!.password != null) {
-            String(connection.connectionOptions!!.password)
+        password = if (connection.connectionOptions.password != null) {
+            String(connection.connectionOptions.password)
         } else {
             ""
         }
         tlsServerKey = "--- TODO ---"
         tlsClientKey = "--- TODO ---"
-        timeout = connection.connectionOptions!!.connectionTimeout
-        keepAlive = connection.connectionOptions!!.keepAliveInterval
-        lwtTopic = if (connection.connectionOptions!!.willDestination == null) {
+        timeout = connection.connectionOptions.connectionTimeout
+        keepAlive = connection.connectionOptions.keepAliveInterval
+        lwtTopic = if (connection.connectionOptions.willDestination == null) {
             ""
         } else {
-            connection.connectionOptions!!.willDestination
+            connection.connectionOptions.willDestination
         }
-        if (connection.connectionOptions!!.willMessage != null) {
-            lwtMessage = String(connection.connectionOptions!!.willMessage.payload)
-            lwtQos = connection.connectionOptions!!.willMessage.qos
-            isLwtRetain = connection.connectionOptions!!.willMessage.isRetained
+        if (connection.connectionOptions.willMessage != null) {
+            lwtMessage = String(connection.connectionOptions.willMessage.payload)
+            lwtQos = connection.connectionOptions.willMessage.qos
+            isLwtRetain = connection.connectionOptions.willMessage.isRetained
         } else {
             lwtMessage = ""
             lwtQos = 0

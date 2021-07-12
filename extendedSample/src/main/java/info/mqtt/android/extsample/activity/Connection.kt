@@ -2,21 +2,19 @@ package info.mqtt.android.extsample.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
-import info.mqtt.android.extsample.activity.Notify.notification
-import info.mqtt.android.service.MqttAndroidClient
-import info.mqtt.android.extsample.internal.IReceivedMessageListener
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import info.mqtt.android.extsample.R
-import org.eclipse.paho.client.mqttv3.MqttException
-import info.mqtt.android.extsample.internal.Persistence
-import info.mqtt.android.extsample.internal.PersistenceException
-import org.eclipse.paho.client.mqttv3.MqttMessage
 import android.content.Intent
+import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.activity.Notify.notification
+import info.mqtt.android.extsample.internal.IReceivedMessageListener
 import info.mqtt.android.extsample.model.ReceivedMessage
 import info.mqtt.android.extsample.model.Subscription
+import info.mqtt.android.extsample.room.AppDatabase
+import info.mqtt.android.extsample.utils.toSubscriptionEntity
+import info.mqtt.android.service.MqttAndroidClient
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
-import java.lang.StringBuilder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,7 +28,8 @@ class Connection private constructor(
     var port: Int,
     private val context: Context,
     var client: MqttAndroidClient,
-    private var tlsConnection: Boolean
+    private var tlsConnection: Boolean,
+    var connectionOptions: MqttConnectOptions
 ) {
     private val listeners = ArrayList<PropertyChangeListener>()
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
@@ -39,11 +38,6 @@ class Connection private constructor(
     private val receivedMessageListeners = ArrayList<IReceivedMessageListener>()
 
     private var status = ConnectionStatus.NONE
-
-    var connectionOptions: MqttConnectOptions? = null
-        private set
-
-    var persistenceId: Long = -1
 
     init {
         addHistory("Client: $id created")
@@ -111,15 +105,6 @@ class Connection private constructor(
     }
 
     /**
-     * Add the connectOptions used to connect the client to the server
-     *
-     * @param connectOptions the connectOptions used to connect to the server
-     */
-    fun addConnectionOptions(connectOptions: MqttConnectOptions?) {
-        connectionOptions = connectOptions
-    }
-
-    /**
      * Register a [PropertyChangeListener] to this object
      *
      * @param listener the listener to register
@@ -149,18 +134,12 @@ class Connection private constructor(
 
     fun addNewSubscription(subscription: Subscription) {
         if (!subscriptions.containsKey(subscription.topic)) {
-            try {
-                val actionArgs = arrayOfNulls<String>(1)
-                actionArgs[0] = subscription.topic
-                val callback = ActionListener(context, Action.SUBSCRIBE, this, *actionArgs)
-                client.subscribe(subscription.topic, subscription.qos, null, callback)
-                val persistence = Persistence(context)
-                val rowId = persistence.persistSubscription(subscription)
-                subscription.persistenceId = rowId
-                subscriptions[subscription.topic] = subscription
-            } catch (pe: PersistenceException) {
-                throw MqttException(pe)
-            }
+            val actionArgs = arrayOfNulls<String>(1)
+            actionArgs[0] = subscription.topic
+            val callback = ActionListener(context, Action.SUBSCRIBE, this, *actionArgs)
+            client.subscribe(subscription.topic, subscription.qos, null, callback)
+            AppDatabase.getDatabase(context).subscriptionDao().insert(subscription.toSubscriptionEntity())
+            subscriptions[subscription.topic] = subscription
         }
     }
 
@@ -168,8 +147,7 @@ class Connection private constructor(
         if (subscriptions.containsKey(subscription.topic)) {
             client.unsubscribe(subscription.topic)
             subscriptions.remove(subscription.topic)
-            val persistence = Persistence(context)
-            persistence.deleteSubscription(subscription)
+            AppDatabase.getDatabase(context).subscriptionDao().delete(subscription.toSubscriptionEntity())
         }
     }
 
@@ -177,9 +155,9 @@ class Connection private constructor(
         return ArrayList(subscriptions.values)
     }
 
-    fun setSubscriptions(newSubs: ArrayList<Subscription>) {
-        for (sub in newSubs) {
-            subscriptions[sub.topic] = sub
+    fun setSubscriptions(newSubs: List<Subscription>) {
+        newSubs.forEach {
+            subscriptions[it.topic] = it
         }
     }
 
@@ -192,7 +170,6 @@ class Connection private constructor(
         val msg = ReceivedMessage(topic, message)
         messages.add(0, msg)
         if (subscriptions.containsKey(topic)) {
-            subscriptions[topic]!!.lastMessage = String(message.payload)
             if (subscriptions[topic]!!.isEnableNotifications) {
                 //create intent to start activity
                 val intent = Intent()
@@ -221,7 +198,15 @@ class Connection private constructor(
     companion object {
         private const val FOREGROUND = true
 
-        fun createConnection(clientHandle: String, clientId: String, host: String, port: Int, context: Context, tlsConnection: Boolean): Connection {
+        fun createConnection(
+            clientHandle: String,
+            clientId: String,
+            host: String,
+            port: Int,
+            context: Context,
+            tlsConnection: Boolean,
+            connectionOptions: MqttConnectOptions
+        ): Connection {
             val uri: String = if (tlsConnection) {
                 "ssl://$host:$port"
             } else {
@@ -235,7 +220,7 @@ class Connection private constructor(
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && FOREGROUND)
                     setForegroundService(foregroundNotification, 77)
             }
-            return Connection(clientHandle, clientId, host, port, context, client, tlsConnection)
+            return Connection(clientHandle, clientId, host, port, context, client, tlsConnection, connectionOptions)
         }
     }
 
