@@ -25,8 +25,7 @@ class PublishFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val connections = Connections.getInstance(requireActivity()).connections
         connection = connections[requireArguments().getString(ActivityConstants.CONNECTION_KEY)]
-        Timber.d("FRAGMENT CONNECTION: ${requireArguments().getString(ActivityConstants.CONNECTION_KEY)}")
-        Timber.d("NAME:${connection!!.id}")
+        Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection!!.id}'")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

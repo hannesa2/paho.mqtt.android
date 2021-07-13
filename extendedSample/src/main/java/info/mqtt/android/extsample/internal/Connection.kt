@@ -163,7 +163,8 @@ class Connection private constructor(
     }
 
     fun addReceivedMessageListener(listener: IReceivedMessageListener) {
-        receivedMessageListeners.add(listener)
+        if (receivedMessageListeners.firstOrNull { it.identifer == listener.identifer } == null)
+            receivedMessageListeners.add(listener)
     }
 
     @SuppressLint("SimpleDateFormat")

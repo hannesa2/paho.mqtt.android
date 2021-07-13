@@ -24,7 +24,7 @@ class HistoryFragment : Fragment() {
         val connections = Connections.getInstance(requireActivity()).connections
         connection = connections[requireArguments().getString(ActivityConstants.CONNECTION_KEY)]!!
         setHasOptionsMenu(true)
-        Timber.d(connection.id)
+        Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection.id}'")
         setHasOptionsMenu(true)
     }
 
