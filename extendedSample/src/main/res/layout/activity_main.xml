@@ -31,7 +31,7 @@
 
     <fragment
         android:id="@+id/fragment_navigation_drawer"
-        android:name="info.mqtt.android.extsample.activity.FragmentDrawer"
+        android:name="info.mqtt.android.extsample.fragments.DrawerFragment"
         android:layout_width="@dimen/nav_draw_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"

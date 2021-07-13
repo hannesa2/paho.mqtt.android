@@ -1,4 +1,4 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.fragments
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

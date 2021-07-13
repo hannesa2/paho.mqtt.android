@@ -17,6 +17,7 @@ import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
 import com.moka.utils.Screenshot
+import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 
 

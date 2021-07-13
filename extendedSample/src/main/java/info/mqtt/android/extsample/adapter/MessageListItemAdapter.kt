@@ -1,4 +1,4 @@
-package info.mqtt.android.extsample.components
+package info.mqtt.android.extsample.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context

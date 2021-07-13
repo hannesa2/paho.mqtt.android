@@ -1,4 +1,4 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample
 
 internal object ActivityConstants {
     const val CONNECTION_KEY = "CONNECTION_KEY"

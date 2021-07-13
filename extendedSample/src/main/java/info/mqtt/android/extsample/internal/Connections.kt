@@ -1,7 +1,6 @@
 package info.mqtt.android.extsample.internal
 
 import android.content.Context
-import info.mqtt.android.extsample.activity.Connection
 import info.mqtt.android.extsample.room.AppDatabase
 import info.mqtt.android.extsample.room.PersistenceDao
 import info.mqtt.android.extsample.utils.toConnection

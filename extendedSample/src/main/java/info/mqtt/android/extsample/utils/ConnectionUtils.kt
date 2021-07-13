@@ -1,10 +1,10 @@
 package info.mqtt.android.extsample.utils
 
 import android.content.Context
-import info.mqtt.android.extsample.activity.Action
-import info.mqtt.android.extsample.activity.ActionListener
-import info.mqtt.android.extsample.activity.Connection
-import info.mqtt.android.extsample.activity.MqttCallbackHandler
+import info.mqtt.android.extsample.internal.Action
+import info.mqtt.android.extsample.internal.ActionListener
+import info.mqtt.android.extsample.internal.Connection
+import info.mqtt.android.extsample.internal.MqttCallbackHandler
 import info.mqtt.android.extsample.room.AppDatabase
 import info.mqtt.android.extsample.room.entity.ConnectionEntity
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions

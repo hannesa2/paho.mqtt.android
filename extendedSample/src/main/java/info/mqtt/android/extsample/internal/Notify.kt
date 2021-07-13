@@ -1,4 +1,4 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.internal
 
 import android.app.Notification
 import android.app.NotificationChannel

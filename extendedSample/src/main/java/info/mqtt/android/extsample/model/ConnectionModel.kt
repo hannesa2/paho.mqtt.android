@@ -1,6 +1,6 @@
 package info.mqtt.android.extsample.model
 
-import info.mqtt.android.extsample.activity.Connection
+import info.mqtt.android.extsample.internal.Connection
 
 class ConnectionModel {
     var clientHandle: String = ""

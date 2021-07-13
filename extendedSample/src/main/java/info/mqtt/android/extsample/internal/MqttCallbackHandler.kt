@@ -1,12 +1,13 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.internal
 
 import android.content.Context
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
-import info.mqtt.android.extsample.activity.Notify.notification
+import info.mqtt.android.extsample.internal.Notify.notification
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import timber.log.Timber
-import info.mqtt.android.extsample.R
 import android.content.Intent
+import info.mqtt.android.extsample.MainActivity
+import info.mqtt.android.extsample.R
 import kotlin.Throws
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken

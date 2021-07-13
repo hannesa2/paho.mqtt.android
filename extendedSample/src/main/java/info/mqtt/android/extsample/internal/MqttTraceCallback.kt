@@ -1,4 +1,4 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.internal
 
 import info.mqtt.android.service.MqttTraceHandler
 import timber.log.Timber

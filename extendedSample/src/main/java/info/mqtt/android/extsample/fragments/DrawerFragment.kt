@@ -1,4 +1,4 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.fragments
 
 import android.content.Context
 import android.os.Bundle
@@ -14,10 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.adapter.NavigationDrawerAdapter
+import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.model.NavDrawerItem
 import timber.log.Timber
 
-class FragmentDrawer : Fragment() {
+class DrawerFragment : Fragment() {
     private val data: MutableList<NavDrawerItem> = ArrayList()
     private var drawerToggle: ActionBarDrawerToggle? = null
     private var drawerLayout: DrawerLayout? = null
