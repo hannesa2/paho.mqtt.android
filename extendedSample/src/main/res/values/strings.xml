@@ -69,12 +69,11 @@
     <!-- messages -->
     <string name="message_time_fmt">Time: %1$s</string>
     <string name="publish">Publish</string>
-    <string name="topic_fmt">Topic: %1$s</string>
+    <string name="topic_fmt">Topic:</string>
     <string name="placeholder_main_label">Main Label</string>
 
     <!-- placeholders -->
     <string name="placeholder_sub_label">Sub Label</string>
-    <string name="placeholder_example">Example application</string>
     <string name="message_topic">Topic: </string>
 
     <!-- Message List Item -->

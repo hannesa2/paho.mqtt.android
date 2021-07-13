@@ -36,11 +36,14 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
         //Get connection object associated with this object
         getInstance(context).getConnection(clientHandle)?.apply {
             addMessage(topic, message)
-            addHistory(messageString)
         }
     }
 
-    override fun deliveryComplete(token: IMqttDeliveryToken) = Unit
+    override fun deliveryComplete(token: IMqttDeliveryToken) {
+        getInstance(context).getConnection(clientHandle)?.apply {
+            addHistory("deliveryComplete ${token.message}")
+        }
+    }
 
     companion object {
         private val activityClass = MainActivity::class.java.name
