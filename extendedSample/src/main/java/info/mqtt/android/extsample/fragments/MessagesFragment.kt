@@ -29,6 +29,8 @@ class MessagesFragment : Fragment() {
         Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection.id}'")
         setHasOptionsMenu(true)
         connection.addReceivedMessageListener(object : IReceivedMessageListener {
+            override var identifer: String = MessagesFragment::class.java.simpleName
+
             override fun onMessageReceived(message: ReceivedMessage?) {
                 Timber.d("Message in history ${String(message?.message?.payload!!)} ${connection.messages.size}")
                 messageListAdapter!!.notifyDataSetChanged()
