@@ -1,11 +1,12 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.internal
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import info.mqtt.android.extsample.R
-import info.mqtt.android.extsample.activity.Notify.notification
-import info.mqtt.android.extsample.internal.IReceivedMessageListener
+import info.mqtt.android.extsample.ActivityConstants
+import info.mqtt.android.extsample.MainActivity
+import info.mqtt.android.extsample.internal.Notify.notification
 import info.mqtt.android.extsample.model.ReceivedMessage
 import info.mqtt.android.extsample.model.Subscription
 import info.mqtt.android.extsample.room.AppDatabase

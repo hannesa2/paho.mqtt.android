@@ -17,7 +17,7 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name="info.mqtt.android.extsample.activity.MainActivity"
+            android:name="info.mqtt.android.extsample.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

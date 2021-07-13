@@ -1,9 +1,8 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.fragments
 
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.model.ConnectionModel
 import android.os.Bundle
-import info.mqtt.android.extsample.R
 import timber.log.Timber
 import android.text.TextWatcher
 import android.text.Editable
@@ -13,6 +12,10 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
+import info.mqtt.android.extsample.ActivityConstants
+import info.mqtt.android.extsample.MainActivity
+import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.internal.Connection
 import java.lang.StringBuilder
 import java.util.*
 

@@ -1,11 +1,10 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.fragments
 
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import info.mqtt.android.extsample.R
-import info.mqtt.android.extsample.components.SubscriptionListItemAdapter
+import info.mqtt.android.extsample.adapter.SubscriptionListItemAdapter
 import timber.log.Timber
 import org.eclipse.paho.client.mqttv3.MqttException
 import android.widget.AdapterView.OnItemSelectedListener
@@ -14,8 +13,11 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import info.mqtt.android.extsample.ActivityConstants
+import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.databinding.FragmentSubscriptionsBinding
 import info.mqtt.android.extsample.databinding.SubscriptionDialogBinding
+import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.model.Subscription
 import java.util.HashMap
 

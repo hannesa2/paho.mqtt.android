@@ -6,7 +6,7 @@
     android:layout_alignParentLeft="true"
     android:layout_alignParentStart="true"
     android:orientation="vertical"
-    tools:context="info.mqtt.android.extsample.activity.HomeFragment">
+    tools:context="info.mqtt.android.extsample.fragments.HomeFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

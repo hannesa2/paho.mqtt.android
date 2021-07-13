@@ -1,11 +1,12 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.internal
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import info.mqtt.android.extsample.R
-import info.mqtt.android.extsample.activity.Notify.toast
+import info.mqtt.android.extsample.MainActivity
+import info.mqtt.android.extsample.internal.Notify.toast
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttToken

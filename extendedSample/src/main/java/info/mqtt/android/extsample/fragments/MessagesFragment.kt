@@ -1,6 +1,6 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.fragments
 
-import info.mqtt.android.extsample.components.MessageListItemAdapter
+import info.mqtt.android.extsample.adapter.MessageListItemAdapter
 import android.os.Bundle
 import info.mqtt.android.extsample.internal.Connections
 import android.view.LayoutInflater
@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.widget.ListView
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.IReceivedMessageListener
 import info.mqtt.android.extsample.model.ReceivedMessage
 import timber.log.Timber

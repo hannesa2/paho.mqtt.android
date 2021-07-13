@@ -1,17 +1,19 @@
-package info.mqtt.android.extsample.activity
+package info.mqtt.android.extsample.fragments
 
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
-import info.mqtt.android.extsample.R
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import java.util.HashMap
 
 import android.view.LayoutInflater
 import com.google.android.material.tabs.TabLayout
+import info.mqtt.android.extsample.*
+import info.mqtt.android.extsample.ActivityConstants
+import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.utils.connect
 
 

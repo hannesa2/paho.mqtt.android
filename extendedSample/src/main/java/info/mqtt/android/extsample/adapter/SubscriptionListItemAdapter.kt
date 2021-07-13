@@ -1,4 +1,4 @@
-package info.mqtt.android.extsample.components
+package info.mqtt.android.extsample.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,7 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import info.mqtt.android.extsample.activity.Connection
+import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.model.Subscription
 
 class SubscriptionListItemAdapter(context: Context, private val connection: Connection) :
