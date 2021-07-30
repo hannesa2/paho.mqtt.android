@@ -16,6 +16,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
+import com.moka.lib.assertions.WaitingAssertion
 import com.moka.utils.Screenshot
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
@@ -48,23 +49,23 @@ class ExtendedPublishTest {
         //onView(withTagValue(`is`("Subscribe" as Any))).perform(click())
 
         onView(withId(R.id.subscribe_button)).perform(click())
-        onView(withId(R.id.subscription_topic_edit_text)).perform(typeText("/AnotherTest"))
+        onView(withId(R.id.subscription_topic_edit_text)).perform(typeText(TOPIC))
         Screenshot.takeScreenshot("Subscribe")
         onView(withText("OK")).perform(click())
 
         onView(withId(2)).perform(click())
-        onView(withId(R.id.topic)).perform(replaceText("/AnotherTest"))
+        onView(withId(R.id.topic)).perform(replaceText(TOPIC))
         onView(withId(R.id.message)).perform(replaceText("msg"))
         Screenshot.takeScreenshot("publish")
         onView(withId(R.id.publish_button)).perform(click())
 
         onView(withId(1)).perform(click())
 
-        Thread.sleep(1500)
-
-        onView(withId(R.id.history_list_view)).check(matches(Matchers.withListSizeBigger(0)))
-
+        WaitingAssertion.checkAssertion(R.id.history_list_view, Matchers.withListSizeBigger(0), 2500)
         Screenshot.takeScreenshot("End")
     }
 
+    companion object {
+        private const val TOPIC = "AnotherTest"
+    }
 }
