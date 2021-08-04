@@ -18,6 +18,7 @@ import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.internal.MqttCallbackHandler
 import info.mqtt.android.extsample.internal.MqttTraceCallback
 import info.mqtt.android.extsample.model.ConnectionModel
+import org.eclipse.paho.android.service.QoS
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import timber.log.Timber
 import java.beans.PropertyChangeEvent
@@ -191,7 +192,7 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
             connOpts.password = model.password.toCharArray()
         }
         if (model.lwtTopic != ActivityConstants.empty && model.lwtMessage != ActivityConstants.empty) {
-            connOpts.setWill(model.lwtTopic, model.lwtMessage.toByteArray(), model.lwtQos, model.isLwtRetain)
+            connOpts.setWill(model.lwtTopic, model.lwtMessage.toByteArray(), model.lwtQos.value, model.isLwtRetain)
         }
         //   if (tlsConnection){
         //       // TODO Add Keys to conOpts here
@@ -200,12 +201,12 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         return connOpts
     }
 
-    fun publish(connection: Connection, topic: String?, message: String, qos: Int, retain: Boolean) {
+    fun publish(connection: Connection, topic: String?, message: String, qos: QoS, retain: Boolean) {
         val actionArgs = arrayOfNulls<String>(2)
         actionArgs[0] = message
         actionArgs[1] = topic
         val callback = ActionListener(this, Action.PUBLISH, connection, *actionArgs)
-        connection.client.publish(topic!!, message.toByteArray(), qos, retain, null, callback)
+        connection.client.publish(topic!!, message.toByteArray(), qos.value, retain, null, callback)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

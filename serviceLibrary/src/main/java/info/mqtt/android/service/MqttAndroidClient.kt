@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import org.eclipse.paho.android.service.QoS
 import org.eclipse.paho.client.mqttv3.*
 import java.io.IOException
 import java.io.InputStream
@@ -403,7 +404,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
         message.isRetained = retained
         val token = MqttDeliveryTokenAndroid(this, userContext, callback, message)
         val activityToken = storeToken(token)
-        val internalToken = mqttService!!.publish(clientHandle!!, topic, payload, qos, retained, null, activityToken)
+        val internalToken = mqttService!!.publish(clientHandle!!, topic, payload, QoS.valueOf(qos), retained, null, activityToken)
         token.setDelegate(internalToken)
         return token
     }
@@ -517,7 +518,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     override fun subscribe(topic: String, qos: Int, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback, arrayOf(topic))
         val activityToken = storeToken(token)
-        mqttService!!.subscribe(clientHandle!!, topic, qos, null, activityToken)
+        mqttService!!.subscribe(clientHandle!!, topic, QoS.valueOf(qos), null, activityToken)
         return token
     }
 
@@ -700,7 +701,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     ): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback, topicFilters)
         val activityToken = storeToken(token)
-        mqttService!!.subscribe(clientHandle!!, topicFilters, qos, null, activityToken, messageListeners)
+        mqttService!!.subscribe(clientHandle!!, topicFilters, qos.map { QoS.valueOf(it) }.toTypedArray(), null, activityToken, messageListeners)
         return token
     }
 

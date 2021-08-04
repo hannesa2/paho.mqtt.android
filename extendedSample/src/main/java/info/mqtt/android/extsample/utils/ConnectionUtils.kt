@@ -7,6 +7,7 @@ import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.MqttCallbackHandler
 import info.mqtt.android.extsample.room.AppDatabase
 import info.mqtt.android.extsample.room.entity.ConnectionEntity
+import org.eclipse.paho.android.service.QoS
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 
 fun Connection.connect(context: Context) {
@@ -30,7 +31,7 @@ fun ConnectionEntity.toConnection(context: Context): Connection {
     connectOptions.password = userPass?.toCharArray() ?: "".toCharArray()
     connectOptions.userName = userName
     this.topic?.let {
-        connectOptions.setWill(it, message.toByteArray(), qos, retrained.toBoolean())
+        connectOptions.setWill(it, message.toByteArray(), qos.value, retrained.toBoolean())
     }
 
     val connection = Connection.createConnection(
@@ -57,6 +58,6 @@ fun Connection.toConnectionEntity(): ConnectionEntity = ConnectionEntity(
     connectionOptions.isCleanSession.toInt(),
     connectionOptions.willDestination,
     connectionOptions.willMessage?.payload.toString(), // message
-    connectionOptions.willMessage?.qos ?: 0,
+    QoS.valueOf(connectionOptions.willMessage?.qos ?: QoS.AtMostOnce.value),
     connectionOptions.willMessage?.isRetained?.toInt() ?: 0
 )

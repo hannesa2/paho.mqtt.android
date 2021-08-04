@@ -18,6 +18,7 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
+import org.eclipse.paho.android.service.QoS
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -93,7 +94,7 @@ class MQTTExampleActivity : AppCompatActivity() {
     }
 
     fun subscribeToTopic() {
-        mqttAndroidClient.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
+        mqttAndroidClient.subscribe(subscriptionTopic, QoS.AtMostOnce.value, null, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 addToHistory("Subscribed! $subscriptionTopic")
             }
@@ -104,7 +105,7 @@ class MQTTExampleActivity : AppCompatActivity() {
         })
 
         // THIS DOES NOT WORK!
-        mqttAndroidClient.subscribe(subscriptionTopic, 0) { topic, message ->
+        mqttAndroidClient.subscribe(subscriptionTopic, QoS.AtMostOnce.value) { topic, message ->
             Timber.d("Message arrived $topic : ${String(message.payload)}")
             addToHistory("Message arrived $message")
         }

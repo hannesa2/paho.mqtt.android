@@ -2,6 +2,7 @@ package info.mqtt.android.extsample.room.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.eclipse.paho.android.service.QoS
 
 @Entity
 data class ConnectionEntity(
@@ -17,6 +18,6 @@ data class ConnectionEntity(
     val cleanSession: Int,
     val topic: String?,
     val message: String,
-    val qos: Int,
+    val qos: QoS,
     val retrained: Int
 )

@@ -27,6 +27,7 @@ import android.content.Context
 import android.os.PowerManager
 import info.mqtt.android.service.storage.DatabaseMessageStore
 import info.mqtt.android.service.storage.MessageStore
+import org.eclipse.paho.android.service.QoS
 
 /**
  * The android service which interfaces with an MQTT client implementation
@@ -379,7 +380,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @return token for tracking the operation
      */
     fun publish(
-        clientHandle: String, topic: String, payload: ByteArray, qos: Int, retained: Boolean, invocationContext: String?, activityToken: String?
+        clientHandle: String, topic: String, payload: ByteArray, qos: QoS, retained: Boolean, invocationContext: String?, activityToken: String?
     ): IMqttDeliveryToken? {
         return getConnection(clientHandle).publish(topic, payload, qos, retained, invocationContext, activityToken!!)
     }
@@ -413,7 +414,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun subscribe(clientHandle: String, topic: String, qos: Int, invocationContext: String?, activityToken: String) {
+    fun subscribe(clientHandle: String, topic: String, qos: QoS, invocationContext: String?, activityToken: String) {
         getConnection(clientHandle).subscribe(topic, qos, invocationContext, activityToken)
     }
 
@@ -441,7 +442,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param messageListeners  a callback to handle incoming messages
      */
     fun subscribe(
-        clientHandle: String, topicFilters: Array<String>, qos: IntArray, invocationContext: String?, activityToken: String?,
+        clientHandle: String, topicFilters: Array<String>, qos: Array<QoS>, invocationContext: String?, activityToken: String?,
         messageListeners: Array<IMqttMessageListener>?
     ) {
         getConnection(clientHandle).subscribe(topicFilters, qos, invocationContext, activityToken!!, messageListeners)

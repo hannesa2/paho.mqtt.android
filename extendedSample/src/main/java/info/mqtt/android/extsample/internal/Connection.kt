@@ -138,7 +138,7 @@ class Connection private constructor(
             val actionArgs = arrayOfNulls<String>(1)
             actionArgs[0] = subscription.topic
             val callback = ActionListener(context, Action.SUBSCRIBE, this, *actionArgs)
-            client.subscribe(subscription.topic, subscription.qos, null, callback)
+            client.subscribe(subscription.topic, subscription.qos.value, null, callback)
             AppDatabase.getDatabase(context).subscriptionDao().insert(subscription.toSubscriptionEntity())
             subscriptions[subscription.topic] = subscription
         }

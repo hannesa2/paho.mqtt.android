@@ -26,6 +26,7 @@ import org.eclipse.paho.client.mqttv3.IMqttMessageListener
 import android.util.Log
 import android.os.PowerManager
 import info.mqtt.android.service.ping.AlarmPingSender
+import org.eclipse.paho.android.service.QoS
 
 /**
  * MqttConnection holds a MqttAsyncClient {host,port,clientId} instance to perform
@@ -349,7 +350,7 @@ internal class MqttConnection(
     fun publish(
         topic: String,
         payload: ByteArray?,
-        qos: Int,
+        qos: QoS,
         retained: Boolean,
         invocationContext: String?,
         activityToken: String
@@ -363,9 +364,9 @@ internal class MqttConnection(
             val listener: IMqttActionListener = MqttConnectionListener(resultBundle)
             try {
                 val message = MqttMessage(payload)
-                message.qos = qos
+                message.qos = qos.value
                 message.isRetained = retained
-                sendToken = myClient!!.publish(topic, payload, qos, retained, invocationContext, listener)
+                sendToken = myClient!!.publish(topic, payload, qos.value, retained, invocationContext, listener)
                 storeSendDetails(topic, message, sendToken, invocationContext, activityToken)
             } catch (e: Exception) {
                 handleException(resultBundle, e)
@@ -428,7 +429,7 @@ internal class MqttConnection(
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun subscribe(topic: String, qos: Int, invocationContext: String?, activityToken: String) {
+    fun subscribe(topic: String, qos: QoS, invocationContext: String?, activityToken: String) {
         service.traceDebug("subscribe({$topic},$qos,{$invocationContext}, {$activityToken}")
         val resultBundle = Bundle()
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SUBSCRIBE_ACTION)
@@ -437,7 +438,7 @@ internal class MqttConnection(
         if (myClient != null && myClient!!.isConnected) {
             val listener: IMqttActionListener = MqttConnectionListener(resultBundle)
             try {
-                myClient!!.subscribe(topic, qos, invocationContext, listener)
+                myClient!!.subscribe(topic, qos.value, invocationContext, listener)
             } catch (e: Exception) {
                 handleException(resultBundle, e)
             }
@@ -481,7 +482,7 @@ internal class MqttConnection(
 
     fun subscribe(
         topicFilters: Array<String>,
-        qos: IntArray,
+        qos: Array<QoS>,
         invocationContext: String?,
         activityToken: String,
         messageListeners: Array<IMqttMessageListener>?
@@ -497,7 +498,7 @@ internal class MqttConnection(
         if (myClient != null && myClient!!.isConnected) {
             val listener: IMqttActionListener = MqttConnectionListener(resultBundle)
             try {
-                myClient!!.subscribe(topicFilters, qos, null, listener, messageListeners)
+                myClient!!.subscribe(topicFilters, qos.map { it.value }.toIntArray(), null, listener, messageListeners)
             } catch (e: Exception) {
                 handleException(resultBundle, e)
             }

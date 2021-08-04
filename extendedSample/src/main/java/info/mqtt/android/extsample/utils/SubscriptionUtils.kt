@@ -2,6 +2,7 @@ package info.mqtt.android.extsample.utils
 
 import info.mqtt.android.extsample.model.Subscription
 import info.mqtt.android.extsample.room.entity.SubscriptionEntity
+import org.eclipse.paho.android.service.QoS
 
 fun SubscriptionEntity.toSubscription(): Subscription = Subscription(
     this.topic,

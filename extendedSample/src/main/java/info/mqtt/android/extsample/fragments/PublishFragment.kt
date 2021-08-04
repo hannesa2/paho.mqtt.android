@@ -14,11 +14,12 @@ import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.internal.Connection
+import org.eclipse.paho.android.service.QoS
 
 class PublishFragment : Fragment() {
 
     private var connection: Connection? = null
-    private var selectedQos = 0
+    private var selectedQos = QoS.AtMostOnce
     private var retainValue = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,14 +40,13 @@ class PublishFragment : Fragment() {
         qos.onItemSelectedListener = object : OnItemSelectedListener {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedQos = resources.getStringArray(R.array.qos_options)[position].toInt()
+                selectedQos = QoS.values()[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
         retain.setOnCheckedChangeListener { _, isChecked -> retainValue = isChecked }
-        val adapter = ArrayAdapter
-            .createFromResource(requireActivity(), R.array.qos_options, android.R.layout.simple_spinner_item)
+        val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.values())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         qos.adapter = adapter
         val publishButton = rootView.findViewById<Button>(R.id.publish_button)

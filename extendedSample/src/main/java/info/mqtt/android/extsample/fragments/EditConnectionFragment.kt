@@ -16,6 +16,7 @@ import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.internal.Connection
+import org.eclipse.paho.android.service.QoS
 import java.lang.StringBuilder
 import java.util.*
 
@@ -59,8 +60,7 @@ class EditConnectionFragment : Fragment() {
         lwtMessage = rootView.findViewById(R.id.lwt_message)
         lwtQos = rootView.findViewById(R.id.lwt_qos_spinner)
         lwtRetain = rootView.findViewById(R.id.retain_switch)
-        val adapter = ArrayAdapter
-            .createFromResource(requireActivity(), R.array.qos_options, android.R.layout.simple_spinner_item)
+        val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.values())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         lwtQos.adapter = adapter
         if (this.arguments != null && requireArguments().getString(ActivityConstants.CONNECTION_KEY) != null) {
@@ -177,7 +177,7 @@ class EditConnectionFragment : Fragment() {
         })
         lwtQos.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-                formModel.lwtQos = resources.getStringArray(R.array.qos_options)[position].toInt()
+                formModel.lwtQos = QoS.values()[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -199,7 +199,7 @@ class EditConnectionFragment : Fragment() {
         keepAlive!!.setText(connectionModel.keepAlive.toString())
         lwtTopic!!.setText(connectionModel.lwtTopic)
         lwtMessage!!.setText(connectionModel.lwtMessage)
-        lwtQos.setSelection(connectionModel.lwtQos)
+        lwtQos.setSelection(connectionModel.lwtQos.value)
         lwtRetain.isChecked = connectionModel.isLwtRetain
     }
 
