@@ -6,6 +6,12 @@ jobs:
   Build:
     name: Build & Test
     runs-on: macOS-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [ 28, 30 ]
+        abi: [ x86, x86_64]
+        tag: [ 'google_apis', 'default']
     steps:
       - uses: actions/checkout@v2.3.4
       - name: set up JDK 11
@@ -21,9 +27,9 @@ jobs:
         uses: malinskiy/action-android/emulator-run-cmd@release/0.1.2
         with:
           cmd: ./gradlew cAT --continue
-          api: 28
-          tag: default
-          abi: x86
+          api: ${{ matrix.api }}
+          tag: ${{ matrix.tag }}
+          abi: ${{ matrix.abi }}
           cmdOptions: -noaudio -no-boot-anim -no-window
       - uses: actions/upload-artifact@v2.2.4
         if: ${{ always() }}
