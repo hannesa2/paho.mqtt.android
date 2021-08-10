@@ -1,6 +1,7 @@
 package info.mqtt.android.extsample.model
 
 import info.mqtt.android.extsample.internal.Connection
+import org.eclipse.paho.android.service.QoS
 
 class ConnectionModel {
     var clientHandle: String = ""
@@ -17,7 +18,7 @@ class ConnectionModel {
     var keepAlive = 200
     var lwtTopic: String = ""
     var lwtMessage: String = ""
-    var lwtQos = 0
+    var lwtQos = QoS.AtMostOnce
     var isLwtRetain = false
 
     constructor()
@@ -49,11 +50,11 @@ class ConnectionModel {
         }
         if (connection.connectionOptions.willMessage != null) {
             lwtMessage = String(connection.connectionOptions.willMessage.payload)
-            lwtQos = connection.connectionOptions.willMessage.qos
+            lwtQos = QoS.valueOf(connection.connectionOptions.willMessage.qos)
             isLwtRetain = connection.connectionOptions.willMessage.isRetained
         } else {
             lwtMessage = ""
-            lwtQos = 0
+            lwtQos = QoS.AtMostOnce
             isLwtRetain = false
         }
     }
@@ -149,7 +150,7 @@ class ConnectionModel {
         result = 31 * result + keepAlive
         result = 31 * result + lwtTopic.hashCode()
         result = 31 * result + lwtMessage.hashCode()
-        result = 31 * result + lwtQos
+        result = 31 * result + lwtQos.value
         result = 31 * result + if (isLwtRetain) 1 else 0
         return result
     }

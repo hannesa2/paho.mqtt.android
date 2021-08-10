@@ -86,7 +86,7 @@ class ActionListener(
         val subscriptions = this.connection.getSubscriptions()
         for (sub in subscriptions) {
             Timber.i("Auto-subscribing to: ${sub.topic} @ QoS: ${sub.qos}")
-            this.connection.client.subscribe(sub.topic, sub.qos)
+            this.connection.client.subscribe(sub.topic, sub.qos.value)
         }
     }
 

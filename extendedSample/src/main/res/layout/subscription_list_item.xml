@@ -28,9 +28,10 @@
     <TextView
         android:id="@+id/show_notifications_label"
         android:layout_width="fill_parent"
-        android:layout_height="26dip"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@id/qos_label"
+        android:layout_marginStart="16dp"
         android:text="@string/notify_text" />
 
     <TextView
@@ -45,16 +46,14 @@
         android:text="@string/topic_label"
         android:textSize="16sp" />
 
-
     <TextView
         android:id="@+id/qos_label"
-        android:layout_width="100dip"
-        android:layout_height="26dip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@id/icon"
         android:ellipsize="marquee"
         android:singleLine="true"
-        android:text="@string/qos_text"
-        android:textSize="12sp" />
+        tools:text="QoS" />
 
 </RelativeLayout>

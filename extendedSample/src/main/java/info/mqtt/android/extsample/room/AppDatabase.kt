@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import info.mqtt.android.extsample.room.AppDatabase.Companion.DB_VERSION
 
 import info.mqtt.android.extsample.room.entity.ConnectionEntity
 import info.mqtt.android.extsample.room.entity.SubscriptionEntity
 
 @Database(entities = [ConnectionEntity::class, SubscriptionEntity::class], version = DB_VERSION)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun persistenceDao(): PersistenceDao

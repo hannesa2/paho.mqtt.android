@@ -20,10 +20,13 @@ import info.mqtt.android.extsample.databinding.SubscriptionDialogBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.model.Subscription
 import java.util.HashMap
+import android.widget.ArrayAdapter
+import org.eclipse.paho.android.service.QoS
+
 
 class SubscriptionFragment : Fragment() {
 
-    private var tempQosValue = 0
+    private var tempQosValue = QoS.AtMostOnce
     private lateinit var connection: Connection
 
     private var _binding: FragmentSubscriptionsBinding? = null
@@ -51,12 +54,12 @@ class SubscriptionFragment : Fragment() {
         val dialogBinding = SubscriptionDialogBinding
             .inflate(LayoutInflater.from(context))
 
-        val adapter = ArrayAdapter.createFromResource(requireActivity(), R.array.qos_options, android.R.layout.simple_spinner_item)
+        val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.values())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dialogBinding.subscriptionQosSpinner.adapter = adapter
         dialogBinding.subscriptionQosSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-                tempQosValue = resources.getStringArray(R.array.qos_options)[position].toInt()
+                tempQosValue = QoS.values()[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}

@@ -57,8 +57,7 @@
     <string name="notify_label">Show Notifications</string>
     <string name="subscribe_ok">OK</string>
     <string name="subscribe_cancel">Cancel</string>
-    <string name="qos_text">QoS: %1$d</string>
-    <string name="notify_text">Notifications: %1$s</string>
+    <string name="notify_text">Notifications:%1$s</string>
 
     <string name="home_no_connections">No Connections</string>
 
@@ -75,12 +74,5 @@
     <!-- placeholders -->
     <string name="placeholder_sub_label">Sub Label</string>
     <string name="message_topic">Topic: </string>
-
-    <!-- Message List Item -->
-    <string-array name="qos_options">
-        <item name="qos_0">0</item>
-        <item name="qos_1">1</item>
-        <item name="qos_2">2</item>
-    </string-array>
 
 </resources>

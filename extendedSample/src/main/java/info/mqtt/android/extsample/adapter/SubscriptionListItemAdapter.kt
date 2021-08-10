@@ -21,7 +21,7 @@ class SubscriptionListItemAdapter(context: Context, private val connection: Conn
         super.notifyDataSetChanged()
     }
 
-    @SuppressLint("ViewHolder")
+    @SuppressLint("ViewHolder", "SetTextI18n")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val rowView = inflater.inflate(R.layout.subscription_list_item, parent, false)
@@ -29,8 +29,7 @@ class SubscriptionListItemAdapter(context: Context, private val connection: Conn
         val topicDeleteButton = rowView.findViewById<ImageView>(R.id.topic_delete_image)
         val qosTextView = rowView.findViewById<TextView>(R.id.qos_label)
         topicTextView.text = connection.getSubscriptions()[position].topic
-        val qosString = context.getString(R.string.qos_text, connection.getSubscriptions()[position].qos)
-        qosTextView.text = qosString
+        qosTextView.text = "Qos: ${connection.getSubscriptions()[position].qos}(${connection.getSubscriptions()[position].qos.value})"
         val notifyTextView = rowView.findViewById<TextView>(R.id.show_notifications_label)
         val notifyString = context.getString(R.string.notify_text, connection.getSubscriptions()[position].isEnableNotifications.toString())
         notifyTextView.text = notifyString
