@@ -9,12 +9,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [ 30 ]
-        abi: [ x86, x86_64]
-        tag: [ 'google_apis', 'default']
-        exclude:
+        api: [ 28 ]
+        abi: [ x86 ]
+        tag: [ 'default']
+        include:
           - api: 30
-            tag: 'default'
+            abi: x86
+            tag: 'google_apis'
     steps:
       - uses: actions/checkout@v2.3.4
       - name: set up JDK 11
