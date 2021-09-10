@@ -102,7 +102,7 @@ internal class MqttConnection(
             cleanSession = options.isCleanSession
             if (options.isCleanSession) { // if it's a clean session,
                 // discard old data
-                service.messageStore.clearArrivedMessages(clientHandle)
+                service.messageStore.persistenceDao().deleteClientHandle(clientHandle)
             }
         }
         service.traceDebug("Connecting {$serverURI} as {$clientId}")
@@ -222,10 +222,8 @@ internal class MqttConnection(
      * have already purged any such messages from our messageStore.
      */
     private fun deliverBacklog() {
-        val backlog = service.messageStore.getAllArrivedMessages(clientHandle)
-        while (backlog.hasNext()) {
-            val msgArrived = backlog.next()
-            val resultBundle = messageToBundle(msgArrived.messageId, msgArrived.topic, msgArrived.message)
+        service.messageStore.persistenceDao().allArrived(clientHandle).forEach {
+            val resultBundle = messageToBundle(it.messageId, it.topic, it.mqttMessage)
             resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.MESSAGE_ARRIVED_ACTION)
             service.callbackToActivity(clientHandle, Status.OK, resultBundle)
         }
@@ -291,7 +289,7 @@ internal class MqttConnection(
         }
         if (connectOptions != null && connectOptions!!.isCleanSession) {
             // assume we'll clear the stored messages at this point
-            service.messageStore.clearArrivedMessages(clientHandle)
+            service.messageStore.persistenceDao().deleteClientHandle(clientHandle)
         }
         releaseWakeLock()
     }
@@ -323,7 +321,7 @@ internal class MqttConnection(
         }
         if (connectOptions != null && connectOptions!!.isCleanSession) {
             // assume we'll clear the stored messages at this point
-            service.messageStore.clearArrivedMessages(clientHandle)
+            service.messageStore.persistenceDao().deleteClientHandle(clientHandle)
         }
         releaseWakeLock()
     }

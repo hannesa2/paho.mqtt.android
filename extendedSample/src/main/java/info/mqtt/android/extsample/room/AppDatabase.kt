@@ -9,6 +9,7 @@ import info.mqtt.android.extsample.room.AppDatabase.Companion.DB_VERSION
 
 import info.mqtt.android.extsample.room.entity.ConnectionEntity
 import info.mqtt.android.extsample.room.entity.SubscriptionEntity
+import info.mqtt.android.service.room.Converters
 
 @Database(entities = [ConnectionEntity::class, SubscriptionEntity::class], version = DB_VERSION)
 @TypeConverters(Converters::class)

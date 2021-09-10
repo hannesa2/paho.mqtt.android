@@ -915,7 +915,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * [ParcelableMqttMessage])
      * @return whether or not the message was successfully acknowledged
      */
-    fun acknowledgeMessage(messageId: String?): Boolean {
+    fun acknowledgeMessage(messageId: String): Boolean {
         if (messageAck == Ack.MANUAL_ACK) {
             val status = mqttService!!.acknowledgeMessageArrival(clientHandle!!, messageId)
             return status == Status.OK
@@ -1047,7 +1047,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * Process notification of a message's arrival
      */
     private fun messageArrivedAction(data: Bundle?) {
-        val messageId = data!!.getString(MqttServiceConstants.CALLBACK_MESSAGE_ID)
+        val messageId = data!!.getString(MqttServiceConstants.CALLBACK_MESSAGE_ID)!!
         val destinationName = data.getString(MqttServiceConstants.CALLBACK_DESTINATION_NAME)
         val message: ParcelableMqttMessage = data.getParcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL)!!
         try {
