@@ -31,7 +31,7 @@ fun ConnectionEntity.toConnection(context: Context): Connection {
     connectOptions.password = userPass?.toCharArray() ?: "".toCharArray()
     connectOptions.userName = userName
     this.topic?.let {
-        connectOptions.setWill(it, message.toByteArray(), qos.value, retrained.toBoolean())
+        connectOptions.setWill(it, message.toByteArray(), qos.value, retained.toBoolean())
     }
 
     val connection = Connection.createConnection(
