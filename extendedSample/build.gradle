@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId 'info.mqtt.android.extsample'
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode getGitCommitCount()
         versionName getTag()
 
