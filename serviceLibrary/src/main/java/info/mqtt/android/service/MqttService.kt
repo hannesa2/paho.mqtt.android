@@ -1,32 +1,21 @@
 package info.mqtt.android.service
 
 import android.annotation.SuppressLint
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.jvm.Volatile
-import android.os.Bundle
-import android.content.Intent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import org.eclipse.paho.client.mqttv3.MqttClientPersistence
-import kotlin.Throws
-import org.eclipse.paho.client.mqttv3.MqttException
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener
-import java.lang.IllegalArgumentException
-import android.os.IBinder
-import android.os.Build
 import android.app.Notification
 import android.app.Service
-import java.lang.Exception
-import android.content.IntentFilter
-import android.net.ConnectivityManager
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.os.Build
+import android.os.Bundle
+import android.os.IBinder
 import android.os.PowerManager
-import info.mqtt.android.service.storage.DatabaseMessageStore
-import info.mqtt.android.service.storage.MessageStore
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import info.mqtt.android.service.room.MqMessageDatabase
+import org.eclipse.paho.client.mqttv3.*
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * The android service which interfaces with an MQTT client implementation
@@ -187,7 +176,7 @@ class MqttService : Service(), MqttTraceHandler {
     private val connections: MutableMap<String, MqttConnection> = ConcurrentHashMap()
 
     // somewhere to persist received messages until we're sure that they've reached the application
-    lateinit var messageStore: MessageStore
+    lateinit var messageStore: MqMessageDatabase
 
     // callback id for making trace callbacks to the Activity needs to be set by the activity as appropriate
     private var traceCallbackId: String? = null
@@ -209,7 +198,7 @@ class MqttService : Service(), MqttTraceHandler {
         mqttServiceBinder = MqttServiceBinder(this)
 
         // create somewhere to buffer received messages until we know that they have been passed to the application
-        messageStore = DatabaseMessageStore(this, this)
+        messageStore = MqMessageDatabase.getDatabase(this)
     }
 
 
@@ -492,14 +481,13 @@ class MqttService : Service(), MqttTraceHandler {
     }
 
     /**
-     * Called by the Activity when a message has been passed back to the
-     * application
+     * Called by the Activity when a message has been passed back to the application
      *
      * @param clientHandle identifier for the client which received the message
      * @param id           identifier for the MQTT message
      * @return [Status]
      */
-    fun acknowledgeMessageArrival(clientHandle: String, id: String?): Status {
+    fun acknowledgeMessageArrival(clientHandle: String, id: String): Status {
         return if (messageStore.discardArrived(clientHandle, id)) {
             Status.OK
         } else {
