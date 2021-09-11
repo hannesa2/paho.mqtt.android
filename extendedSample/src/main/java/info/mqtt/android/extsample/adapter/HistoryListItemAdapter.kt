@@ -9,7 +9,7 @@ import android.view.View
 import android.widget.TextView
 import info.mqtt.android.extsample.R
 
-class HistoryListItemAdapter(context: Context, private val history: List<String>) :
+class HistoryListItemAdapter(context: Context, var history: List<String>) :
     ArrayAdapter<String>(context, R.layout.message_list_item, history) {
 
     @SuppressLint("ViewHolder", "SimpleDateFormat")

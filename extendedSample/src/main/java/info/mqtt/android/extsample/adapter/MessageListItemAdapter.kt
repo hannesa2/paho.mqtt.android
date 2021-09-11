@@ -12,7 +12,7 @@ import info.mqtt.android.extsample.model.ReceivedMessage
 import info.mqtt.android.service.QoS
 import java.text.SimpleDateFormat
 
-class MessageListItemAdapter(context: Context, private val messages: List<ReceivedMessage>) :
+class MessageListItemAdapter(context: Context, var messages: List<ReceivedMessage>) :
     ArrayAdapter<ReceivedMessage>(context, R.layout.message_list_item, messages) {
 
     @SuppressLint("ViewHolder", "SimpleDateFormat", "SetTextI18n")

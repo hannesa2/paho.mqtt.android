@@ -22,7 +22,7 @@ class DrawerFragment : Fragment() {
     private val data: MutableList<NavDrawerItem> = ArrayList()
     private var drawerToggle: ActionBarDrawerToggle? = null
     private var drawerLayout: DrawerLayout? = null
-    private lateinit var adapter: NavigationDrawerAdapter
+    private lateinit var drawerAdapter: NavigationDrawerAdapter
     private var containerView: View? = null
     private var drawerListener: FragmentDrawerListener? = null
     fun setDrawerListener(listener: FragmentDrawerListener?) {
@@ -33,7 +33,7 @@ class DrawerFragment : Fragment() {
         Timber.d("Adding new Connection: ${connection.id}")
         val navItem = NavDrawerItem(connection)
         data.add(navItem)
-        adapter.notifyItemInserted(data.size-1)
+        drawerAdapter.notifyItemInserted(data.size-1)
     }
 
     fun updateConnection(connection: Connection) {
@@ -49,7 +49,7 @@ class DrawerFragment : Fragment() {
             }
             index++
         }
-        adapter.notifyDataSetChanged()
+        drawerAdapter.notifyDataSetChanged()
     }
 
     fun removeConnection(connection: Connection) {
@@ -61,16 +61,16 @@ class DrawerFragment : Fragment() {
                 iterator.remove()
             }
         }
-        adapter.notifyDataSetChanged()
+        drawerAdapter.notifyDataSetChanged()
     }
 
     fun clearConnections() {
         data.clear()
-        adapter.notifyDataSetChanged()
+        drawerAdapter.notifyDataSetChanged()
     }
 
     fun notifyDataSetChanged() {
-        adapter.notifyDataSetChanged()
+        drawerAdapter.notifyDataSetChanged()
     }
 
     private fun getData(): List<NavDrawerItem> {
@@ -86,8 +86,8 @@ class DrawerFragment : Fragment() {
             drawerLayout!!.closeDrawer(containerView!!)
         }
 
-        adapter = NavigationDrawerAdapter(requireContext(), getData())
-        recyclerView.adapter = adapter
+        drawerAdapter = NavigationDrawerAdapter(requireContext(), getData())
+        recyclerView.adapter = drawerAdapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.addOnItemTouchListener(RecyclerTouchListener(activity, recyclerView, object : ClickListener {
             override fun onClick(position: Int) {
