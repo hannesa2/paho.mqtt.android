@@ -27,7 +27,6 @@ import android.content.Context
 import android.os.PowerManager
 import info.mqtt.android.service.storage.DatabaseMessageStore
 import info.mqtt.android.service.storage.MessageStore
-import org.eclipse.paho.android.service.QoS
 
 /**
  * The android service which interfaces with an MQTT client implementation

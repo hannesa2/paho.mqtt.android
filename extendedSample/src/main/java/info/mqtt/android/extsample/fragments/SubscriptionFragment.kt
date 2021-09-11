@@ -21,7 +21,7 @@ import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.model.Subscription
 import java.util.HashMap
 import android.widget.ArrayAdapter
-import org.eclipse.paho.android.service.QoS
+import info.mqtt.android.service.QoS
 
 
 class SubscriptionFragment : Fragment() {

@@ -26,7 +26,6 @@ import org.eclipse.paho.client.mqttv3.IMqttMessageListener
 import android.util.Log
 import android.os.PowerManager
 import info.mqtt.android.service.ping.AlarmPingSender
-import org.eclipse.paho.android.service.QoS
 
 /**
  * MqttConnection holds a MqttAsyncClient {host,port,clientId} instance to perform

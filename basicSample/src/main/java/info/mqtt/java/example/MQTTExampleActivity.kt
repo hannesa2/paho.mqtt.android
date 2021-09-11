@@ -18,7 +18,7 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
-import org.eclipse.paho.android.service.QoS
+import info.mqtt.android.service.QoS
 import java.text.SimpleDateFormat
 import java.util.*
 

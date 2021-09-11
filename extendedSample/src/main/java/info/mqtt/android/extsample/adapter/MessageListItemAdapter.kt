@@ -9,7 +9,7 @@ import android.view.View
 import android.widget.TextView
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.model.ReceivedMessage
-import org.eclipse.paho.android.service.QoS
+import info.mqtt.android.service.QoS
 import java.text.SimpleDateFormat
 
 class MessageListItemAdapter(context: Context, private val messages: List<ReceivedMessage>) :

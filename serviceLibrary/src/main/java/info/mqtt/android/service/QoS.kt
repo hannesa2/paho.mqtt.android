@@ -1,4 +1,4 @@
-package org.eclipse.paho.android.service
+package info.mqtt.android.service
 
 enum class QoS(val value: Int) {
 

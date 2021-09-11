@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import org.eclipse.paho.android.service.QoS
 import org.eclipse.paho.client.mqttv3.*
 import java.io.IOException
 import java.io.InputStream
