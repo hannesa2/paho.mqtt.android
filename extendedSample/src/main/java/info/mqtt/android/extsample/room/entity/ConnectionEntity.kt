@@ -19,5 +19,5 @@ data class ConnectionEntity(
     val topic: String?,
     val message: String,
     val qos: QoS,
-    val retrained: Int
+    val retained: Int
 )
