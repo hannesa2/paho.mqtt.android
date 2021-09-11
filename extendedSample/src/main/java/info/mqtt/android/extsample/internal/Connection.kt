@@ -37,6 +37,7 @@ class Connection private constructor(
     val messages = ArrayList<ReceivedMessage>()
     val history: ArrayList<String> = ArrayList()
     private val receivedMessageListeners = ArrayList<IReceivedMessageListener>()
+    private val historyListeners = ArrayList<IHistoryListener>()
 
     private var status = ConnectionStatus.NONE
 
@@ -61,6 +62,9 @@ class Connection private constructor(
     fun addHistory(action: String) {
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
         history.add(action + timestamp)
+        for (listener in historyListeners) {
+            listener.onHistoryReceived(action + timestamp)
+        }
         notifyListeners(PropertyChangeEvent(this, ActivityConstants.historyProperty, null, null))
     }
 
@@ -165,6 +169,11 @@ class Connection private constructor(
     fun addReceivedMessageListener(listener: IReceivedMessageListener) {
         if (receivedMessageListeners.firstOrNull { it.identifer == listener.identifer } == null)
             receivedMessageListeners.add(listener)
+    }
+
+    fun addHistoryListener(listener: IHistoryListener) {
+        if (historyListeners.firstOrNull { it.identifer == listener.identifer } == null)
+            historyListeners.add(listener)
     }
 
     @SuppressLint("SimpleDateFormat")
