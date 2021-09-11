@@ -1,7 +1,7 @@
 package info.mqtt.android.extsample.model
 
 import info.mqtt.android.extsample.internal.Connection
-import org.eclipse.paho.android.service.QoS
+import info.mqtt.android.service.QoS
 
 class ConnectionModel {
     var clientHandle: String = ""

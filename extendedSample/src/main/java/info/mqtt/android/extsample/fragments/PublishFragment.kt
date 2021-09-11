@@ -14,7 +14,7 @@ import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.internal.Connection
-import org.eclipse.paho.android.service.QoS
+import info.mqtt.android.service.QoS
 
 class PublishFragment : Fragment() {
 

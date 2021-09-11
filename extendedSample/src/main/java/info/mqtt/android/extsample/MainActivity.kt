@@ -18,7 +18,7 @@ import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.internal.MqttCallbackHandler
 import info.mqtt.android.extsample.internal.MqttTraceCallback
 import info.mqtt.android.extsample.model.ConnectionModel
-import org.eclipse.paho.android.service.QoS
+import info.mqtt.android.service.QoS
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import timber.log.Timber
 import java.beans.PropertyChangeEvent

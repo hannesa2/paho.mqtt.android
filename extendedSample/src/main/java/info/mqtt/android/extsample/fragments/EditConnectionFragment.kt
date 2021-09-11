@@ -16,7 +16,7 @@ import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.internal.Connection
-import org.eclipse.paho.android.service.QoS
+import info.mqtt.android.service.QoS
 import java.lang.StringBuilder
 import java.util.*
 

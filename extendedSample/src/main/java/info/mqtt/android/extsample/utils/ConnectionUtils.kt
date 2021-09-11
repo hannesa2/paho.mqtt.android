@@ -7,7 +7,7 @@ import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.MqttCallbackHandler
 import info.mqtt.android.extsample.room.AppDatabase
 import info.mqtt.android.extsample.room.entity.ConnectionEntity
-import org.eclipse.paho.android.service.QoS
+import info.mqtt.android.service.QoS
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 
 fun Connection.connect(context: Context) {

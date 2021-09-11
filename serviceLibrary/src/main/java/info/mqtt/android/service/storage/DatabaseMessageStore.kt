@@ -35,7 +35,6 @@ internal class DatabaseMessageStore(service: MqttService, context: Context) : Me
      * Store an MQTT message
      *
      * @param clientHandle identifier for the client storing the message
-     * @param Topic        The topic on which the message was published
      * @param message      the arrived MQTT message
      * @return an identifier for the message, so that it can be removed when appropriate
      */
