@@ -38,7 +38,7 @@ jobs:
       - uses: actions/upload-artifact@v2.2.4
         if: ${{ always() }}
         with:
-          name: Espresso-test-mqtt-report
+          name: Espresso-test-${{ matrix.api }}-${{ matrix.abi }}-report
           path: ./**/build/reports/androidTests/connected
       - name: Archive screenshots
         uses: actions/upload-artifact@v2.2.4
