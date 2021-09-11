@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
-import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
@@ -14,17 +13,25 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.adapter.NavigationDrawerAdapter
+import info.mqtt.android.extsample.databinding.FragmentNavigationDrawerBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.model.NavDrawerItem
 import timber.log.Timber
 
 class DrawerFragment : Fragment() {
+
     private val data: MutableList<NavDrawerItem> = ArrayList()
     private var drawerToggle: ActionBarDrawerToggle? = null
     private var drawerLayout: DrawerLayout? = null
     private lateinit var drawerAdapter: NavigationDrawerAdapter
     private var containerView: View? = null
     private var drawerListener: FragmentDrawerListener? = null
+
+    private var _binding: FragmentNavigationDrawerBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
+
     fun setDrawerListener(listener: FragmentDrawerListener?) {
         drawerListener = listener
     }
@@ -33,7 +40,7 @@ class DrawerFragment : Fragment() {
         Timber.d("Adding new Connection: ${connection.id}")
         val navItem = NavDrawerItem(connection)
         data.add(navItem)
-        drawerAdapter.notifyItemInserted(data.size-1)
+        drawerAdapter.notifyItemInserted(data.size - 1)
     }
 
     fun updateConnection(connection: Connection) {
@@ -77,19 +84,19 @@ class DrawerFragment : Fragment() {
         return data
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false)
-        val recyclerView: RecyclerView = layout.findViewById(R.id.drawerList)
-        val addConnectionTextView = layout.findViewById<TextView>(R.id.action_add_connection)
-        addConnectionTextView.setOnClickListener {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentNavigationDrawerBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        binding.actionAddConnection.setOnClickListener {
             drawerListener!!.onAddConnectionSelected()
             drawerLayout!!.closeDrawer(containerView!!)
         }
 
         drawerAdapter = NavigationDrawerAdapter(requireContext(), getData())
-        recyclerView.adapter = drawerAdapter
-        recyclerView.layoutManager = LinearLayoutManager(activity)
-        recyclerView.addOnItemTouchListener(RecyclerTouchListener(activity, recyclerView, object : ClickListener {
+        binding.drawerList.adapter = drawerAdapter
+        binding.drawerList.layoutManager = LinearLayoutManager(activity)
+        binding.drawerList.addOnItemTouchListener(RecyclerTouchListener(activity, binding.drawerList, object : ClickListener {
             override fun onClick(position: Int) {
                 drawerListener!!.onDrawerItemSelected(position)
                 drawerLayout!!.closeDrawer(containerView!!)
@@ -101,7 +108,12 @@ class DrawerFragment : Fragment() {
                 drawerLayout!!.closeDrawer(containerView!!)
             }
         }))
-        return layout
+        return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     fun setUp(fragmentId: Int, givenDrawerLayout: DrawerLayout, toolbar: Toolbar) {

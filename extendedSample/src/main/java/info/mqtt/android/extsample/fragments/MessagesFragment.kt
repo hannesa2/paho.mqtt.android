@@ -6,12 +6,10 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ListView
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.ActivityConstants
-import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.adapter.MessageListItemAdapter
+import info.mqtt.android.extsample.databinding.FragmentConnectionHistoryBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.Connections
 import info.mqtt.android.extsample.internal.IReceivedMessageListener
@@ -23,8 +21,14 @@ class MessagesFragment : Fragment() {
     private lateinit var messageListAdapter: MessageListItemAdapter
     private lateinit var connection: Connection
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_connection_history, container, false)
+    private var _binding: FragmentConnectionHistoryBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentConnectionHistoryBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,16 +50,19 @@ class MessagesFragment : Fragment() {
 
         val tempList = listOf(*connection.messages.toTypedArray())
         messageListAdapter = MessageListItemAdapter(requireContext(), tempList)
-        val messageHistoryListView = view.findViewById<ListView>(R.id.history_list_view)
-        messageHistoryListView.adapter = messageListAdapter
-        val clearButton = view.findViewById<Button>(R.id.history_clear_button)
-        clearButton.setOnClickListener {
+        binding.historyListView.adapter = messageListAdapter
+        binding.historyClearButton.setOnClickListener {
             Handler(Looper.getMainLooper()).run {
                 connection.messages.clear()
                 messageListAdapter.notifyDataSetChanged()
             }
         }
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

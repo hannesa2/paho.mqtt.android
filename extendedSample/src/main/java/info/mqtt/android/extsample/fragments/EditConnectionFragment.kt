@@ -1,68 +1,45 @@
 package info.mqtt.android.extsample.fragments
 
-import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
-import info.mqtt.android.extsample.model.ConnectionModel
-import android.os.Bundle
-import timber.log.Timber
-import android.text.TextWatcher
-import android.text.Editable
-import android.widget.AdapterView.OnItemSelectedListener
 import android.annotation.SuppressLint
+import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
-import android.widget.*
-import androidx.appcompat.widget.SwitchCompat
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.databinding.FragmentEditConnectionBinding
 import info.mqtt.android.extsample.internal.Connection
+import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
+import info.mqtt.android.extsample.model.ConnectionModel
 import info.mqtt.android.service.QoS
-import java.lang.StringBuilder
+import timber.log.Timber
 import java.util.*
 
 class EditConnectionFragment : Fragment() {
-    private var clientId: EditText? = null
-    private var serverHostname: EditText? = null
-    private lateinit var serverPort: EditText
-    private lateinit var cleanSession: SwitchCompat
-    private var username: EditText? = null
-    private var password: EditText? = null
-    private var tlsServerKey: EditText? = null
-    private var tlsClientKey: EditText? = null
-    private var timeout: EditText? = null
-    private var keepAlive: EditText? = null
-    private var lwtTopic: EditText? = null
-    private var lwtMessage: EditText? = null
-    private lateinit var lwtQos: Spinner
-    private lateinit var lwtRetain: SwitchCompat
     private lateinit var formModel: ConnectionModel
     private var newConnection = true
+
+    private var _binding: FragmentEditConnectionBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_edit_connection, container, false)
-        clientId = rootView.findViewById(R.id.client_id)
-        serverHostname = rootView.findViewById(R.id.hostname)
-        serverPort = rootView.findViewById(R.id.add_connection_port)
-        serverPort.setText("")
-        cleanSession = rootView.findViewById(R.id.clean_session_switch)
-        username = rootView.findViewById(R.id.username)
-        password = rootView.findViewById(R.id.password)
-        tlsServerKey = rootView.findViewById(R.id.tls_server_key)
-        tlsClientKey = rootView.findViewById(R.id.tls_client_key)
-        timeout = rootView.findViewById(R.id.timeout)
-        keepAlive = rootView.findViewById(R.id.keepalive)
-        lwtTopic = rootView.findViewById(R.id.lwt_topic)
-        lwtMessage = rootView.findViewById(R.id.lwt_message)
-        lwtQos = rootView.findViewById(R.id.lwt_qos_spinner)
-        lwtRetain = rootView.findViewById(R.id.retain_switch)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentEditConnectionBinding.inflate(inflater, container, false)
+        val view = binding.root
+
         val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.values())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        lwtQos.adapter = adapter
         if (this.arguments != null && requireArguments().getString(ActivityConstants.CONNECTION_KEY) != null) {
             val connections: HashMap<String, Connection> = getInstance(requireActivity()).connections
             val connectionKey = requireArguments().getString(ActivityConstants.CONNECTION_KEY)
@@ -78,26 +55,30 @@ class EditConnectionFragment : Fragment() {
         populateFromConnectionModel(formModel)
         setFormItemListeners()
 
-        // Inflate the layout for this fragment
-        return rootView
+        return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setFormItemListeners() {
-        clientId!!.addTextChangedListener(object : TextWatcher {
+        binding.clientId.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
                 formModel.clientId = s.toString()
             }
         })
-        serverHostname!!.addTextChangedListener(object : TextWatcher {
+        binding.hostname.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
                 formModel.serverHostName = s.toString()
             }
         })
-        serverPort.addTextChangedListener(object : TextWatcher {
+        binding.addConnectionPort.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
@@ -106,8 +87,8 @@ class EditConnectionFragment : Fragment() {
                 }
             }
         })
-        cleanSession.setOnCheckedChangeListener { _, isChecked -> formModel.isCleanSession = isChecked }
-        username!!.addTextChangedListener(object : TextWatcher {
+        binding.cleanSessionSwitch.setOnCheckedChangeListener { _, isChecked -> formModel.isCleanSession = isChecked }
+        binding.username.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
@@ -118,7 +99,7 @@ class EditConnectionFragment : Fragment() {
                 }
             }
         })
-        password!!.addTextChangedListener(object : TextWatcher {
+        binding.password.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
@@ -129,21 +110,21 @@ class EditConnectionFragment : Fragment() {
                 }
             }
         })
-        tlsServerKey!!.addTextChangedListener(object : TextWatcher {
+        binding.tlsServerKey.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
                 formModel.tlsServerKey = s.toString()
             }
         })
-        tlsClientKey!!.addTextChangedListener(object : TextWatcher {
+        binding.tlsClientKey.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
                 formModel.tlsClientKey = s.toString()
             }
         })
-        timeout!!.addTextChangedListener(object : TextWatcher {
+        binding.timeout.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
@@ -152,7 +133,7 @@ class EditConnectionFragment : Fragment() {
                 }
             }
         })
-        keepAlive!!.addTextChangedListener(object : TextWatcher {
+        binding.keepalive.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
@@ -161,46 +142,46 @@ class EditConnectionFragment : Fragment() {
                 }
             }
         })
-        lwtTopic!!.addTextChangedListener(object : TextWatcher {
+        binding.lwtTopic.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
                 formModel.lwtTopic = s.toString()
             }
         })
-        lwtMessage!!.addTextChangedListener(object : TextWatcher {
+        binding.lwtMessage.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
                 formModel.lwtMessage = s.toString()
             }
         })
-        lwtQos.onItemSelectedListener = object : OnItemSelectedListener {
+        binding.lwtQosSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                 formModel.lwtQos = QoS.values()[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-        lwtRetain.setOnCheckedChangeListener { _, isChecked -> formModel.isLwtRetain = isChecked }
+        binding.retainSwitch.setOnCheckedChangeListener { _, isChecked -> formModel.isLwtRetain = isChecked }
     }
 
     @SuppressLint("SetTextI18n")
     private fun populateFromConnectionModel(connectionModel: ConnectionModel) {
-        clientId!!.setText(connectionModel.clientId)
-        serverHostname!!.setText(connectionModel.serverHostName)
-        serverPort.setText(connectionModel.serverPort.toString())
-        cleanSession.isChecked = connectionModel.isCleanSession
-        username!!.setText(connectionModel.username)
-        password!!.setText(connectionModel.password)
-        tlsServerKey!!.setText(connectionModel.tlsServerKey)
-        tlsClientKey!!.setText(connectionModel.tlsClientKey)
-        timeout!!.setText(connectionModel.timeout.toString())
-        keepAlive!!.setText(connectionModel.keepAlive.toString())
-        lwtTopic!!.setText(connectionModel.lwtTopic)
-        lwtMessage!!.setText(connectionModel.lwtMessage)
-        lwtQos.setSelection(connectionModel.lwtQos.value)
-        lwtRetain.isChecked = connectionModel.isLwtRetain
+        binding.clientId.setText(connectionModel.clientId)
+        binding.hostname.setText(connectionModel.serverHostName)
+        binding.addConnectionPort.setText(connectionModel.serverPort.toString())
+        binding.cleanSessionSwitch.isChecked = connectionModel.isCleanSession
+        binding.username.setText(connectionModel.username)
+        binding.password.setText(connectionModel.password)
+        binding.tlsServerKey.setText(connectionModel.tlsServerKey)
+        binding.tlsClientKey.setText(connectionModel.tlsClientKey)
+        binding.timeout.setText(connectionModel.timeout.toString())
+        binding.keepalive.setText(connectionModel.keepAlive.toString())
+        binding.lwtTopic.setText(connectionModel.lwtTopic)
+        binding.lwtMessage.setText(connectionModel.lwtMessage)
+        binding.lwtQosSpinner.setSelection(connectionModel.lwtQos.value)
+        binding.retainSwitch.isChecked = connectionModel.isLwtRetain
     }
 
     private fun saveConnection() {

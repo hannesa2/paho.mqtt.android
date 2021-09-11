@@ -1,26 +1,32 @@
 package info.mqtt.android.extsample.fragments
 
 import android.os.Bundle
-import info.mqtt.android.extsample.internal.Connections
-import timber.log.Timber
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.View
-import android.widget.*
+import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
-import androidx.appcompat.widget.SwitchCompat
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
-import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.databinding.FragmentPublishBinding
 import info.mqtt.android.extsample.internal.Connection
+import info.mqtt.android.extsample.internal.Connections
 import info.mqtt.android.service.QoS
+import timber.log.Timber
 
 class PublishFragment : Fragment() {
 
     private var connection: Connection? = null
     private var selectedQos = QoS.AtMostOnce
     private var retainValue = false
+
+    private var _binding: FragmentPublishBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,15 +35,13 @@ class PublishFragment : Fragment() {
         Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection!!.id}'")
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_publish, container, false)
-        val topicText = rootView.findViewById<EditText>(R.id.topic)
-        val messageText = rootView.findViewById<EditText>(R.id.message)
-        val qos = rootView.findViewById<Spinner>(R.id.qos_spinner)
-        val retain = rootView.findViewById<SwitchCompat>(R.id.retain_switch)
-        topicText.setText(DEFAULT_TOTPIC)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentPublishBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        qos.onItemSelectedListener = object : OnItemSelectedListener {
+        binding.topic.setText(DEFAULT_TOTPIC)
+
+        binding.qosSpinner.onItemSelectedListener = object : OnItemSelectedListener {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedQos = QoS.values()[position]
@@ -45,20 +49,30 @@ class PublishFragment : Fragment() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
-        retain.setOnCheckedChangeListener { _, isChecked -> retainValue = isChecked }
+        binding.retainSwitch.setOnCheckedChangeListener { _, isChecked -> retainValue = isChecked }
         val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.values())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        qos.adapter = adapter
-        val publishButton = rootView.findViewById<Button>(R.id.publish_button)
-        publishButton.setOnClickListener {
-            Timber.d("Publishing: [topic: ${topicText.text}, message: ${messageText.text}, QoS: $selectedQos, Retain: $retainValue]")
+        binding.qosSpinner.adapter = adapter
+        binding.publishButton.setOnClickListener {
+            Timber.d("Publishing: [topic: ${binding.topic.text}, message: ${binding.message.text}, QoS: $selectedQos, Retain: $retainValue]")
             connection?.let { it1 ->
-                (requireActivity() as MainActivity).publish(it1, topicText.text.toString(), messageText.text.toString(), selectedQos, retainValue)
+                (requireActivity() as MainActivity).publish(
+                    it1,
+                    binding.topic.text.toString(),
+                    binding.message.text.toString(),
+                    selectedQos,
+                    retainValue
+                )
             } ?: run {
                 Toast.makeText(requireContext(), "Offline !", Toast.LENGTH_SHORT).show()
             }
         }
-        return rootView
+        return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

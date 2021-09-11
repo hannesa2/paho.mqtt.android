@@ -4,19 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import info.hannes.logcat.BothLogActivity
+import info.mqtt.android.extsample.databinding.ActivityMainBinding
 import info.mqtt.android.extsample.fragments.*
-import info.mqtt.android.extsample.internal.Connection.Companion.createConnection
 import info.mqtt.android.extsample.fragments.DrawerFragment.FragmentDrawerListener
 import info.mqtt.android.extsample.internal.*
+import info.mqtt.android.extsample.internal.Connection.Companion.createConnection
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
-import info.mqtt.android.extsample.internal.MqttCallbackHandler
-import info.mqtt.android.extsample.internal.MqttTraceCallback
 import info.mqtt.android.extsample.model.ConnectionModel
 import info.mqtt.android.service.QoS
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
@@ -31,14 +27,18 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
     private var drawerFragment: DrawerFragment? = null
     private var connectionMap: ArrayList<String>? = null
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val mToolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(mToolbar)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        setSupportActionBar(binding.toolbar.toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         drawerFragment = supportFragmentManager.findFragmentById(R.id.fragment_navigation_drawer) as DrawerFragment?
-        drawerFragment!!.setUp(R.id.fragment_navigation_drawer, findViewById<View>(R.id.drawer_layout) as DrawerLayout, mToolbar)
+        drawerFragment!!.setUp(R.id.fragment_navigation_drawer, binding.drawerLayout, binding.toolbar.toolbar)
         drawerFragment!!.setDrawerListener(this)
         populateConnectionList()
     }
