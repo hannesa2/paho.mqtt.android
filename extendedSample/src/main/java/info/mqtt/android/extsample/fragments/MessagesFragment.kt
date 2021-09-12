@@ -1,8 +1,6 @@
 package info.mqtt.android.extsample.fragments
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +10,6 @@ import info.mqtt.android.extsample.adapter.MessageListItemAdapter
 import info.mqtt.android.extsample.databinding.FragmentConnectionHistoryBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.Connections
-import info.mqtt.android.extsample.internal.IReceivedMessageListener
-import info.mqtt.android.extsample.model.ReceivedMessage
 import timber.log.Timber
 
 class MessagesFragment : Fragment() {
@@ -38,24 +34,15 @@ class MessagesFragment : Fragment() {
         setHasOptionsMenu(true)
         Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection.id}'")
         setHasOptionsMenu(true)
-        connection.addReceivedMessageListener(object : IReceivedMessageListener {
-            override var identifer: String = MessagesFragment::class.java.simpleName
-
-            override fun onMessageReceived(message: ReceivedMessage?) {
-                Timber.d("Message in history ${String(message?.message?.payload!!)} ${connection.messages.size} ${Thread.currentThread().name}")
-                messageListAdapter.messages = listOf(*connection.messages.toTypedArray())
-                messageListAdapter.notifyDataSetChanged()
-            }
+        connection.messages.observe(this.viewLifecycleOwner, {
+            messageListAdapter.notifyDataSetChanged()
         })
 
-        val tempList = listOf(*connection.messages.toTypedArray())
-        messageListAdapter = MessageListItemAdapter(requireContext(), tempList)
+        messageListAdapter = MessageListItemAdapter(requireContext(), connection.messages.value!!)
         binding.historyListView.adapter = messageListAdapter
         binding.historyClearButton.setOnClickListener {
-            Handler(Looper.getMainLooper()).run {
-                connection.messages.clear()
-                messageListAdapter.notifyDataSetChanged()
-            }
+            connection.messageList.clear()
+            messageListAdapter.notifyDataSetChanged()
         }
 
     }
