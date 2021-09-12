@@ -1,27 +1,27 @@
 package info.mqtt.android.extsample.fragments
 
-import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.ViewGroup
-import info.mqtt.android.extsample.adapter.SubscriptionListItemAdapter
-import timber.log.Timber
-import org.eclipse.paho.client.mqttv3.MqttException
-import android.widget.AdapterView.OnItemSelectedListener
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.adapter.SubscriptionListItemAdapter
 import info.mqtt.android.extsample.databinding.FragmentSubscriptionsBinding
 import info.mqtt.android.extsample.databinding.SubscriptionDialogBinding
 import info.mqtt.android.extsample.internal.Connection
+import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.model.Subscription
-import java.util.HashMap
-import android.widget.ArrayAdapter
 import info.mqtt.android.service.QoS
+import org.eclipse.paho.client.mqttv3.MqttException
+import timber.log.Timber
+import java.util.*
 
 
 class SubscriptionFragment : Fragment() {
@@ -51,8 +51,7 @@ class SubscriptionFragment : Fragment() {
     }
 
     private fun showInputDialog() {
-        val dialogBinding = SubscriptionDialogBinding
-            .inflate(LayoutInflater.from(context))
+        val dialogBinding = SubscriptionDialogBinding.inflate(LayoutInflater.from(context))
 
         val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.values())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

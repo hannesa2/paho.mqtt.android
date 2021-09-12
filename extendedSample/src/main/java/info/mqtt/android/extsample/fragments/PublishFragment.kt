@@ -39,7 +39,7 @@ class PublishFragment : Fragment() {
         _binding = FragmentPublishBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        binding.topic.setText(DEFAULT_TOTPIC)
+        binding.topic.setText(DEFAULT_TOPIC)
 
         binding.qosSpinner.onItemSelectedListener = object : OnItemSelectedListener {
 
@@ -76,6 +76,6 @@ class PublishFragment : Fragment() {
     }
 
     companion object {
-        private const val DEFAULT_TOTPIC = "/test"
+        var DEFAULT_TOPIC = "/test"
     }
 }
