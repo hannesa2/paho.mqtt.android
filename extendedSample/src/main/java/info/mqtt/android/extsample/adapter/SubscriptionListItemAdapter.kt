@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.databinding.SubscriptionListItemBinding
+import info.mqtt.android.extsample.fragments.PublishFragment
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.model.Subscription
 
@@ -26,8 +27,7 @@ class SubscriptionListItemAdapter(context: Context, private val connection: Conn
         var row = convertView
 
         if (row == null) {
-            val inflater =
-                context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             binding = SubscriptionListItemBinding.inflate(inflater, parent, false)
             row = binding.root
         } else {
@@ -35,6 +35,7 @@ class SubscriptionListItemAdapter(context: Context, private val connection: Conn
         }
 
         binding.messageText.text = connection.getSubscriptions()[position].topic
+        PublishFragment.DEFAULT_TOPIC = connection.getSubscriptions()[position].topic
         binding.qosLabel.text = "Qos: ${connection.getSubscriptions()[position].qos}(${connection.getSubscriptions()[position].qos.value})"
         val notifyString = context.getString(R.string.notify_text, connection.getSubscriptions()[position].isEnableNotifications.toString())
         binding.showNotificationsLabel.text = notifyString
