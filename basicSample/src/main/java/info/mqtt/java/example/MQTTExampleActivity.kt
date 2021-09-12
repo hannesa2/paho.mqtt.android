@@ -1,24 +1,16 @@
 package info.mqtt.java.example
 
-import info.mqtt.android.service.MqttAndroidClient
-import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
-import timber.log.Timber
 import android.annotation.SuppressLint
+import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.google.android.material.snackbar.Snackbar
+import info.mqtt.android.service.MqttAndroidClient
 import info.mqtt.android.service.QoS
+import info.mqtt.java.example.databinding.ActivityScrollingBinding
+import org.eclipse.paho.client.mqttv3.*
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,21 +18,21 @@ class MQTTExampleActivity : AppCompatActivity() {
 
     private lateinit var mqttAndroidClient: MqttAndroidClient
     private lateinit var adapter: HistoryAdapter
+    private lateinit var binding: ActivityScrollingBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_scrolling)
+        binding = ActivityScrollingBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
 
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener { publishMessage() }
-        val recyclerView = findViewById<RecyclerView>(R.id.history_recycler_view)
+        binding.fab.setOnClickListener { publishMessage() }
         val mLayoutManager: LayoutManager = LinearLayoutManager(this)
-        recyclerView.layoutManager = mLayoutManager
+        binding.historyRecyclerView.layoutManager = mLayoutManager
         adapter = HistoryAdapter()
-        recyclerView.adapter = adapter
+        binding.historyRecyclerView.adapter = adapter
         clientId += System.currentTimeMillis()
         mqttAndroidClient = MqttAndroidClient(applicationContext, serverUri, clientId)
         mqttAndroidClient.setCallback(object : MqttCallbackExtended {

@@ -14,15 +14,15 @@ android {
         versionCode getGitCommitCount()
         versionName getTag()
 
-        buildFeatures {
-            viewBinding true
-        }
-
         javaCompileOptions {
             annotationProcessorOptions { arguments = ["room.schemaLocation": "$projectDir/schemas".toString()] }
         }
         
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 
 }

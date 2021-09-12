@@ -6,12 +6,10 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ListView
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.ActivityConstants
-import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.adapter.HistoryListItemAdapter
+import info.mqtt.android.extsample.databinding.FragmentConnectionHistoryBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.Connections
 import info.mqtt.android.extsample.internal.IHistoryListener
@@ -22,6 +20,11 @@ class HistoryFragment : Fragment() {
     private lateinit var historyListItemAdapter: HistoryListItemAdapter
     private lateinit var connection: Connection
 
+    private var _binding: FragmentConnectionHistoryBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val connections = Connections.getInstance(requireActivity()).connections
@@ -31,13 +34,11 @@ class HistoryFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_connection_history, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentConnectionHistoryBinding.inflate(inflater, container, false)
         historyListItemAdapter = HistoryListItemAdapter(requireContext(), listOf(*connection.history.toTypedArray()))
-        val historyListView = rootView.findViewById<ListView>(R.id.history_list_view)
-        historyListView.adapter = historyListItemAdapter
-        val clearButton = rootView.findViewById<Button>(R.id.history_clear_button)
-        clearButton.setOnClickListener {
+        binding.historyListView.adapter = historyListItemAdapter
+        binding.historyClearButton.setOnClickListener {
             Handler(Looper.getMainLooper()).run {
                 connection.history.clear()
                 historyListItemAdapter.history = listOf(*connection.history.toTypedArray())
@@ -53,7 +54,11 @@ class HistoryFragment : Fragment() {
                 historyListItemAdapter.notifyDataSetChanged()
             }
         })
-        return rootView
+        return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

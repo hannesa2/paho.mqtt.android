@@ -1,26 +1,30 @@
 package info.mqtt.android.extsample.fragments
 
-import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
-import java.util.HashMap
-
-import android.view.LayoutInflater
 import com.google.android.material.tabs.TabLayout
-import info.mqtt.android.extsample.*
 import info.mqtt.android.extsample.ActivityConstants
+import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.databinding.FragmentConnectionBinding
 import info.mqtt.android.extsample.internal.Connection
+import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.utils.connect
-
+import java.util.*
 
 class ConnectionFragment : Fragment() {
-    private lateinit var tabLayout: TabLayout
+
     private var connection: Connection? = null
     private var connectSwitch: SwitchCompat? = null
+
+    private var _binding: FragmentConnectionBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val connections: HashMap<String, Connection> = getInstance(requireActivity()).connections
@@ -28,15 +32,15 @@ class ConnectionFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_connection, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentConnectionBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        tabLayout = rootView.findViewById(R.id.tablayout)
-        tabLayout.addTab(tabLayout.newTab().setText("History").setId(0))
-        tabLayout.addTab(tabLayout.newTab().setText("Messages").setId(1))
-        tabLayout.addTab(tabLayout.newTab().setText("Publish").setId(2))
-        tabLayout.addTab(tabLayout.newTab().setText("Subscribe").setId(3))
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        binding.tablayout.addTab(binding.tablayout.newTab().setText("History").setId(0))
+        binding.tablayout.addTab(binding.tablayout.newTab().setText("Messages").setId(1))
+        binding.tablayout.addTab(binding.tablayout.newTab().setText("Publish").setId(2))
+        binding.tablayout.addTab(binding.tablayout.newTab().setText("Subscribe").setId(3))
+        binding.tablayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(tab: TabLayout.Tab?) = Unit
 
             override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
@@ -52,12 +56,12 @@ class ConnectionFragment : Fragment() {
 
         })
 
-        return rootView
+        return view
     }
 
     private fun changeConnectedState(state: Boolean) {
-        tabLayout.getTabAt(1)?.view?.isClickable = state
-        tabLayout.getTabAt(2)?.view?.isClickable = state
+        binding.tablayout.getTabAt(1)?.view?.isClickable = state
+        binding.tablayout.getTabAt(2)?.view?.isClickable = state
         connectSwitch?.isChecked = state
     }
 
@@ -70,7 +74,7 @@ class ConnectionFragment : Fragment() {
                 changeConnectedState(true)
             } else {
                 Handler(Looper.getMainLooper()).postDelayed(
-                    { tabLayout.getTabAt(0)?.select() }, 100
+                    { binding.tablayout.getTabAt(0)?.select() }, 100
                 )
                 connection?.client?.disconnect()
                 changeConnectedState(false)

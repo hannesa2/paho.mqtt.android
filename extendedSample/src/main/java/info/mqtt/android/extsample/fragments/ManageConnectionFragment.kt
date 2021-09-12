@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.databinding.FragmentManageBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.Connections
 import timber.log.Timber
@@ -19,6 +18,11 @@ class ManageConnectionFragment : Fragment() {
     private lateinit var connections: HashMap<String, Connection>
     private var connectionKey: String? = null
 
+    private var _binding: FragmentManageBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         connections = Connections.getInstance(requireActivity()).connections
@@ -27,13 +31,13 @@ class ManageConnectionFragment : Fragment() {
         setHasOptionsMenu(false)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_manage, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentManageBinding.inflate(inflater, container, false)
+        val view = binding.root
+
         val name = connection!!.id + "@" + connection!!.hostName + ":" + connection!!.port
-        val label = rootView.findViewById<TextView>(R.id.connection_id_text)
-        label.text = name
-        val deleteButton = rootView.findViewById<Button>(R.id.delete_button)
-        deleteButton.setOnClickListener {
+        binding.connectionIdText.text = name
+        binding.deleteButton.setOnClickListener {
             Timber.d("Deleting Connection: $name.")
             connections.remove(connectionKey)
             Connections.getInstance(requireActivity()).removeConnection(connection!!)
@@ -42,8 +46,7 @@ class ManageConnectionFragment : Fragment() {
             fragmentTransaction.commit()
             (activity as MainActivity?)!!.removeConnectionRow(connection)
         }
-        val editButton = rootView.findViewById<Button>(R.id.edit_button)
-        editButton.setOnClickListener {
+        binding.editButton.setOnClickListener {
             Timber.d("Editing Connection: $name.")
             val editConnectionFragment = EditConnectionFragment()
             val bundle = Bundle()
@@ -54,6 +57,12 @@ class ManageConnectionFragment : Fragment() {
             fragmentTransaction.commit()
         }
 
-        return rootView
+        return view
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }
