@@ -2,7 +2,6 @@ package info.mqtt.android.extsample.activity
 
 import android.Manifest
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Rule
@@ -18,6 +17,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
 import com.moka.lib.assertions.WaitingAssertion
 import com.moka.utils.Screenshot
+import com.moka.utils.ScreenshotActivityRule
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 
@@ -26,7 +26,7 @@ import info.mqtt.android.extsample.R
 class ExtendedPublishTest {
 
     @get:Rule
-    var mActivityTestRule = ActivityScenarioRule(MainActivity::class.java)
+    var mActivityTestRule = ScreenshotActivityRule(MainActivity::class.java)
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
