@@ -3,9 +3,10 @@ package info.mqtt.android.extsample.internal
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import info.mqtt.android.extsample.R
+import androidx.lifecycle.MutableLiveData
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
+import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.internal.Notify.notification
 import info.mqtt.android.extsample.model.ReceivedMessage
 import info.mqtt.android.extsample.model.Subscription
@@ -34,14 +35,16 @@ class Connection private constructor(
 ) {
     private val listeners = ArrayList<PropertyChangeListener>()
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
-    val messages = ArrayList<ReceivedMessage>()
-    val history: ArrayList<String> = ArrayList()
-    private val receivedMessageListeners = ArrayList<IReceivedMessageListener>()
-    private val historyListeners = ArrayList<IHistoryListener>()
+    val messageList =ArrayList<ReceivedMessage>()
+    val historyList = ArrayList<String>()
+    val messages = MutableLiveData<MutableList<ReceivedMessage>>()
+    val history = MutableLiveData<MutableList<String>>()
 
     private var status = ConnectionStatus.NONE
 
     init {
+        messages.postValue(arrayListOf())
+        history.postValue(arrayListOf())
         addHistory("Client: $id created")
     }
 
@@ -61,10 +64,8 @@ class Connection private constructor(
     @SuppressLint("SimpleDateFormat")
     fun addHistory(action: String) {
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
-        history.add(action + timestamp)
-        for (listener in historyListeners) {
-            listener.onHistoryReceived(action + timestamp)
-        }
+        historyList.add(action + timestamp)
+        history.postValue(historyList)
         notifyListeners(PropertyChangeEvent(this, ActivityConstants.historyProperty, null, null))
     }
 
@@ -166,20 +167,11 @@ class Connection private constructor(
         }
     }
 
-    fun addReceivedMessageListener(listener: IReceivedMessageListener) {
-        if (receivedMessageListeners.firstOrNull { it.identifer == listener.identifer } == null)
-            receivedMessageListeners.add(listener)
-    }
-
-    fun addHistoryListener(listener: IHistoryListener) {
-        if (historyListeners.firstOrNull { it.identifer == listener.identifer } == null)
-            historyListeners.add(listener)
-    }
-
     @SuppressLint("SimpleDateFormat")
     fun addMessage(topic: String, message: MqttMessage) {
         val msg = ReceivedMessage(topic, message)
-        messages.add(0, msg)
+        messageList.add(0, msg)
+        messages.postValue(messageList)
         if (subscriptions.containsKey(topic)) {
             if (subscriptions[topic]!!.isEnableNotifications) {
                 //create intent to start activity
@@ -190,9 +182,6 @@ class Connection private constructor(
                 SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
                 notification(context, context.getString(R.string.notification, String(message.payload), topic), intent, R.string.notifyTitle)
             }
-        }
-        for (listener in receivedMessageListeners) {
-            listener.onMessageReceived(msg)
         }
     }
 

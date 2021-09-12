@@ -1,8 +1,6 @@
 package info.mqtt.android.extsample.fragments
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +10,6 @@ import info.mqtt.android.extsample.adapter.HistoryListItemAdapter
 import info.mqtt.android.extsample.databinding.FragmentConnectionHistoryBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.Connections
-import info.mqtt.android.extsample.internal.IHistoryListener
 import timber.log.Timber
 
 class HistoryFragment : Fragment() {
@@ -36,24 +33,17 @@ class HistoryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentConnectionHistoryBinding.inflate(inflater, container, false)
-        historyListItemAdapter = HistoryListItemAdapter(requireContext(), listOf(*connection.history.toTypedArray()))
+        historyListItemAdapter = HistoryListItemAdapter(requireContext(), connection.history.value!!)
         binding.historyListView.adapter = historyListItemAdapter
         binding.historyClearButton.setOnClickListener {
-            Handler(Looper.getMainLooper()).run {
-                connection.history.clear()
-                historyListItemAdapter.history = listOf(*connection.history.toTypedArray())
-                historyListItemAdapter.notifyDataSetChanged()
-            }
+            connection.historyList.clear()
+            historyListItemAdapter.notifyDataSetChanged()
         }
 
-        connection.addHistoryListener(object : IHistoryListener {
-            override var identifer: String = HistoryFragment::class.java.simpleName
-
-            override fun onHistoryReceived(history: String) {
-                historyListItemAdapter.history = listOf(*connection.history.toTypedArray())
-                historyListItemAdapter.notifyDataSetChanged()
-            }
+        connection.history.observe(this.viewLifecycleOwner, { items ->
+            historyListItemAdapter.notifyDataSetChanged()
         })
+
         return binding.root
     }
 

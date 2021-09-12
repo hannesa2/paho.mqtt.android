@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.databinding.MessageListItemBinding
 
-class HistoryListItemAdapter(context: Context, var history: List<String>) :
+class HistoryListItemAdapter(context: Context, private var history: List<String>) :
     ArrayAdapter<String>(context, R.layout.message_list_item, history) {
 
     @SuppressLint("ViewHolder", "SimpleDateFormat")
@@ -18,8 +18,7 @@ class HistoryListItemAdapter(context: Context, var history: List<String>) :
         var row = convertView
 
         if (row == null) {
-            val inflater =
-                context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             binding = MessageListItemBinding.inflate(inflater, parent, false)
             row = binding.root
         } else {

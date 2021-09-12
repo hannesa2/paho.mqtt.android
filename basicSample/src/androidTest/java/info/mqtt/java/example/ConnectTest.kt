@@ -2,12 +2,12 @@ package info.mqtt.java.example
 
 import android.Manifest
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import com.moka.lib.assertions.MatchOperator
 import com.moka.lib.assertions.WaitingAssertion
 import com.moka.utils.Screenshot
+import com.moka.utils.ScreenshotActivityRule
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
 class ConnectTest {
 
     @get:Rule
-    var mActivityTestRule = ActivityScenarioRule(MQTTExampleActivity::class.java)
+    var mActivityTestRule = ScreenshotActivityRule(MQTTExampleActivity::class.java)
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
