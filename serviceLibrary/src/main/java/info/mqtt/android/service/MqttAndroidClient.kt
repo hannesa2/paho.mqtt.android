@@ -339,7 +339,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * @param callback       optional listener that will be notified when the disconnect completes. Use null if not required.
      * @return token used to track and wait for the disconnect to complete. The token will be passed to any callback that has been set.
      */
-    override fun disconnect(quiesceTimeout: Long, userContext: Any, callback: IMqttActionListener): IMqttToken {
+    override fun disconnect(quiesceTimeout: Long, userContext: Any?, callback: IMqttActionListener): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback)
         val activityToken = storeToken(token)
         mqttService!!.disconnect(clientHandle!!, quiesceTimeout, null, activityToken)

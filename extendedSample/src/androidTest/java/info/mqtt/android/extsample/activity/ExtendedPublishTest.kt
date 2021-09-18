@@ -40,7 +40,7 @@ class ExtendedPublishTest {
             .check(matches(isClosed(Gravity.LEFT))) // Left Drawer should be closed.
             .perform(DrawerActions.open())
         onView(withId(R.id.action_add_connection)).perform(click())
-        onView(withContentDescription(R.string.action_add_connection)).perform(click())
+        onView(withId(R.id.action_save_connection)).perform(click())
 
         Screenshot.takeScreenshot("AddConnect")
 
