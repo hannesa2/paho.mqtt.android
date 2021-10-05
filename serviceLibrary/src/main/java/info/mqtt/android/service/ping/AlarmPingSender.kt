@@ -38,6 +38,12 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     private var alarmReceiver: BroadcastReceiver? = null
     private var pendingIntent: PendingIntent? = null
 
+    private val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    } else {
+        PendingIntent.FLAG_UPDATE_CURRENT
+    }
+
     @Volatile
     private var hasStarted = false
 
@@ -50,7 +56,7 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
         val action = MqttServiceConstants.PING_SENDER + clientComms!!.client.clientId
         Timber.d("Register AlarmReceiver to MqttService$action")
         service.registerReceiver(alarmReceiver, IntentFilter(action))
-        pendingIntent = PendingIntent.getBroadcast(service, 0, Intent(action), PendingIntent.FLAG_UPDATE_CURRENT)
+        pendingIntent = PendingIntent.getBroadcast(service, 0, Intent(action), pendingIntentFlags)
         schedule(clientComms!!.keepAlive)
         hasStarted = true
     }
