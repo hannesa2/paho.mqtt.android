@@ -5,8 +5,10 @@ import android.app.NotificationChannel
 import android.content.Intent
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import info.mqtt.android.extsample.R
@@ -82,8 +84,14 @@ internal object Notify {
         //the message that will be displayed as the ticker
         val ticker = "$contentTitle $connectionName"
 
+        val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+
         //build the pending intent that will start the appropriate activity
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, pendingIntentFlags)
 
         //build the notification
         val notificationCompat = NotificationCompat.Builder(context, channelId)
