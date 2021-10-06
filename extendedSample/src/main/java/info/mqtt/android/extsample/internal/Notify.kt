@@ -2,11 +2,10 @@ package info.mqtt.android.extsample.internal
 
 import android.app.Notification
 import android.app.NotificationChannel
-import android.content.Intent
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.widget.Toast
@@ -19,13 +18,19 @@ internal object Notify {
     private const val channelId = "chn-01"
     private const val channelFireBaseMsg = "Chn MQTT"
 
+    private val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    } else {
+        PendingIntent.FLAG_UPDATE_CURRENT
+    }
+
     fun notification(context: Context, messageString: String, intent: Intent?, notificationTitle: Int) {
 
         //Get the notification manage which we will use to display the notification
         val ns = Context.NOTIFICATION_SERVICE
         val notificationManager = context.getSystemService(ns) as NotificationManager
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(channelId, channelFireBaseMsg, NotificationManager.IMPORTANCE_LOW)
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
@@ -44,7 +49,7 @@ internal object Notify {
         val ticker = "$contentTitle $messageString"
 
         //build the pending intent that will start the appropriate activity
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, pendingIntentFlags)
 
         //build the notification
         val notificationCompat = NotificationCompat.Builder(context, channelId)
@@ -66,7 +71,7 @@ internal object Notify {
         val ns = Context.NOTIFICATION_SERVICE
         val notificationManager = context.getSystemService(ns) as NotificationManager
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(channelId, channelFireBaseMsg, NotificationManager.IMPORTANCE_LOW)
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
@@ -83,12 +88,6 @@ internal object Notify {
 
         //the message that will be displayed as the ticker
         val ticker = "$contentTitle $connectionName"
-
-        val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
 
         //build the pending intent that will start the appropriate activity
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, pendingIntentFlags)
