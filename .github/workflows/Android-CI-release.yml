@@ -21,16 +21,27 @@ jobs:
           java-version: 11
       - name: Install Android SDK
         uses: malinskiy/action-android/install-sdk@release/0.1.2
+      - name: Find Tag
+        id: tagger
+        uses: jimschubert/query-tag-action@v2
+        with:
+          skip-unshallow: 'true'
+          commit-ish: HEAD
       - name: Build project
         run: ./gradlew clean build
         env:
-          VERSION: ${{ github.ref }}
+          VERSION: ${{steps.tagger.outputs.tag}}
       - run: |
+          PRE_RELEASE=""
+          if [[ ${{steps.tagger.outputs.tag}} == *"beta"* ]]; then
+            PRE_RELEASE="-p"
+          fi
+          if [[ ${{steps.tagger.outputs.tag}} == *"alpha"* ]]; then
+            PRE_RELEASE="-p"
+          fi
           assetsAAR=$(find . -name *release.aar | while read -r asset ; do echo "-a $asset" ; done)
-          VERSION=$(echo $VERSION | cut -d'/' -f3)
-          assetsJAR=$(find . -name IOIO*${VERSION}.jar | while read -r asset ; do echo "-a $asset" ; done)
-          tag_name="${GITHUB_REF##*/}"
-          hub release create ${assetsAAR} ${assetsJAR} -m "$tag_name" "$tag_name"
+          assetsJAR=$(find . -name *${{steps.tagger.outputs.tag}}.jar | while read -r asset ; do echo "-a $asset" ; done)
+          hub release create $PRE_RELEASE ${assetsAAR} ${assetsJAR} -m "${{steps.tagger.outputs.tag}}" "${{steps.tagger.outputs.tag}}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.ref }}
