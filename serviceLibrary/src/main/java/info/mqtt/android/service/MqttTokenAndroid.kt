@@ -20,7 +20,7 @@ internal open class MqttTokenAndroid constructor(
     private val lock = Object()
 
     private var delegate: IMqttToken? = null
-    private var pendingException: MqttException? = null
+    private var pendingException: Throwable? = null
 
     @Throws(MqttException::class)
     override fun waitForCompletion() {
@@ -55,19 +55,15 @@ internal open class MqttTokenAndroid constructor(
         }
     }
 
-    fun notifyFailure(exception: Throwable?) {
+    fun notifyFailure(throwable: Throwable) {
         synchronized(lock) {
             isComplete = true
-            pendingException = if (exception is MqttException) {
-                exception
-            } else {
-                MqttException(exception)
-            }
+            pendingException = throwable
             lock.notifyAll()
-            if (exception is MqttException) {
-                lastException = exception
+            if (throwable is MqttException) {
+                lastException = throwable
             }
-            listener?.onFailure(this, exception)
+            listener?.onFailure(this, throwable)
         }
     }
 

@@ -993,7 +993,9 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
             if (status == Status.OK) {
                 (token as MqttTokenAndroid).notifyComplete()
             } else {
-                val exceptionThrown = data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
+                var exceptionThrown = data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Throwable?
+                if (exceptionThrown == null)
+                    exceptionThrown = Throwable("No Throwable given")
                 (token as MqttTokenAndroid).notifyFailure(exceptionThrown)
             }
         } else {
