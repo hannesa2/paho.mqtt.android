@@ -12,13 +12,13 @@ jobs:
         api: [ 28 ]
         abi: [ x86_64 ]
         tag: [ 'default' ]
-#        include:
-#          - api: 31
-#            abi: x86_64
-#            tag: 'google_apis'
+        include:
 #          - api: 30
-#            abi: x86_64
+#            abi: x86
 #            tag: 'google_apis'
+          - api: 31
+            abi: x86_64
+            tag: 'default'
     steps:
       - uses: actions/checkout@v3
       - name: set up JDK 11
