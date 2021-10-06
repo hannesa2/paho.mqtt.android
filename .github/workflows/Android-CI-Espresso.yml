@@ -13,9 +13,9 @@ jobs:
         abi: [ x86 ]
         tag: [ 'default']
         include:
-          - api: 31
-            abi: x86_64
-            tag: 'google_apis'
+#          - api: 31
+#            abi: x86_64
+#            tag: 'google_apis'
           - api: 30
             abi: x86
             tag: 'google_apis'
