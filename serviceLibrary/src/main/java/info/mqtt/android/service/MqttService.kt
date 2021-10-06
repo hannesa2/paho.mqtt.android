@@ -245,14 +245,14 @@ class MqttService : Service(), MqttTraceHandler {
      * @param status       OK or Error
      * @param dataBundle   the data to be passed
      */
-    fun callbackToActivity(clientHandle: String, status: Status?, dataBundle: Bundle?) {
+    fun callbackToActivity(clientHandle: String, status: Status, dataBundle: Bundle) {
         // Don't call traceDebug, as it will try to callbackToActivity leading to recursion.
         val callbackIntent = Intent(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
         clientHandle.let {
             callbackIntent.putExtra(MqttServiceConstants.CALLBACK_CLIENT_HANDLE, it)
         }
         callbackIntent.putExtra(MqttServiceConstants.CALLBACK_STATUS, status)
-        dataBundle?.let {
+        dataBundle.let {
             callbackIntent.putExtras(it)
         }
         LocalBroadcastManager.getInstance(this).sendBroadcast(callbackIntent)
