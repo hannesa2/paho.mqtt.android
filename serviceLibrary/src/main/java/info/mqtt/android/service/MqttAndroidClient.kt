@@ -861,9 +861,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      */
     fun setTraceEnabled(traceEnabled: Boolean) {
         this.traceEnabled = traceEnabled
-        if (mqttService != null) {
-            mqttService!!.isTraceEnabled = traceEnabled
-        }
+        mqttService?.isTraceEnabled = traceEnabled
     }
 
     /**
@@ -994,8 +992,13 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
                 (token as MqttTokenAndroid).notifyComplete()
             } else {
                 var exceptionThrown = data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Throwable?
-                if (exceptionThrown == null)
-                    exceptionThrown = Throwable("No Throwable given")
+                if (exceptionThrown == null) {
+                    val bundleToString = data.keySet()
+                        .joinToString(", ", "{", "}") { key ->
+                            "$key=${data[key]}"
+                        }
+                    exceptionThrown = Throwable("No Throwable given\n$bundleToString")
+                }
                 (token as MqttTokenAndroid).notifyFailure(exceptionThrown)
             }
         } else {
