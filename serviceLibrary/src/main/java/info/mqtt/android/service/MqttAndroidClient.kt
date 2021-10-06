@@ -861,9 +861,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      */
     fun setTraceEnabled(traceEnabled: Boolean) {
         this.traceEnabled = traceEnabled
-        if (mqttService != null) {
-            mqttService!!.isTraceEnabled = traceEnabled
-        }
+        mqttService?.isTraceEnabled = traceEnabled
     }
 
     /**
@@ -987,15 +985,20 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * @param token the token associated with the action being undertake
      * @param data  the result data
      */
-    private fun simpleAction(token: IMqttToken?, data: Bundle?) {
+    private fun simpleAction(token: IMqttToken?, data: Bundle) {
         if (token != null) {
-            val status = data!!.getSerializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
+            val status = data.getSerializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
             if (status == Status.OK) {
                 (token as MqttTokenAndroid).notifyComplete()
             } else {
                 var exceptionThrown = data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Throwable?
-                if (exceptionThrown == null)
-                    exceptionThrown = Throwable("No Throwable given")
+                if (exceptionThrown == null) {
+                    val bundleToString = data.keySet()
+                        .joinToString(", ", "{", "}") { key ->
+                            "$key=${data[key]}"
+                        }
+                    exceptionThrown = Throwable("No Throwable given\n$bundleToString")
+                }
                 (token as MqttTokenAndroid).notifyFailure(exceptionThrown)
             }
         } else {
@@ -1007,7 +1010,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * Process notification of a publish(send) operation
      *
      */
-    private fun sendAction(data: Bundle?) {
+    private fun sendAction(data: Bundle) {
         val token = getMqttToken(data) // get, don't remove - will
         // remove on delivery
         simpleAction(token, data)
@@ -1017,7 +1020,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * Process notification of a subscribe operation
      *
      */
-    private fun subscribeAction(data: Bundle?) {
+    private fun subscribeAction(data: Bundle) {
         val token = removeMqttToken(data)
         simpleAction(token, data)
     }
@@ -1025,7 +1028,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     /**
      * Process notification of an unsubscribe operation
      */
-    private fun unSubscribeAction(data: Bundle?) {
+    private fun unSubscribeAction(data: Bundle) {
         val token = removeMqttToken(data)
         simpleAction(token, data)
     }
@@ -1033,9 +1036,9 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     /**
      * Process notification of a published message having been delivered
      */
-    private fun messageDeliveredAction(data: Bundle?) {
+    private fun messageDeliveredAction(data: Bundle) {
         val token = removeMqttToken(data)
-        val status = data!!.getSerializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
+        val status = data.getSerializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
         if (token != null) {
             if (status == Status.OK && token is IMqttDeliveryToken) {
                 callbacksList.forEach { callback ->
