@@ -1,11 +1,9 @@
 package info.mqtt.android.service
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import kotlin.jvm.Volatile
-import org.eclipse.paho.client.mqttv3.MqttException
-import kotlin.Throws
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage
 
 internal open class MqttTokenAndroid constructor(
@@ -32,9 +30,7 @@ internal open class MqttTokenAndroid constructor(
             } catch (e: InterruptedException) {
             }
         }
-        if (pendingException != null) {
-            throw pendingException!!
-        }
+        pendingException?.let { throw it }
     }
 
     @Throws(MqttException::class)
@@ -48,18 +44,14 @@ internal open class MqttTokenAndroid constructor(
         if (!isComplete) {
             throw MqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT.toInt())
         }
-        if (pendingException != null) {
-            throw pendingException!!
-        }
+        pendingException?.let { throw it }
     }
 
     fun notifyComplete() {
         synchronized(lock) {
             isComplete = true
             lock.notifyAll()
-            if (listener != null) {
-                listener?.onSuccess(this)
-            }
+            listener?.onSuccess(this)
         }
     }
 
