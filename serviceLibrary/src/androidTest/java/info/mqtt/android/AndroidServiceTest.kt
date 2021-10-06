@@ -50,7 +50,7 @@ class AndroidServiceTest : IMqttActionListener {
                 disconnectToken.waitForCompletion(waitForCompletionTime)
             }
         } catch (exception: Exception) {
-            fail("Failed: $mqttServerURI exception=$exception")
+            fail("Failed: $mqttServerURI exception=${exception.stackTraceToString()}")
         }
     }
 
@@ -98,7 +98,7 @@ class AndroidServiceTest : IMqttActionListener {
                 disconnectToken.waitForCompletion(waitForCompletionTime)
             }
         } catch (exception: Exception) {
-            fail("Failed: $mqttServerURI exception=$exception")
+            fail("Failed: $mqttServerURI exception=${exception.stackTraceToString()}")
         }
     }
 
@@ -154,7 +154,7 @@ class AndroidServiceTest : IMqttActionListener {
                 disconnectToken.waitForCompletion(waitForCompletionTime)
             }
         } catch (exception: Exception) {
-            fail("Failed: $mqttServerURI exception=$exception")
+            fail("Failed: $mqttServerURI exception=${exception.stackTraceToString()}")
         }
     }
 
@@ -192,7 +192,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail(validateResult.message)
             }
         } catch (exception: Exception) {
-            fail("Failed to instantiate:$methodName exception=$exception")
+            fail("Failed $methodName exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 val disconnectToken = mqttClient!!.disconnect(null, null)
@@ -260,7 +260,7 @@ class AndroidServiceTest : IMqttActionListener {
                 }
             }
         } catch (exception: Exception) {
-            fail("Failed to instantiate:$methodName exception=$exception")
+            fail("Failed $methodName exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 for (aMqttPublisher in mqttPublisher) {
@@ -312,7 +312,7 @@ class AndroidServiceTest : IMqttActionListener {
                 }
             }
         } catch (exception: Exception) {
-            fail("Failed:$methodName exception=$exception")
+            fail("Failed:$methodName exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 disconnectToken = mqttClient!!.disconnect(null, null)
@@ -401,7 +401,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail(validateResult.message)
             }
         } catch (exception: Exception) {
-            fail("Failed:$methodName exception=$exception")
+            fail("Failed:$methodName exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 disconnectToken = mqttClient!!.disconnect(null, null)
@@ -501,7 +501,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail("Receive message:" + String(receivedMessage.message.payload))
             }
         } catch (exception: Exception) {
-            fail("Failed:$methodName exception=$exception")
+            fail("Failed:$methodName exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 disconnectToken = mqttClient!!.disconnect(null, null)
@@ -538,7 +538,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail(validateResult.message)
             }
         } catch (exception: Exception) {
-            fail("Failed to instantiate:$methodName exception=$exception")
+            fail("Failed to instantiate:$methodName exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 val disconnectToken: IMqttToken = mqttClient!!.disconnect(null, null)
@@ -681,7 +681,7 @@ class AndroidServiceTest : IMqttActionListener {
             disconnectToken.waitForCompletion(waitForCompletionTime)
             mqttClientRetained.close()
         } catch (exception: Exception) {
-            fail("Failed to instantiate:$methodName exception=$exception")
+            fail("Failed $methodName exception=${exception.stackTraceToString()}")
         }
     }
 
@@ -707,7 +707,7 @@ class AndroidServiceTest : IMqttActionListener {
                 disconnectToken.waitForCompletion(waitForCompletionTime)
             }
         } catch (exception: Exception) {
-            fail("Failed:testSSLConnect exception=$exception")
+            fail("Failed:testSSLConnect exception=${exception.stackTraceToString()}")
         }
     }
 
@@ -745,7 +745,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail(validateResult.message)
             }
         } catch (exception: Exception) {
-            fail("Failed:testSSLPubSub exception=$exception")
+            fail("Failed:testSSLPubSub exception=${exception.stackTraceToString()}")
         } finally {
             disconnectToken = mqttClient!!.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
             disconnectToken.waitForCompletion(waitForCompletionTime)
