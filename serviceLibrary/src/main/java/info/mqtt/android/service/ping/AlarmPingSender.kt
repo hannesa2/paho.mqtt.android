@@ -27,6 +27,7 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     }
 
     override fun start() {
+        PingWorker.comms = clientComms
         val pingRepeatWorkRequest = PeriodicWorkRequest
             .Builder(PingWorker::class.java, clientComms!!.keepAlive, TimeUnit.MILLISECONDS)
             .setConstraints(
@@ -40,6 +41,7 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     }
 
     override fun stop() {
+        PingWorker.comms = null
         Timber.d("Unregister AlarmReceiver to MqttService ${clientComms!!.client.clientId}")
         workManager.cancelUniqueWork(PING_JOB)
     }
