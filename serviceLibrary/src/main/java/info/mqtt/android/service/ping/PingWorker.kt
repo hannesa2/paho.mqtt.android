@@ -8,9 +8,8 @@ import org.eclipse.paho.client.mqttv3.IMqttToken
 import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
 import timber.log.Timber
-import java.lang.Exception
 
-class PingWorker(appContext: Context, workerParams: WorkerParameters, val comms: ClientComms?) : Worker(appContext, workerParams) {
+class PingWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
         return if (backgroundCheck(comms))
@@ -20,7 +19,7 @@ class PingWorker(appContext: Context, workerParams: WorkerParameters, val comms:
     }
 
     private fun backgroundCheck(clientComms: ClientComms?): Boolean {
-        var success = false
+        var success = clientComms == null
         var count = 0
 
         val token: IMqttToken? = clientComms?.checkForActivity(object : IMqttActionListener {
@@ -30,7 +29,7 @@ class PingWorker(appContext: Context, workerParams: WorkerParameters, val comms:
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Timber.d("PingTask Failed $count")
+                Timber.e("PingTask Failed $count")
                 success = false
             }
         })
@@ -45,14 +44,18 @@ class PingWorker(appContext: Context, workerParams: WorkerParameters, val comms:
             token?.let {
                 token.waitForCompletion()
             } ?: run {
-                Timber.d("Ping command was not sent by the client. $count")
+                Timber.e("Ping command was not sent by the client. $count")
             }
         } catch (e: MqttException) {
-            Timber.d("Ignore MQTT exception : ${e.message}  $count")
+            Timber.w("Ignore MQTT exception : ${e.message}  $count")
         } catch (ex: Exception) {
             Timber.d(ex)
         }
-        Timber.d("PingTask=$success $count")
+        Timber.d("PingTask=$success $count $clientComms")
         return success
+    }
+
+    companion object {
+        var comms: ClientComms? = null
     }
 }
