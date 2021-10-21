@@ -39,7 +39,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.6.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "com.github.AppDevNext.Logcat:LogcatCore:2.9.1"
+    implementation "com.github.AppDevNext.Logcat:LogcatCoreLib:2.9.4"
 
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
