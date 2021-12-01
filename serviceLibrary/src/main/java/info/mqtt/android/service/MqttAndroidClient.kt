@@ -991,8 +991,11 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
             if (status == Status.OK) {
                 (token as MqttTokenAndroid).notifyComplete()
             } else {
+                val errorMessage = data.getSerializable(MqttServiceConstants.CALLBACK_ERROR_MESSAGE) as String?
                 var exceptionThrown = data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Throwable?
-                if (exceptionThrown == null) {
+                if (exceptionThrown == null && errorMessage != null) {
+                    exceptionThrown = Throwable(errorMessage)
+                } else if (exceptionThrown == null) {
                     val bundleToString = data.keySet()
                         .joinToString(", ", "{", "}") { key ->
                             "$key=${data[key]}"
