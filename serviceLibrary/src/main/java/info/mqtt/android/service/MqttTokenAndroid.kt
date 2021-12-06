@@ -71,8 +71,8 @@ internal open class MqttTokenAndroid constructor(
         return isComplete
     }
 
-    override fun getException(): MqttException {
-        return lastException!!
+    override fun getException(): MqttException? {
+        return lastException
     }
 
     override fun getClient(): IMqttAsyncClient {
