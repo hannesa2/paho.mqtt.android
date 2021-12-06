@@ -764,7 +764,7 @@ class AndroidServiceTest : IMqttActionListener {
         override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) = Unit
     }
 
-    override fun onSuccess(asyncActionToken: IMqttToken?) {
+    override fun onSuccess(asyncActionToken: IMqttToken) {
         Log.d(TAG, "onSuccess")
     }
 
