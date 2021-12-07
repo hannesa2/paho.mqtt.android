@@ -1102,7 +1102,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     @Synchronized
     private fun storeToken(token: IMqttToken?): String {
         tokenMap.put(tokenNumber, token)
-        return Integer.toString(tokenNumber++)
+        return (tokenNumber++).toString()
     }
 
     /**
