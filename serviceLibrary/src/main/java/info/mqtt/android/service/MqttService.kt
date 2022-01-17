@@ -212,7 +212,7 @@ class MqttService : Service(), MqttTraceHandler {
             mqttServiceBinder = null
         }
         unregisterBroadcastReceivers()
-        messageDatabase.close()
+        // messageDatabase.close()
         super.onDestroy()
     }
 
