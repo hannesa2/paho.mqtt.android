@@ -6,7 +6,7 @@ import info.mqtt.android.service.QoS
 class ConnectionModel {
     var clientHandle: String = ""
     var clientId: String = "ExtendedSampleClient"
-    var serverHostName: String = "mqtt.eclipseprojects.io"
+    var serverHostName: String = "broker.hivemq.com"
     var serverPort = 1883
     var isCleanSession = true
     var username: String = ""

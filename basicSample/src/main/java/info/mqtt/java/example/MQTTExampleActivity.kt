@@ -118,7 +118,7 @@ class MQTTExampleActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val serverUri = "tcp://mqtt.eclipseprojects.io:1883"
+        private const val serverUri = "tcp://broker.hivemq.com:1883"
         private const val subscriptionTopic = "exampleAndroidTopic"
         private const val publishTopic = "exampleAndroidPublishTopic"
         private const val publishMessage = "Hello World"
