@@ -1,11 +1,9 @@
 package info.mqtt.android
 
 import android.content.Context
-import kotlin.Throws
+import android.util.Log
 import java.io.IOException
 import java.io.InputStream
-import java.lang.Exception
-import android.util.Log
 import java.util.*
 
 internal class TestProperties(private val context: Context) {

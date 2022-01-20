@@ -176,7 +176,7 @@ class MqttService : Service(), MqttTraceHandler {
     private val connections: MutableMap<String, MqttConnection> = ConcurrentHashMap()
 
     // somewhere to persist received messages until we're sure that they've reached the application
-    lateinit var messageStore: MqMessageDatabase
+    lateinit var messageDatabase: MqMessageDatabase
 
     // callback id for making trace callbacks to the Activity needs to be set by the activity as appropriate
     private var traceCallbackId: String? = null
@@ -198,7 +198,7 @@ class MqttService : Service(), MqttTraceHandler {
         mqttServiceBinder = MqttServiceBinder(this)
 
         // create somewhere to buffer received messages until we know that they have been passed to the application
-        messageStore = MqMessageDatabase.getDatabase(this)
+        messageDatabase = MqMessageDatabase.getDatabase(this)
     }
 
 
@@ -212,7 +212,7 @@ class MqttService : Service(), MqttTraceHandler {
             mqttServiceBinder = null
         }
         unregisterBroadcastReceivers()
-        messageStore.close()
+        messageDatabase.close()
         super.onDestroy()
     }
 
@@ -488,7 +488,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @return [Status]
      */
     fun acknowledgeMessageArrival(clientHandle: String, id: String): Status {
-        return if (messageStore.discardArrived(clientHandle, id)) {
+        return if (messageDatabase.discardArrived(clientHandle, id)) {
             Status.OK
         } else {
             Status.ERROR

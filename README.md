@@ -29,6 +29,7 @@ MQTT reflects the inherent physical and cost constraints of device connectivity.
     }
   }
 ```
+
 ```
 dependencies {
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -39,6 +40,7 @@ dependencies {
 #### Android O foreground service
 
 Android >= O you should use it as foreground service
+
 ```
 val client = MqttAndroidClient(context, uri, clientId).apply {
     setForegroundService(foregroundNotification, 3)
@@ -46,6 +48,7 @@ val client = MqttAndroidClient(context, uri, clientId).apply {
 ```
 
 ## License
+
 ```
 Copyright 2021
 

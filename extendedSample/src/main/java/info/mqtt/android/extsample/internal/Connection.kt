@@ -35,7 +35,7 @@ class Connection private constructor(
 ) {
     private val listeners = ArrayList<PropertyChangeListener>()
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
-    val messageList =ArrayList<ReceivedMessage>()
+    val messageList = ArrayList<ReceivedMessage>()
     val historyList = ArrayList<String>()
     val messages = MutableLiveData<MutableList<ReceivedMessage>>()
     val history = MutableLiveData<MutableList<String>>()

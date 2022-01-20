@@ -2,30 +2,17 @@ package info.mqtt.android.service
 
 import android.app.Service
 import android.content.Context
-import org.eclipse.paho.client.mqttv3.MqttClientPersistence
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import java.util.HashMap
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import org.eclipse.paho.client.mqttv3.MqttAsyncClient
-import kotlin.jvm.Volatile
-import android.os.PowerManager.WakeLock
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
 import android.os.Bundle
-import java.io.File
-import java.lang.Exception
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
+import android.util.Log
+import info.mqtt.android.service.ping.AlarmPingSender
+import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.MqttException
 import timber.log.Timber
-import java.util.Arrays
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener
-import android.util.Log
-import android.os.PowerManager
-import info.mqtt.android.service.ping.AlarmPingSender
+import java.io.File
+import java.util.*
 
 /**
  * MqttConnection holds a MqttAsyncClient {host,port,clientId} instance to perform
@@ -102,7 +89,7 @@ internal class MqttConnection(
             cleanSession = options.isCleanSession
             if (options.isCleanSession) { // if it's a clean session,
                 // discard old data
-                service.messageStore.persistenceDao().deleteClientHandle(clientHandle)
+                service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
             }
         }
         service.traceDebug("Connecting {$serverURI} as {$clientId}")
@@ -222,7 +209,7 @@ internal class MqttConnection(
      * have already purged any such messages from our messageStore.
      */
     private fun deliverBacklog() {
-        service.messageStore.persistenceDao().allArrived(clientHandle).forEach {
+        service.messageDatabase.persistenceDao().allArrived(clientHandle).forEach {
             val resultBundle = messageToBundle(it.messageId, it.topic, it.mqttMessage)
             resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.MESSAGE_ARRIVED_ACTION)
             service.callbackToActivity(clientHandle, Status.OK, resultBundle)
@@ -252,9 +239,7 @@ internal class MqttConnection(
     fun close() {
         service.traceDebug("close()")
         try {
-            if (myClient != null) {
-                myClient!!.close()
-            }
+            myClient?.close()
         } catch (e: MqttException) {
             // Pass a new bundle, let handleException stores error messages.
             handleException(Bundle(), e)
@@ -289,7 +274,7 @@ internal class MqttConnection(
         }
         if (connectOptions != null && connectOptions!!.isCleanSession) {
             // assume we'll clear the stored messages at this point
-            service.messageStore.persistenceDao().deleteClientHandle(clientHandle)
+            service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
         }
         releaseWakeLock()
     }
@@ -321,7 +306,7 @@ internal class MqttConnection(
         }
         if (connectOptions != null && connectOptions!!.isCleanSession) {
             // assume we'll clear the stored messages at this point
-            service.messageStore.persistenceDao().deleteClientHandle(clientHandle)
+            service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
         }
         releaseWakeLock()
     }
@@ -637,7 +622,7 @@ internal class MqttConnection(
      */
     override fun messageArrived(topic: String, message: MqttMessage) {
         service.traceDebug("messageArrived($topic,{$message})")
-        val messageId = service.messageStore.storeArrived(clientHandle, topic, message)
+        val messageId = service.messageDatabase.storeArrived(clientHandle, topic, message)
         val resultBundle = messageToBundle(messageId, topic, message)
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.MESSAGE_ARRIVED_ACTION)
         resultBundle.putString(MqttServiceConstants.CALLBACK_MESSAGE_ID, messageId)
