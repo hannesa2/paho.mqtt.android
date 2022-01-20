@@ -13,8 +13,8 @@ class Converters {
     fun fromQoS(value: QoS) = value.value
 
     @TypeConverter
-    fun toMqttMessage(value: String) : MqttMessage = MqttMessage(value.toByteArray(Charsets.UTF_8))
+    fun toMqttMessage(value: String): MqttMessage = MqttMessage(value.toByteArray(Charsets.UTF_8))
 
     @TypeConverter
-    fun fromMqttMessage(value: MqttMessage) : String = value.payload.toString(Charsets.UTF_8) //.decodeToString()
+    fun fromMqttMessage(value: MqttMessage): String = value.payload.toString(Charsets.UTF_8) //.decodeToString()
 }

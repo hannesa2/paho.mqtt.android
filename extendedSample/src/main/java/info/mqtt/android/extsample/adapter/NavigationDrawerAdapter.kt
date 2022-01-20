@@ -1,16 +1,16 @@
 package info.mqtt.android.extsample.adapter
 
 import android.content.Context
-import info.mqtt.android.extsample.model.NavDrawerItem
-import androidx.recyclerview.widget.RecyclerView
-import info.mqtt.android.extsample.adapter.NavigationDrawerAdapter.MyViewHolder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import info.mqtt.android.extsample.R
-import androidx.core.content.ContextCompat
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
+import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.adapter.NavigationDrawerAdapter.MyViewHolder
+import info.mqtt.android.extsample.model.NavDrawerItem
 
 class NavigationDrawerAdapter(private val context: Context, data: List<NavDrawerItem>) : RecyclerView.Adapter<MyViewHolder>() {
 

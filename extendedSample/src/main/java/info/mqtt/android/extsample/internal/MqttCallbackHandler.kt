@@ -1,17 +1,15 @@
 package info.mqtt.android.extsample.internal
 
 import android.content.Context
-import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
-import info.mqtt.android.extsample.internal.Notify.notification
-import org.eclipse.paho.client.mqttv3.MqttCallback
-import timber.log.Timber
 import android.content.Intent
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
-import kotlin.Throws
-import org.eclipse.paho.client.mqttv3.MqttMessage
+import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
+import info.mqtt.android.extsample.internal.Notify.notification
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import java.lang.Exception
+import org.eclipse.paho.client.mqttv3.MqttCallback
+import org.eclipse.paho.client.mqttv3.MqttMessage
+import timber.log.Timber
 
 internal class MqttCallbackHandler(private val context: Context, private val clientHandle: String) : MqttCallback {
 

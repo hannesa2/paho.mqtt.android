@@ -1,28 +1,25 @@
 package info.mqtt.android.service.ping
 
-import org.eclipse.paho.client.mqttv3.MqttPingSender
-import org.eclipse.paho.client.mqttv3.internal.ClientComms
-import android.content.BroadcastReceiver
-import android.app.PendingIntent
-import kotlin.jvm.Volatile
-import timber.log.Timber
-import android.content.IntentFilter
-import android.content.Intent
-import android.app.AlarmManager
-import java.lang.IllegalArgumentException
-import android.os.SystemClock
-import android.os.Build
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.MqttException
-import java.lang.Exception
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.PowerManager
+import android.os.SystemClock
 import info.mqtt.android.service.MqttService
 import info.mqtt.android.service.MqttServiceConstants
 import kotlinx.coroutines.*
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttPingSender
+import org.eclipse.paho.client.mqttv3.internal.ClientComms
+import timber.log.Timber
 import kotlin.system.measureTimeMillis
 
 /**

@@ -1,9 +1,9 @@
 package info.mqtt.android.service
 
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import android.os.Parcelable
 import android.os.Parcel
+import android.os.Parcelable
 import android.os.Parcelable.Creator
+import org.eclipse.paho.client.mqttv3.MqttMessage
 
 /*
  * A way to flow MqttMessages via Bundles/Intents

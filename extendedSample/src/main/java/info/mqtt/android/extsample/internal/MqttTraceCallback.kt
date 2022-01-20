@@ -2,7 +2,6 @@ package info.mqtt.android.extsample.internal
 
 import info.mqtt.android.service.MqttTraceHandler
 import timber.log.Timber
-import java.lang.Exception
 
 internal class MqttTraceCallback : MqttTraceHandler {
     override fun traceDebug(message: String?) {
