@@ -89,7 +89,10 @@ internal class MqttConnection(
             cleanSession = options.isCleanSession
             if (options.isCleanSession) { // if it's a clean session,
                 // discard old data
-                service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+                if (service.messageDatabase.isOpen)
+                    service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+                else
+                    Timber.w("Database is closed")
             }
         }
         service.traceDebug("Connecting {$serverURI} as {$clientId}")
