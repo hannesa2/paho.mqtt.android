@@ -28,6 +28,12 @@ android {
             annotationProcessorOptions { arguments = ["room.schemaLocation": "$projectDir/schemas".toString()] }
         }
 
+        buildTypes {
+            release {
+                minifyEnabled true
+                consumerProguardFile('proguard-sdk.pro')
+            }
+        }
     }
 
     useLibrary 'android.test.runner'
