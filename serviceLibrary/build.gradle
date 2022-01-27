@@ -12,7 +12,6 @@ android {
         minSdkVersion 21
         targetSdkVersion 31
 
-        versionCode getGitCommitCount()
         // Android Studio 4.1 doesn't generate versionName in libraries any more
         // https://developer.android.com/studio/releases/gradle-plugin#version_properties_removed_from_buildconfig_class_in_library_projects
         buildConfigField "String", 'VERSION_NAME', "\"" + getTag() + "\""
