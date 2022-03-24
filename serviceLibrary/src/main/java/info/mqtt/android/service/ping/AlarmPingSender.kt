@@ -1,12 +1,16 @@
 package info.mqtt.android.service.ping
 
-import android.os.SystemClock
+import android.content.Context
 import androidx.work.*
 import info.mqtt.android.service.MqttService
+import kotlinx.coroutines.suspendCancellableCoroutine
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttToken
 import org.eclipse.paho.client.mqttv3.MqttPingSender
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
 
 
 /**
@@ -18,7 +22,6 @@ import java.util.concurrent.TimeUnit
  * @see MqttPingSender
  */
 internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
-    private var continuation: Operation? = null
     private var clientComms: ClientComms? = null
     private val workManager = WorkManager.getInstance(service)
 
@@ -27,32 +30,48 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     }
 
     override fun start() {
-        PingWorker.comms = clientComms
-        val pingRepeatWorkRequest = PeriodicWorkRequest
-            .Builder(PingWorker::class.java, clientComms!!.keepAlive, TimeUnit.MILLISECONDS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.METERED)
-                    .build()
-            )
-            .build()
-
-        continuation = workManager.enqueueUniquePeriodicWork(PING_JOB, ExistingPeriodicWorkPolicy.REPLACE, pingRepeatWorkRequest)
+        schedule(clientComms!!.keepAlive)
     }
 
     override fun stop() {
-        PingWorker.comms = null
-        Timber.d("Unregister AlarmReceiver to MqttService ${clientComms!!.client.clientId}")
         workManager.cancelUniqueWork(PING_JOB)
     }
 
     override fun schedule(delayInMilliseconds: Long) {
-        val nextAlarmInMilliseconds = SystemClock.elapsedRealtime() + delayInMilliseconds
-        Timber.d("Pointless Schedule next alarm at $nextAlarmInMilliseconds ms")
+        Timber.d("Schedule next alarm at ${System.currentTimeMillis() + delayInMilliseconds}")
+        workManager.enqueueUniqueWork(
+            PING_JOB,
+            ExistingWorkPolicy.REPLACE,
+            OneTimeWorkRequest
+                .Builder(PingWorker::class.java)
+                .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
+                .build()
+        )
     }
 
     companion object {
         private const val PING_JOB = "PING_JOB"
+    }
+
+    internal inner class PingWorker(context: Context, workerParams: WorkerParameters) :
+        CoroutineWorker(context, workerParams) {
+        override suspend fun doWork(): Result =
+            suspendCancellableCoroutine { continuation ->
+                Timber.d("Sending Ping at: ${System.currentTimeMillis()}")
+                clientComms?.checkForActivity(object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken?) {
+                        Timber.d("Success.")
+                        continuation.resume(Result.success())
+                    }
+
+                    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                        Timber.d("Failure.")
+                        continuation.resume(Result.failure())
+                    }
+                }) ?: kotlin.run {
+                    continuation.resume(Result.failure())
+                }
+            }
     }
 
 }
