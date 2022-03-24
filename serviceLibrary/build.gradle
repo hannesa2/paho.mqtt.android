@@ -48,6 +48,7 @@ dependencies {
     implementation "com.github.AppDevNext.Logcat:LogcatCoreLib:2.9.5"
 
     implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.work:work-runtime-ktx:$worker_version"
     kapt "androidx.room:room-compiler:$room_version"
 
     androidTestImplementation "androidx.test.ext:junit:1.1.3"
