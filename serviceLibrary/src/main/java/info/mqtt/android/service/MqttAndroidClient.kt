@@ -251,7 +251,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
         val activityToken = storeToken(connectToken)
         try {
             mqttService!!.connect(clientHandle!!, clientConnectOptions, activityToken)
-        } catch (e: MqttException) {
+        } catch (e: Exception) {
             val listener = connectToken!!.actionCallback
             listener?.onFailure(connectToken, e)
         }
