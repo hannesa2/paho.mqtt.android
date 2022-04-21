@@ -29,7 +29,7 @@ android {
 
         buildTypes {
             release {
-                minifyEnabled true
+                minifyEnabled false
                 consumerProguardFile('proguard-sdk.pro')
             }
         }
