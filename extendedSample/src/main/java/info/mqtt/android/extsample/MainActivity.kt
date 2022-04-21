@@ -6,7 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import info.hannes.logcat.BothLogActivity
+import info.hannes.logcat.ui.BothLogActivity
 import info.mqtt.android.extsample.databinding.ActivityMainBinding
 import info.mqtt.android.extsample.fragments.*
 import info.mqtt.android.extsample.fragments.DrawerFragment.FragmentDrawerListener
