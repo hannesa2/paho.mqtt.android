@@ -16,7 +16,7 @@ buildscript {
 println "Gradle uses Java ${Jvm.current()}"
 
 ext {
-    compileSdkVersion = 31
+    compileSdkVersion = 32
     room_version = "2.4.2"
 }
 
