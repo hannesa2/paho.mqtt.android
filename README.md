@@ -19,7 +19,9 @@ MQTT reflects the inherent physical and cost constraints of device connectivity.
 
 ## Using this MQTT Android Client
 
-#### Jitpack.io
+#### Jitpack.io 
+
+More details are here https://jitpack.io/#hannesa2/paho.mqtt.android
 
 ```
   allprojects {
