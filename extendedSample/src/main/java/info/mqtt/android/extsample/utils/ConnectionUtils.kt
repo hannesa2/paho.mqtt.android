@@ -54,7 +54,7 @@ fun Connection.toConnectionEntity(): ConnectionEntity = ConnectionEntity(
     connectionOptions.connectionTimeout,
     connectionOptions.keepAliveInterval,
     connectionOptions.userName,
-    connectionOptions.password?.toString(),
+    String(connectionOptions.password?:CharArray(0)),
     connectionOptions.isCleanSession.toInt(),
     connectionOptions.willDestination,
     connectionOptions.willMessage?.payload.toString(), // message
