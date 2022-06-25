@@ -34,8 +34,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation "androidx.core:core-ktx:1.8.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "com.github.AppDevNext.Logcat:LogcatCoreLib:2.10"
-    implementation "com.github.AppDevNext.Logcat:LogcatCoreUI:2.10"
+    implementation "com.github.AppDevNext.Logcat:LogcatCoreLib:2.11.1"
+    implementation "com.github.AppDevNext.Logcat:LogcatCoreUI:2.11.1"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
