@@ -31,13 +31,13 @@ jobs:
       - name: Install Android SDK
         uses: malinskiy/action-android/install-sdk@release/0.1.2
       - name: Android Emulator test
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.2
+        uses: reactivecircus/android-emulator-runner@v2
         with:
-          cmd: ./gradlew cAT --continue
-          api: ${{ matrix.api }}
-          tag: ${{ matrix.tag }}
-          abi: ${{ matrix.abi }}
-          cmdOptions: -noaudio -no-boot-anim -no-window
+          script: ./gradlew cAT --continue
+          api-level: ${{ matrix.api }}
+          target: ${{ matrix.tag }}
+          arch: ${{ matrix.abi }}
+          emulator-options: -noaudio -no-boot-anim -no-window
       - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
