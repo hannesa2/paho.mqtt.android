@@ -29,9 +29,9 @@ jobs:
       - name: Run tests
         run: ./gradlew test
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.2
+        uses: malinskiy/action-android/install-sdk@release/0.1.3
       - name: Android Emulator test
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.2
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.3
         with:
           cmd: ./gradlew cAT --continue
           api: ${{ matrix.api }}
@@ -58,7 +58,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.2
+        uses: malinskiy/action-android/install-sdk@release/0.1.3
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
