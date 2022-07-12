@@ -20,7 +20,7 @@ jobs:
           distribution: 'adopt'
           java-version: 11
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.2
+        uses: malinskiy/action-android/install-sdk@release/0.1.3
       - name: Find Tag
         id: tagger
         uses: jimschubert/query-tag-action@v2
