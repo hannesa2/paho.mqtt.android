@@ -36,7 +36,9 @@ import javax.net.ssl.TrustManagerFactory
  *  * disconnect
  *
  */
-class MqttAndroidClient(val context: Context, private val serverURI: String, private val clientId: String, ackType: Ack = Ack.AUTO_ACK) :
+class MqttAndroidClient @JvmOverloads constructor(
+    val context: Context, private val serverURI: String, private val clientId: String, ackType: Ack = Ack.AUTO_ACK,
+    private var persistence: MqttClientPersistence? = null) :
     BroadcastReceiver(), IMqttAsyncClient {
 
     // Listener for when the service is connected or disconnected
@@ -54,7 +56,6 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
     // An identifier for the underlying client connection, which we can pass to the service
     private var clientHandle: String? = null
     private var tokenNumber = 0
-    private var persistence: MqttClientPersistence? = null
     private var clientConnectOptions: MqttConnectOptions? = null
     private var connectToken: IMqttToken? = null
 
@@ -82,6 +83,7 @@ class MqttAndroidClient(val context: Context, private val serverURI: String, pri
      * @param clientId    specifies the name by which this connection should be identified to the server null then the default persistence
      * mechanism is used
      * @param ackType     how the application wishes to acknowledge a message has been processed.
+     * @param persistence specifies the persistence to use mechanism to use, or null to obtain a default.
      */
 
     /**
