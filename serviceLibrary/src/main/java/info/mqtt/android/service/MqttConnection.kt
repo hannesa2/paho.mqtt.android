@@ -711,7 +711,7 @@ internal class MqttConnection(
      * multiple times
      */
     @Synchronized
-    fun reconnect() {
+    fun reconnect(context: Context) {
         if (myClient == null) {
             service.traceError("Reconnect myClient = null. Will not do reconnect")
             return
@@ -720,7 +720,7 @@ internal class MqttConnection(
             service.traceDebug("The client is connecting. Reconnect return directly.")
             return
         }
-        if (!service.isOnline) {
+        if (!service.isOnline(context)) {
             service.traceDebug("The network is not reachable. Will not do reconnect")
             return
         }

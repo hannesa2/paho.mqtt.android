@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -289,12 +290,12 @@ class MqttService : Service(), MqttTraceHandler {
         client.connect(connectOptions, null, activityToken)
     }
 
-    fun reconnect() {
+    fun reconnect(context: Context) {
         traceDebug("Reconnect to server, client size=" + connections.size)
         for (client in connections.values) {
             traceDebug("Reconnect Client:" + client.clientId + '/' + client.serverURI)
-            if (isOnline) {
-                client.reconnect()
+            if (isOnline(context)) {
+                client.reconnect(context)
             }
         }
     }
@@ -565,17 +566,44 @@ class MqttService : Service(), MqttTraceHandler {
         }
     }
 
-    val isOnline: Boolean
-        get() {
-            val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-            val networkInfo = cm.activeNetworkInfo
-            return networkInfo != null && networkInfo.isAvailable && networkInfo.isConnected && backgroundDataEnabled
-        }
+    fun isOnline(context: Context) = isInternetAvailable(context)
 
     private fun notifyClientsOffline() {
         for (connection in connections.values) {
             connection.offline()
         }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun isInternetAvailable(context: Context): Boolean {
+        var result = false
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val actNw =
+                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            result = when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            connectivityManager.run {
+                connectivityManager.activeNetworkInfo?.run {
+                    result = when (type) {
+                        ConnectivityManager.TYPE_WIFI -> true
+                        ConnectivityManager.TYPE_MOBILE -> true
+                        ConnectivityManager.TYPE_ETHERNET -> true
+                        else -> false
+                    }
+
+                }
+            }
+        }
+
+        return result
     }
 
     /**
@@ -622,10 +650,10 @@ class MqttService : Service(), MqttTraceHandler {
             val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MQTT:tag")
             wl.acquire(10 * 60 * 1000L /*10 minutes*/)
             traceDebug("Reconnect for Network recovery.")
-            if (isOnline) {
+            if (isOnline(context)) {
                 traceDebug("Online,reconnect.")
                 // we have an internet connection - have another try at connecting
-                reconnect()
+                reconnect(context)
             } else {
                 notifyClientsOffline()
             }
