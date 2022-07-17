@@ -8,6 +8,9 @@ import info.mqtt.android.extsample.internal.MqttCallbackHandler
 import info.mqtt.android.extsample.room.AppDatabase
 import info.mqtt.android.extsample.room.entity.ConnectionEntity
 import info.mqtt.android.service.QoS
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 
 fun Connection.connect(context: Context) {
@@ -41,7 +44,9 @@ fun ConnectionEntity.toConnection(context: Context): Connection {
     )
 
     // Now we recover all subscriptions for this connection
-    connection.setSubscriptions(AppDatabase.getDatabase(context).subscriptionDao().all.map { it.toSubscription() })
+    CoroutineScope(Dispatchers.IO).launch {
+        connection.setSubscriptions(AppDatabase.getDatabase(context).subscriptionDao().all.map { it.toSubscription() })
+    }
     return connection
 }
 

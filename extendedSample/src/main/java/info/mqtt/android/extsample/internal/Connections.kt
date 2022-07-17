@@ -5,6 +5,9 @@ import info.mqtt.android.extsample.room.AppDatabase
 import info.mqtt.android.extsample.room.PersistenceDao
 import info.mqtt.android.extsample.utils.toConnection
 import info.mqtt.android.extsample.utils.toConnectionEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
@@ -15,30 +18,48 @@ class Connections private constructor(context: Context) {
     private var persistence: PersistenceDao = AppDatabase.getDatabase(context).persistenceDao()
 
     init {
-        val connectionDaoList = persistence.all.map { it.toConnection(context) }
-        connectionDaoList.forEach {
-            Timber.d("Connection was persisted.. ${it.handle()}")
-            connections[it.handle()] = it
+        synchronized(connections) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val connectionDaoList = persistence.all.map { it.toConnection(context) }
+                connectionDaoList.forEach {
+                    Timber.d("Connection was persisted.. ${it.handle()}")
+                    connections[it.handle()] = it
+                }
+            }
         }
     }
 
     fun getConnection(handle: String): Connection? {
-        return connections[handle]
+        synchronized(connections) {
+            return connections[handle]
+        }
     }
 
     fun addConnection(connection: Connection) {
-        connections[connection.handle()] = connection
-        persistence.insert(connection.toConnectionEntity())
+        synchronized(connections) {
+            connections[connection.handle()] = connection
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            persistence.insert(connection.toConnectionEntity())
+        }
     }
 
     fun removeConnection(connection: Connection) {
-        connections.remove(connection.handle())
-        persistence.delete(connection.toConnectionEntity())
+        synchronized(connections) {
+            connections.remove(connection.handle())
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            persistence.delete(connection.toConnectionEntity())
+        }
     }
 
     fun updateConnection(connection: Connection) {
-        connections[connection.handle()] = connection
-        persistence.updateAll(connection.toConnectionEntity())
+        synchronized(connections) {
+            connections[connection.handle()] = connection
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            persistence.updateAll(connection.toConnectionEntity())
+        }
     }
 
     companion object {

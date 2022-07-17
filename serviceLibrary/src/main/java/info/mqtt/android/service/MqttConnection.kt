@@ -7,6 +7,9 @@ import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.util.Log
 import info.mqtt.android.service.ping.AlarmPingSender
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence
@@ -90,7 +93,9 @@ internal class MqttConnection(
             if (options.isCleanSession) { // if it's a clean session,
                 // discard old data
                 if (service.messageDatabase.isOpen)
-                    service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+                    }
                 else
                     Timber.w("Database is closed")
             }
@@ -212,10 +217,12 @@ internal class MqttConnection(
      * have already purged any such messages from our messageStore.
      */
     private fun deliverBacklog() {
-        service.messageDatabase.persistenceDao().allArrived(clientHandle).forEach {
-            val resultBundle = messageToBundle(it.messageId, it.topic, it.mqttMessage)
-            resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.MESSAGE_ARRIVED_ACTION)
-            service.callbackToActivity(clientHandle, Status.OK, resultBundle)
+        CoroutineScope(Dispatchers.IO).launch {
+            service.messageDatabase.persistenceDao().allArrived(clientHandle).forEach {
+                val resultBundle = messageToBundle(it.messageId, it.topic, it.mqttMessage)
+                resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.MESSAGE_ARRIVED_ACTION)
+                service.callbackToActivity(clientHandle, Status.OK, resultBundle)
+            }
         }
     }
 
@@ -277,7 +284,9 @@ internal class MqttConnection(
         }
         if (connectOptions != null && connectOptions!!.isCleanSession) {
             // assume we'll clear the stored messages at this point
-            service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+            CoroutineScope(Dispatchers.IO).launch {
+                service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+            }
         }
         releaseWakeLock()
     }
@@ -309,7 +318,9 @@ internal class MqttConnection(
         }
         if (connectOptions != null && connectOptions!!.isCleanSession) {
             // assume we'll clear the stored messages at this point
-            service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+            CoroutineScope(Dispatchers.IO).launch {
+                service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+            }
         }
         releaseWakeLock()
     }
@@ -731,12 +742,16 @@ internal class MqttConnection(
             resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, reconnectActivityToken)
             resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, null)
             resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.CONNECT_ACTION)
-            try {
-                myClient!!.reconnect()
-            } catch (ex: MqttException) {
-                Timber.e(ex, "Exception occurred attempting to reconnect: ${ex.message}")
-                setConnectingState(false)
-                handleException(resultBundle, ex)
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    myClient!!.reconnect()
+                } catch (ex: MqttException) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        Timber.e(ex, "Exception occurred attempting to reconnect: ${ex.message}")
+                        setConnectingState(false)
+                        handleException(resultBundle, ex)
+                    }
+                }
             }
         } else if (disconnected && !cleanSession) {
             // use the activityToke the same with action connect
