@@ -8,6 +8,10 @@ import androidx.room.TypeConverters
 import info.mqtt.android.service.QoS
 import info.mqtt.android.service.room.MqMessageDatabase.Companion.MQ_DB_VERSION
 import info.mqtt.android.service.room.entity.MqMessageEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.util.*
 
@@ -29,12 +33,21 @@ abstract class MqMessageDatabase : RoomDatabase() {
             message.isDuplicate,
             System.currentTimeMillis()
         )
-        persistenceDao().insert(messageArrived)
+        CoroutineScope(Dispatchers.IO).launch {
+            persistenceDao().insert(messageArrived)
+        }
         return id
     }
 
     fun discardArrived(clientHandle: String, id: String): Boolean {
-        return persistenceDao().deleteId(clientHandle, id) == 1
+        var result = false
+        CoroutineScope(Dispatchers.IO).launch {
+            val queue = async(Dispatchers.IO) {
+                persistenceDao().deleteId(clientHandle, id) == 1
+            }
+            result = queue.await()
+        }
+        return result
     }
 
     @Suppress("SimpleRedundantLet")

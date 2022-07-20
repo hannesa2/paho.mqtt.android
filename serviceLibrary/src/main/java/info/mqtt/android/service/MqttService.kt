@@ -15,7 +15,11 @@ import android.os.IBinder
 import android.os.PowerManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import info.mqtt.android.service.room.MqMessageDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
+import java.sql.DriverManager.getConnection
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -287,7 +291,9 @@ class MqttService : Service(), MqttTraceHandler {
     @Throws(MqttException::class)
     fun connect(clientHandle: String, connectOptions: MqttConnectOptions?, activityToken: String?) {
         val client = getConnection(clientHandle)
-        client.connect(connectOptions, null, activityToken)
+        CoroutineScope(Dispatchers.IO).launch {
+            client.connect(connectOptions, null, activityToken)
+        }
     }
 
     fun reconnect(context: Context) {

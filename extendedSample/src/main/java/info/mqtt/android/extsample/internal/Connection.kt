@@ -13,6 +13,9 @@ import info.mqtt.android.extsample.model.Subscription
 import info.mqtt.android.extsample.room.AppDatabase
 import info.mqtt.android.extsample.utils.toSubscriptionEntity
 import info.mqtt.android.service.MqttAndroidClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.beans.PropertyChangeEvent
@@ -144,16 +147,20 @@ class Connection private constructor(
             actionArgs[0] = subscription.topic
             val callback = ActionListener(context, Action.SUBSCRIBE, this, *actionArgs)
             client.subscribe(subscription.topic, subscription.qos.value, null, callback)
-            AppDatabase.getDatabase(context).subscriptionDao().insert(subscription.toSubscriptionEntity())
-            subscriptions[subscription.topic] = subscription
+            CoroutineScope(Dispatchers.IO).launch {
+                AppDatabase.getDatabase(context).subscriptionDao().insert(subscription.toSubscriptionEntity())
+                subscriptions[subscription.topic] = subscription
+            }
         }
     }
 
     fun unsubscribe(subscription: Subscription) {
         if (subscriptions.containsKey(subscription.topic)) {
-            client.unsubscribe(subscription.topic)
-            subscriptions.remove(subscription.topic)
-            AppDatabase.getDatabase(context).subscriptionDao().delete(subscription.toSubscriptionEntity())
+            CoroutineScope(Dispatchers.IO).launch {
+                client.unsubscribe(subscription.topic)
+                subscriptions.remove(subscription.topic)
+                AppDatabase.getDatabase(context).subscriptionDao().delete(subscription.toSubscriptionEntity())
+            }
         }
     }
 
