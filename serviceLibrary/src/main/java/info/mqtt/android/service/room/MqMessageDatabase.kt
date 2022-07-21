@@ -65,8 +65,7 @@ abstract class MqMessageDatabase : RoomDatabase() {
                     context.applicationContext,
                     MqMessageDatabase::class.java,
                     storageName
-                ).allowMainThreadQueries()
-                    .build()
+                ).build()
                 db!!
             }
         }
