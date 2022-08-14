@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         connection.client.publish(topic!!, message.toByteArray(), qos.value, retain, null, callback)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return super.onCreateOptionsMenu(menu)
     }
