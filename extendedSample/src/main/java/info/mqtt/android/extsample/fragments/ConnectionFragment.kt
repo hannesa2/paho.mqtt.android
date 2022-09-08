@@ -67,7 +67,7 @@ class ConnectionFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_connection, menu)
-        connectSwitch = menu.findItem(R.id.connect_switch).actionView.findViewById(R.id.switchForActionBar)
+        connectSwitch = menu.findItem(R.id.connect_switch).actionView?.findViewById(R.id.switchForActionBar)
         connectSwitch?.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 connection?.connect(requireActivity())
