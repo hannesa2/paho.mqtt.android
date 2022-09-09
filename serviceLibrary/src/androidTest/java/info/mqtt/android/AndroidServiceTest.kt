@@ -19,7 +19,7 @@ class AndroidServiceTest : IMqttActionListener {
 
     private var mqttServerURI: String? = null
     private var mqttSSLServerURI: String? = null
-    private var waitForCompletionTime = 0L
+    private var waitForCompletionTime = 700L
     private lateinit var keyStorePwd: String
 
 
