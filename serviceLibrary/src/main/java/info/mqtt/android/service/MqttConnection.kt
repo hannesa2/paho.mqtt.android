@@ -484,8 +484,8 @@ internal class MqttConnection(
         messageListeners: Array<IMqttMessageListener>?
     ) {
         service.traceDebug(
-            "subscribe({" + topicFilters.contentToString() + "}," + qos.contentToString() + ",{"
-                    + invocationContext + "}, {" + activityToken + "}"
+            "subscribe({" + topicFilters.contentToString() + "}," + qos.contentToString() + ",{" +
+                    invocationContext + "}, {" + activityToken + "}"
         )
         val resultBundle = Bundle()
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SUBSCRIBE_ACTION)
