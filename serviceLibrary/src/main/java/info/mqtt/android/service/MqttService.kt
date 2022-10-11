@@ -16,6 +16,8 @@ import android.os.PowerManager
 import info.mqtt.android.service.room.MqMessageDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -192,6 +194,11 @@ class MqttService : Service(), MqttTraceHandler {
 
     var mqttServiceBinder: MqttServiceBinder? = null
 
+    private val _localBroadcastFlow = MutableStateFlow(Intent())
+
+    val localBroadcastFlow: Flow<Intent>
+        get() = _localBroadcastFlow
+
     override fun onCreate() {
         super.onCreate()
 
@@ -253,7 +260,7 @@ class MqttService : Service(), MqttTraceHandler {
         dataBundle.let {
             callbackIntent.putExtras(it)
         }
-        applicationContext.sendBroadcast(callbackIntent)
+        _localBroadcastFlow.value = callbackIntent
     }
 
     /**
