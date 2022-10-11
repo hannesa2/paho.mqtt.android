@@ -13,13 +13,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import info.mqtt.android.service.room.MqMessageDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
-import java.sql.DriverManager.getConnection
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -196,6 +197,11 @@ class MqttService : Service(), MqttTraceHandler {
 
     var mqttServiceBinder: MqttServiceBinder? = null
 
+    private val _localBroadcastFlow = MutableStateFlow(Intent())
+
+    val localBroadcastFlow: Flow<Intent>
+        get() = _localBroadcastFlow
+
     override fun onCreate() {
         super.onCreate()
 
@@ -260,7 +266,7 @@ class MqttService : Service(), MqttTraceHandler {
         dataBundle.let {
             callbackIntent.putExtras(it)
         }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(callbackIntent)
+        _localBroadcastFlow.value =  callbackIntent
     }
 
     /**
