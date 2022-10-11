@@ -1,15 +1,20 @@
 package info.mqtt.android.service
 
 import android.app.Notification
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -20,7 +25,6 @@ import java.security.KeyStore
 import java.security.KeyStoreException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
-import java.util.*
 import java.util.concurrent.Executors
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
@@ -43,7 +47,8 @@ import javax.net.ssl.TrustManagerFactory
  */
 class MqttAndroidClient @JvmOverloads constructor(
     val context: Context, private val serverURI: String, private val clientId: String, ackType: Ack = Ack.AUTO_ACK,
-    private var persistence: MqttClientPersistence? = null) :
+    private var persistence: MqttClientPersistence? = null
+) :
     IMqttAsyncClient {
 
     // Listener for when the service is connected or disconnected
@@ -227,16 +232,16 @@ class MqttAndroidClient @JvmOverloads constructor(
             }
         }
         CoroutineScope(Dispatchers.IO).launch {
-            mqttService?.localBroadcastFlow?.filter { receiverRegistered.value != true && it.extras !=null && !it.extras!!.isEmpty }?.collectLatest {
-                    intent->
-                CoroutineScope(Dispatchers.Main).launch {
-                    onReceive(intent)
+            mqttService?.localBroadcastFlow?.filter { receiverRegistered.value != true && it.extras != null && !it.extras!!.isEmpty }
+                ?.collectLatest { intent ->
+                    CoroutineScope(Dispatchers.Main).launch {
+                        onReceive(intent)
+                    }
                 }
-            }
             receiverRegistered
                 .distinctUntilChangedBy { it }
                 .collectLatest { isRegistered ->
-                    if(isRegistered == false){
+                    if (isRegistered == false) {
                         if (serviceBound) {
                             try {
                                 context.unbindService(serviceConnection)

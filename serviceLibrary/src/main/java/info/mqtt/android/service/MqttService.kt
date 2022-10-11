@@ -17,7 +17,6 @@ import info.mqtt.android.service.room.MqMessageDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
@@ -266,7 +265,7 @@ class MqttService : Service(), MqttTraceHandler {
         dataBundle.let {
             callbackIntent.putExtras(it)
         }
-        _localBroadcastFlow.value =  callbackIntent
+        _localBroadcastFlow.value = callbackIntent
     }
 
     /**
