@@ -9,10 +9,7 @@ import android.util.SparseArray
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -72,7 +69,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private var traceCallback: MqttTraceHandler? = null
     private var traceEnabled = false
 
-    private val receiverRegistered = MutableStateFlow(true)
+    private val receiverRegistered = MutableStateFlow<Boolean?>(null)
 
     @Volatile
     private var serviceBound = false
@@ -230,7 +227,8 @@ class MqttAndroidClient @JvmOverloads constructor(
             }
         }
         CoroutineScope(Dispatchers.IO).launch {
-            mqttService?.localBroadcastFlow?.filter { receiverRegistered.value && it.extras !=null && !it.extras!!.isEmpty }?.collectLatest { intent->
+            mqttService?.localBroadcastFlow?.filter { receiverRegistered.value != true && it.extras !=null && !it.extras!!.isEmpty }?.collectLatest {
+                    intent->
                 CoroutineScope(Dispatchers.Main).launch {
                     onReceive(intent)
                 }
@@ -238,7 +236,7 @@ class MqttAndroidClient @JvmOverloads constructor(
             receiverRegistered
                 .distinctUntilChangedBy { it }
                 .collectLatest { isRegistered ->
-                    if(!isRegistered){
+                    if(isRegistered == false){
                         if (serviceBound) {
                             try {
                                 context.unbindService(serviceConnection)
