@@ -48,6 +48,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.github.AppDevNext.Logcat:LogcatCoreLib:$logcatVersion"
 
+    androidTestImplementation "androidx.test.ext:junit-ktx:1.1.4"
+    androidTestUtil "androidx.test.services:test-services:1.4.2"
+
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
