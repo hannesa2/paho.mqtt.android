@@ -18,6 +18,7 @@ android {
 
         testApplicationId "info.mgtt.android.service.test"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments useTestStorageService: 'true'
 
         packagingOptions {
             pickFirst 'META-INF/serviceLibrary_debug.kotlin_module'
