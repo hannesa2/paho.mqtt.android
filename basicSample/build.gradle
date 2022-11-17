@@ -20,6 +20,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'info.mqtt.java.example'
 
 }
 

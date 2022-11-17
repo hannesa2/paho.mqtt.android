@@ -24,6 +24,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'info.mqtt.android.extsample'
 
 }
 
