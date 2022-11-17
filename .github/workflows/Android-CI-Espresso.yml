@@ -51,7 +51,13 @@ jobs:
         if: ${{ always() }}
         with:
           name: MQ-Screenshots-${{ matrix.api }}-${{ matrix.abi }}
-          path: screenshots/adb
+          path: |
+            basicSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
+            basicSample/build/outputs/androidTest-results/connected
+            extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
+            extendedSample/build/outputs/androidTest-results/connected
+            serviceLibrary/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
+            serviceLibrary/build/outputs/androidTest-results/connected
   Check:
     name: Check
     runs-on: ubuntu-latest

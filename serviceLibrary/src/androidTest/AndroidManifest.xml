@@ -1,16 +1,9 @@
 <manifest package="info.mqtt.android.service.test"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permissions the Application Requires -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!--<uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <application>
         <!-- Mqtt Service -->
-        <service android:name="info.mqtt.android.service.MqttService"></service>
+        <service android:name="info.mqtt.android.service.MqttService" />
 
     </application>
 
