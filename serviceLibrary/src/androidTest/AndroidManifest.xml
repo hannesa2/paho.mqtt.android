@@ -1,8 +1,6 @@
 <manifest package="info.mqtt.android.service.test"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <application>
         <!-- Mqtt Service -->
         <service android:name="info.mqtt.android.service.MqttService" />
