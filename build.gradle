@@ -19,7 +19,7 @@ println "Gradle uses Java ${Jvm.current()}"
 
 ext {
     compileSdkVersion = 33
-    room_version = "2.4.3"
+    room_version = "2.5.0-beta02"
     logcatVersion = "2.11.3"
 }
 
