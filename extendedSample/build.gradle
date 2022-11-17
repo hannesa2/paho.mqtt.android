@@ -48,5 +48,4 @@ dependencies {
     androidTestImplementation "androidx.test:runner:1.4.0"
 
     androidTestImplementation "androidx.test.ext:junit:1.1.4"
-    androidTestImplementation "androidx.test.ext:truth:1.5.0"
 }
