@@ -1229,35 +1229,6 @@ class MqttAndroidClient @JvmOverloads constructor(
     }
 
     /**
-     * Unregister receiver which receives intent from MqttService avoids
-     * IntentReceiver leaks.
-     */
-    fun unregisterResources() {
-        if (receiverRegistered) {
-            synchronized(this@MqttAndroidClient) {
-                LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
-                receiverRegistered = false
-            }
-            if (serviceBound) {
-                try {
-                    context.unbindService(serviceConnection)
-                    serviceBound = false
-                } catch (e: IllegalArgumentException) {
-                }
-            }
-        }
-    }
-
-    /**
-     * Register receiver to receiver intent from MqttService. Call this method when activity is hidden and become to show again.
-     */
-    fun registerResources() {
-        if (!receiverRegistered) {
-            registerReceiver(this)
-        }
-    }
-
-    /**
      * ServiceConnection to process when we bind to our service
      */
     private inner class MyServiceConnection : ServiceConnection {
