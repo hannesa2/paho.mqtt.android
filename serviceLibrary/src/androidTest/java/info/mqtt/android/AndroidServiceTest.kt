@@ -1,6 +1,5 @@
 package info.mqtt.android
 
-import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import info.hannes.timber.DebugFormatTree
@@ -9,7 +8,9 @@ import org.eclipse.paho.client.mqttv3.*
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 import org.junit.runner.RunWith
 import timber.log.Timber
 import java.util.*
@@ -18,6 +19,9 @@ import kotlin.math.min
 
 @RunWith(AndroidJUnit4::class)
 class AndroidServiceTest : IMqttActionListener {
+
+    @get:Rule
+    var nameRule = TestName()
 
     private var mqttServerURI: String? = null
     private var mqttSSLServerURI: String? = null
@@ -33,7 +37,7 @@ class AndroidServiceTest : IMqttActionListener {
         mqttSSLServerURI = properties.serverSSLURI
         waitForCompletionTime = properties.waitForCompletionTime
         keyStorePwd = properties.clientKeyStorePassword
-        Log.d(TAG, properties.serverSSLURI)
+        Timber.d(properties.serverSSLURI)
     }
 
     /**
@@ -126,7 +130,6 @@ class AndroidServiceTest : IMqttActionListener {
      */
     @Test
     fun testRemoteConnect() {
-        val methodName = "testRemoteConnect"
         try {
             MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, "testRemoteConnect").use { mqttClient ->
                 val subToken: IMqttToken
@@ -141,11 +144,11 @@ class AndroidServiceTest : IMqttActionListener {
                 mqttConnectOptions.isCleanSession = false
                 connectToken = mqttClient.connect(mqttConnectOptions, null, null)
                 connectToken.waitForCompletion(waitForCompletionTime)
-                val topicNames = arrayOf("$methodName/Topic")
+                val topicNames = arrayOf("${nameRule.methodName}/Topic")
                 val topicQos = intArrayOf(0)
                 subToken = mqttClient.subscribe(topicNames, topicQos, null, null)
                 subToken.waitForCompletion(waitForCompletionTime)
-                val payload = "Message payload $classSimpleName.$methodName"
+                val payload = "Message payload $classSimpleName.${nameRule.methodName}"
                     .toByteArray()
                 pubToken = mqttClient.publish(topicNames[0], payload, 1, false, null, null)
                 pubToken.waitForCompletion(waitForCompletionTime)
@@ -166,7 +169,6 @@ class AndroidServiceTest : IMqttActionListener {
      */
     @Test
     fun testLargeMessage() {
-        val methodName = "testLargeMessage"
         var mqttClient: IMqttAsyncClient? = null
         try {
             mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, "testLargeMessage")
@@ -195,7 +197,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail(validateResult.message)
             }
         } catch (exception: Exception) {
-            fail("Failed $methodName exception=${exception.stackTraceToString()}")
+            fail("Failed ${nameRule.methodName} exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 val disconnectToken = mqttClient!!.disconnect(null, null)
@@ -214,7 +216,6 @@ class AndroidServiceTest : IMqttActionListener {
     fun testMultipleClients() {
         val publishers = 2
         val subscribers = 5
-        val methodName = "testMultipleClients"
         val mqttPublisher = arrayOfNulls<IMqttAsyncClient>(publishers)
         val mqttSubscriber = arrayOfNulls<IMqttAsyncClient>(subscribers)
         var connectToken: IMqttToken
@@ -222,12 +223,12 @@ class AndroidServiceTest : IMqttActionListener {
         var pubToken: IMqttDeliveryToken
         var disconnectToken: IMqttToken
         try {
-            val topicNames = arrayOf("$methodName/Topic")
+            val topicNames = arrayOf("${nameRule.methodName}/Topic")
             val topicQos = intArrayOf(0)
             for (i in mqttPublisher.indices) {
                 mqttPublisher[i] = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, "MultiPub$i")
                 connectToken = mqttPublisher[i]!!.connect(null, null)
-                Log.i(methodName, "publisher connecting url " + mqttServerURI + "MultiPub" + i)
+                Timber.i("publisher connecting url " + mqttServerURI + "MultiPub" + i)
                 connectToken.waitForCompletion(waitForCompletionTime)
             } // for...
             val mqttReceiver = arrayOfNulls<MqttReceiver>(mqttSubscriber.size)
@@ -236,25 +237,25 @@ class AndroidServiceTest : IMqttActionListener {
                     MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, "MultiSubscriber$i")
                 mqttReceiver[i] = MqttReceiver(mqttSubscriber[i]!!)
                 mqttSubscriber[i]!!.setCallback(mqttReceiver[i]!!)
-                Log.i(methodName, "Assigning callback...")
+                Timber.i("Assigning callback...")
                 connectToken = mqttSubscriber[i]!!.connect(null, null)
-                Log.i(methodName, "subscriber connecting url " + mqttServerURI + "MultiSubscriber" + i)
+                Timber.i("subscriber connecting url " + mqttServerURI + "MultiSubscriber" + i)
                 connectToken.waitForCompletion(waitForCompletionTime)
                 subToken = mqttSubscriber[i]!!.subscribe(topicNames, topicQos, null, null)
-                Log.i(methodName, "subscribe " + topicNames[0] + " QoS is " + topicQos[0])
+                Timber.i("subscribe " + topicNames[0] + " QoS is " + topicQos[0])
                 subToken.waitForCompletion(waitForCompletionTime)
             }
             for (iMessage in 0..1) {
                 val payload = "Message $iMessage".toByteArray()
                 for (aMqttPublisher in mqttPublisher) {
                     pubToken = aMqttPublisher!!.publish(topicNames[0], payload, 0, false, null, null)
-                    Log.i(methodName, "publish to " + topicNames[0] + " payload is " + payload.contentToString())
+                    Timber.i("publish to " + topicNames[0] + " payload is " + payload.contentToString())
                     pubToken.waitForCompletion(waitForCompletionTime)
                 }
                 TimeUnit.MILLISECONDS.sleep(9999)
                 for (i in mqttSubscriber.indices) {
                     for (aMqttPublisher in mqttPublisher) {
-                        Log.i(methodName, "validate time = " + Date().toString())
+                        Timber.i("validate time = " + Date().toString())
                         val validateResult = mqttReceiver[i]!!.validateReceipt(topicNames[0], 0, payload)
                         if (!validateResult.ok) {
                             fail(validateResult.message)
@@ -263,7 +264,7 @@ class AndroidServiceTest : IMqttActionListener {
                 }
             }
         } catch (exception: Exception) {
-            fail("Failed $methodName exception=${exception.stackTraceToString()}")
+            fail("Failed ${nameRule.methodName} exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 for (aMqttPublisher in mqttPublisher) {
@@ -292,19 +293,18 @@ class AndroidServiceTest : IMqttActionListener {
         val subToken: IMqttToken
         var pubToken: IMqttDeliveryToken
         val disconnectToken: IMqttToken
-        val methodName = "testQoSPreserved"
         try {
             mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, "testQoSPreserved")
             val mqttReceiver = MqttReceiver(mqttClient)
             mqttClient.setCallback(mqttReceiver)
             connectToken = mqttClient.connect(null, null)
             connectToken.waitForCompletion(waitForCompletionTime)
-            val topicNames = arrayOf("$methodName/Topic0", "$methodName/Topic1", "$methodName/Topic2")
+            val topicNames = arrayOf("${nameRule.methodName}/Topic0", "${nameRule.methodName}/Topic1", "${nameRule.methodName}/Topic2")
             val topicQos = intArrayOf(0, 1, 2)
             subToken = mqttClient.subscribe(topicNames, topicQos, null, null)
             subToken.waitForCompletion(waitForCompletionTime)
             for (i in topicNames.indices) {
-                val message = ("Message payload " + classSimpleName + "." + methodName + " " + topicNames[i]).toByteArray()
+                val message = ("Message payload " + classSimpleName + ".${nameRule.methodName} " + topicNames[i]).toByteArray()
                 for (iQos in 0..2) {
                     pubToken = mqttClient.publish(topicNames[i], message, iQos, false, null, null)
                     pubToken.waitForCompletion(waitForCompletionTime)
@@ -315,7 +315,7 @@ class AndroidServiceTest : IMqttActionListener {
                 }
             }
         } catch (exception: Exception) {
-            fail("Failed:$methodName exception=${exception.stackTraceToString()}")
+            fail("Failed:${nameRule.methodName} exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 disconnectToken = mqttClient!!.disconnect(null, null)
@@ -329,7 +329,6 @@ class AndroidServiceTest : IMqttActionListener {
     @Test
     @Ignore("Trust anchor for certification path not found")
     fun testNonDurableSubs() {
-        val methodName = "testNonDurableSubs"
         var mqttClient: IMqttAsyncClient? = null
         var connectToken: IMqttToken
         var subToken: IMqttToken
@@ -345,12 +344,12 @@ class AndroidServiceTest : IMqttActionListener {
             mqttConnectOptions.isCleanSession = true
             connectToken = mqttClient.connect(mqttConnectOptions, null, null)
             connectToken.waitForCompletion(10000)
-            val topicNames = arrayOf("$methodName/Topic")
+            val topicNames = arrayOf("${nameRule.methodName}/Topic")
             val topicQos = intArrayOf(2)
             subToken = mqttClient.subscribe(topicNames, topicQos, null, null)
             subToken.waitForCompletion(10000)
 
-            val payloadNotRetained = "Message payload $classSimpleName.$methodName not retained".toByteArray()
+            val payloadNotRetained = "Message payload $classSimpleName.${nameRule.methodName} not retained".toByteArray()
             pubToken = mqttClient.publish(topicNames[0], payloadNotRetained, 2, false, null, null)
             pubToken.waitForCompletion(100000)
             var validateResult = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadNotRetained)
@@ -359,7 +358,7 @@ class AndroidServiceTest : IMqttActionListener {
             }
 
             // Retained publications.
-            val payloadRetained = "Message payload $classSimpleName.$methodName retained".toByteArray()
+            val payloadRetained = "Message payload $classSimpleName.${nameRule.methodName} retained".toByteArray()
             pubToken = mqttClient.publish(topicNames[0], payloadRetained, 2, true, null, null)
             pubToken.waitForCompletion(10000)
             validateResult = mqttV3Receiver.validateReceipt(topicNames[0], 2, payloadRetained)
@@ -404,7 +403,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail(validateResult.message)
             }
         } catch (exception: Exception) {
-            fail("Failed:$methodName exception=${exception.stackTraceToString()}")
+            fail("Failed:${nameRule.methodName} exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 disconnectToken = mqttClient!!.disconnect(null, null)
@@ -426,7 +425,7 @@ class AndroidServiceTest : IMqttActionListener {
         var subToken: IMqttToken
         var pubToken: IMqttDeliveryToken
         var disconnectToken: IMqttToken
-        val methodName = "testCleanStart"
+
         try {
             mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, "testCleanStart")
             var mqttV3Receiver = MqttReceiver(mqttClient)
@@ -441,11 +440,11 @@ class AndroidServiceTest : IMqttActionListener {
             mqttConnectOptions.isCleanSession = false
             connectToken = mqttClient.connect(mqttConnectOptions, null, null)
             connectToken.waitForCompletion(waitForCompletionTime)
-            val topicNames = arrayOf("$methodName/Topic")
+            val topicNames = arrayOf("${nameRule.methodName}/Topic")
             val topicQos = intArrayOf(0)
             subToken = mqttClient.subscribe(topicNames, topicQos, null, null)
             subToken.waitForCompletion(waitForCompletionTime)
-            var payload = "Message payload $classSimpleName.$methodName First".toByteArray()
+            var payload = "Message payload $classSimpleName.${nameRule.methodName} First".toByteArray()
             pubToken = mqttClient.publish(topicNames[0], payload, 1, false, null, null)
             pubToken.waitForCompletion(waitForCompletionTime)
             var validateResult = mqttV3Receiver.validateReceipt(topicNames[0], 0, payload)
@@ -471,7 +470,7 @@ class AndroidServiceTest : IMqttActionListener {
             // Otherwise the first client may reconnect with its clean session before the message has arrived.
             subToken = mqttClient.subscribe(topicNames, topicQos, null, null)
             subToken.waitForCompletion(waitForCompletionTime)
-            payload = "Message payload $classSimpleName.$methodName Other client".toByteArray()
+            payload = "Message payload $classSimpleName.${nameRule.methodName} Other client".toByteArray()
             pubToken = mqttClient.publish(topicNames[0], payload, 1, false, null, null)
             pubToken.waitForCompletion(waitForCompletionTime)
             validateResult = mqttV3Receiver.validateReceipt(topicNames[0], 0, payload)
@@ -496,7 +495,7 @@ class AndroidServiceTest : IMqttActionListener {
             }
 
             // Also check that subscription is cancelled.
-            payload = "Message payload $classSimpleName.$methodName Cancelled Subscription".toByteArray()
+            payload = "Message payload $classSimpleName.${nameRule.methodName} Cancelled Subscription".toByteArray()
             pubToken = mqttClient.publish(topicNames[0], payload, 1, false, null, null)
             pubToken.waitForCompletion(waitForCompletionTime)
             receivedMessage = mqttV3Receiver.receiveNext(100)
@@ -504,7 +503,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail("Receive message:" + String(receivedMessage.message.payload))
             }
         } catch (exception: Exception) {
-            fail("Failed:$methodName exception=${exception.stackTraceToString()}")
+            fail("Failed:${nameRule.methodName} exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 disconnectToken = mqttClient!!.disconnect(null, null)
@@ -517,10 +516,9 @@ class AndroidServiceTest : IMqttActionListener {
 
     @Test
     fun testPubSub() {
-        val methodName = "testPubSub"
         var mqttClient: IMqttAsyncClient? = null
         try {
-            mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, methodName)
+            mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, nameRule.methodName)
             val subToken: IMqttToken
             val pubToken: IMqttDeliveryToken
             val mqttReceiver = MqttReceiver(mqttClient)
@@ -541,7 +539,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail(validateResult.message)
             }
         } catch (exception: Exception) {
-            fail("Failed to instantiate:$methodName exception=${exception.stackTraceToString()}")
+            fail("Failed to instantiate:${nameRule.methodName} exception=${exception.stackTraceToString()}")
         } finally {
             try {
                 val disconnectToken: IMqttToken = mqttClient!!.disconnect(null, null)
@@ -559,7 +557,6 @@ class AndroidServiceTest : IMqttActionListener {
     //	 */
     //	@Test
     //	public void testBadClientId() throws Exception {
-    //		final String methodName = Utility.getMethodName();
     //		Log.banner(logger, class, methodName);
     //		logger.entering(classCanonicalName, methodName);
     //
@@ -607,22 +604,21 @@ class AndroidServiceTest : IMqttActionListener {
 
     @Test
     fun testHAConnect() {
-        val methodName = "testHAConnect"
         var client: IMqttAsyncClient? = null
         try {
             try {
                 val junk = "tcp://junk:123"
-                client = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, junk, methodName)
+                client = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, junk, nameRule.methodName)
                 val urls = arrayOf("tcp://junk", mqttServerURI)
                 val options = MqttConnectOptions()
                 options.serverURIs = urls
-                Log.i(methodName, "HA connect")
+                Timber.i("HA connect")
                 val connectToken = client.connect(options)
                 connectToken.waitForCompletion(waitForCompletionTime)
-                Log.i(methodName, "HA disconnect")
+                Timber.i("HA disconnect")
                 val disconnectToken = client.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
                 disconnectToken.waitForCompletion(waitForCompletionTime)
-                Log.i(methodName, "HA success")
+                Timber.i("HA success")
             } catch (e: Exception) {
                 e.printStackTrace()
                 throw e
@@ -634,12 +630,11 @@ class AndroidServiceTest : IMqttActionListener {
 
     @Test
     fun testRetainedMessage() {
-        val methodName = "testRetainedMessage"
         val mqttClient: IMqttAsyncClient
         val mqttClientRetained: IMqttAsyncClient
         var disconnectToken: IMqttToken
         try {
-            mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, methodName)
+            mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, nameRule.methodName)
             var subToken: IMqttToken
             val pubToken: IMqttDeliveryToken
             val mqttReceiver = MqttReceiver(mqttClient)
@@ -659,32 +654,32 @@ class AndroidServiceTest : IMqttActionListener {
             if (!validateResult.ok) {
                 fail(validateResult.message)
             }
-            Log.i(methodName, "First client received message successfully")
+            Timber.i("First client received message successfully")
             disconnectToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
             disconnectToken.waitForCompletion(waitForCompletionTime)
             mqttClient.close()
             mqttClientRetained = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, mqttServerURI!!, "Retained")
-            Log.i(methodName, "New MqttAndroidClient mqttClientRetained")
+            Timber.i("New MqttAndroidClient mqttClientRetained")
             val mqttV3ReceiverRetained = MqttReceiver(mqttClientRetained)
             mqttClientRetained.setCallback(mqttV3ReceiverRetained)
-            Log.i(methodName, "Assigning callback...")
+            Timber.i("Assigning callback...")
             connectToken = mqttClientRetained.connect(null, null)
             connectToken.waitForCompletion()
-            Log.i(methodName, "Connect to mqtt server")
+            Timber.i("Connect to mqtt server")
             subToken = mqttClientRetained.subscribe(topicNames, topicQos, null, null)
             subToken.waitForCompletion()
-            Log.i(methodName, "subscribe " + topicNames[0] + " QoS is " + topicQos[0])
+            Timber.i("subscribe " + topicNames[0] + " QoS is " + topicQos[0])
             TimeUnit.MILLISECONDS.sleep(3000)
             validateResult = mqttV3ReceiverRetained.validateReceipt(topicNames[0], 0, message)
             if (!validateResult.ok) {
                 fail(validateResult.message)
             }
-            Log.i(methodName, "Second client received message successfully")
+            Timber.i("Second client received message successfully")
             disconnectToken = mqttClientRetained.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
             disconnectToken.waitForCompletion(waitForCompletionTime)
             mqttClientRetained.close()
         } catch (exception: Exception) {
-            fail("Failed $methodName exception=${exception.stackTraceToString()}")
+            fail("Failed ${nameRule.methodName} exception=${exception.stackTraceToString()}")
         }
     }
 
@@ -768,7 +763,7 @@ class AndroidServiceTest : IMqttActionListener {
     }
 
     override fun onSuccess(asyncActionToken: IMqttToken) {
-        Log.d(TAG, "onSuccess")
+        Timber.d("onSuccess")
     }
 
     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
