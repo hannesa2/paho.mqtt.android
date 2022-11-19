@@ -11,12 +11,15 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.screenshot.captureToBitmap
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
+import timber.log.Timber
 
 
 @RunWith(AndroidJUnit4::class)
@@ -28,6 +31,11 @@ class ExtendedMainTest {
 
     @get:Rule
     val activityScenarioRule = activityScenarioRule<MainActivity>()
+
+    @Before
+    fun setUp() {
+        Timber.plant(DebugFormatTree())
+    }
 
     @Test
     fun mainSmokeTest() {
