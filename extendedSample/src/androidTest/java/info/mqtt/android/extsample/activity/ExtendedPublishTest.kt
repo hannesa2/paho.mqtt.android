@@ -14,12 +14,15 @@ import androidx.test.espresso.screenshot.captureToBitmap
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.moka.lib.assertions.WaitingAssertion
+import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
+import timber.log.Timber
 
 
 @RunWith(AndroidJUnit4::class)
@@ -31,6 +34,11 @@ class ExtendedPublishTest {
 
     @get:Rule
     val activityScenarioRule = activityScenarioRule<MainActivity>()
+
+    @Before
+    fun setUp() {
+        Timber.plant(DebugFormatTree())
+    }
 
     @Test
     fun mainSmokeTest() {

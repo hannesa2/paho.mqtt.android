@@ -8,6 +8,7 @@ import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ServiceTestRule
+import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.service.MqttAndroidClient
 import info.mqtt.android.service.MqttService
 import info.mqtt.android.service.MqttServiceBinder
@@ -16,6 +17,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.any
 import org.junit.*
 import org.junit.runner.RunWith
+import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -36,6 +38,8 @@ class AndroidServiceWithActionListenerTest {
     @Before
     @Throws(TimeoutException::class)
     fun setUp() {
+        Timber.plant(DebugFormatTree())
+
         val properties = TestProperties(InstrumentationRegistry.getInstrumentation().targetContext)
         serverURI = properties.serverURI
         mqttSSLServerURI = properties.serverSSLURI
