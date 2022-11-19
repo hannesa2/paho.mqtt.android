@@ -25,18 +25,10 @@ internal class TestProperties(private val context: Context) {
         return properties.getProperty(key)
     }
 
-    fun getBooleanProperty(key: String): Boolean {
-        val value = getProperty(key)
-        return java.lang.Boolean.parseBoolean(value)
-    }
-
     private fun getIntProperty(key: String): Int {
         val value = getProperty(key)
         return value.toInt()
     }
-
-    val clientKeyStore: String
-        get() = getProperty(KEY_CLIENT_KEY_STORE)
 
     val clientKeyStorePassword: String
         get() = getProperty(KEY_CLIENT_KEY_STORE_PASSWORD)
@@ -78,7 +70,6 @@ internal class TestProperties(private val context: Context) {
 
     companion object {
         private val KEY_SERVER_URI = "SERVER_URI"
-        private val KEY_CLIENT_KEY_STORE = "CLIENT_KEY_STORE"
         private val KEY_CLIENT_KEY_STORE_PASSWORD = "CLIENT_KEY_STORE_PASSWORD"
         private val KEY_SERVER_SSL_URI = "SERVER_SSL_URI"
         private val KEY_WAIT_FOR_COMPLETION_TIME = "WAIT_FOR_COMPLETION_TIME"
