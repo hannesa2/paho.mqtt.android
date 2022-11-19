@@ -22,7 +22,6 @@ class AndroidServiceTest : IMqttActionListener {
     private var waitForCompletionTime = 700L
     private lateinit var keyStorePwd: String
 
-
     @Before
     fun setUp() {
         val properties = TestProperties(InstrumentationRegistry.getInstrumentation().targetContext)

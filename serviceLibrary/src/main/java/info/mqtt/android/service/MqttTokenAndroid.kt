@@ -42,7 +42,7 @@ internal open class MqttTokenAndroid constructor(
             }
         }
         if (!isComplete) {
-            throw MqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT.toInt())
+            throw MqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT.toInt(), Throwable("After $timeout ms"))
         }
         pendingException?.let { throw it }
     }
