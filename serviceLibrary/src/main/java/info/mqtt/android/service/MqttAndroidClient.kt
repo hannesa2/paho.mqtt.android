@@ -7,6 +7,9 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import java.io.IOException
 import java.io.InputStream
@@ -15,8 +18,6 @@ import java.security.KeyStore
 import java.security.KeyStoreException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
-import java.util.*
-import java.util.concurrent.Executors
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
@@ -222,7 +223,7 @@ class MqttAndroidClient @JvmOverloads constructor(
                 registerReceiver(this)
             }
         } else {
-            pool.execute {
+            CoroutineScope(Dispatchers.IO).launch {
                 doConnect()
 
                 //Register receiver to show shoulder tap.
@@ -1229,35 +1230,6 @@ class MqttAndroidClient @JvmOverloads constructor(
     }
 
     /**
-     * Unregister receiver which receives intent from MqttService avoids
-     * IntentReceiver leaks.
-     */
-    fun unregisterResources() {
-        if (receiverRegistered) {
-            synchronized(this@MqttAndroidClient) {
-                LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
-                receiverRegistered = false
-            }
-            if (serviceBound) {
-                try {
-                    context.unbindService(serviceConnection)
-                    serviceBound = false
-                } catch (e: IllegalArgumentException) {
-                }
-            }
-        }
-    }
-
-    /**
-     * Register receiver to receiver intent from MqttService. Call this method when activity is hidden and become to show again.
-     */
-    fun registerResources() {
-        if (!receiverRegistered) {
-            registerReceiver(this)
-        }
-    }
-
-    /**
      * ServiceConnection to process when we bind to our service
      */
     private inner class MyServiceConnection : ServiceConnection {
@@ -1277,7 +1249,6 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     companion object {
         private val SERVICE_NAME = MqttService::class.java.name
-        private val pool = Executors.newCachedThreadPool()
     }
 
 }
