@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.eclipse.paho.client.mqttv3.*
 import java.io.IOException
 import java.io.InputStream
@@ -15,7 +14,6 @@ import java.security.KeyStore
 import java.security.KeyStoreException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
-import java.util.*
 import java.util.concurrent.Executors
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
@@ -237,7 +235,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private fun registerReceiver(receiver: BroadcastReceiver) {
         val filter = IntentFilter()
         filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
-        LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter)
+        context.registerReceiver(receiver, filter)
         receiverRegistered = true
     }
 
@@ -1235,7 +1233,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     fun unregisterResources() {
         if (receiverRegistered) {
             synchronized(this@MqttAndroidClient) {
-                LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
+                context.unregisterReceiver(this)
                 receiverRegistered = false
             }
             if (serviceBound) {
