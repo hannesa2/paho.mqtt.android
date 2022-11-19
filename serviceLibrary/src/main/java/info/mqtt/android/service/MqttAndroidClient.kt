@@ -8,8 +8,15 @@ import android.os.IBinder
 import android.util.SparseArray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
+import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
 import java.security.KeyManagementException
@@ -41,6 +48,8 @@ class MqttAndroidClient @JvmOverloads constructor(
     private var persistence: MqttClientPersistence? = null) :
     BroadcastReceiver(), IMqttAsyncClient {
 
+    private val scope = CoroutineScope(Dispatchers.IO)
+
     // Listener for when the service is connected or disconnected
     private val serviceConnection = MyServiceConnection()
 
@@ -64,8 +73,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private var traceCallback: MqttTraceHandler? = null
     private var traceEnabled = false
 
-    @Volatile
-    private var receiverRegistered = false
+    private val receiverRegistered = MutableStateFlow(false)
 
     @Volatile
     private var serviceBound = false
@@ -218,18 +226,20 @@ class MqttAndroidClient @JvmOverloads constructor(
             // We bind with BIND_SERVICE_FLAG (0), leaving us the manage the lifecycle
             // until the last time it is stopped by a call to stopService()
             context.bindService(serviceStartIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-            if (!receiverRegistered) {
-                registerReceiver(this)
-            }
         } else {
             CoroutineScope(Dispatchers.IO).launch {
                 doConnect()
-
-                //Register receiver to show shoulder tap.
-                if (!receiverRegistered) {
-                    registerReceiver(this@MqttAndroidClient)
-                }
             }
+        }
+
+        scope.launch {
+            receiverRegistered
+                .distinctUntilChangedBy { it }
+                .collect { isRegistered ->
+                    if (!isRegistered) {
+                        registerReceiver(this@MqttAndroidClient)
+                    }
+                }
         }
         return token
     }
@@ -238,7 +248,7 @@ class MqttAndroidClient @JvmOverloads constructor(
         val filter = IntentFilter()
         filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
         context.registerReceiver(receiver, filter)
-        receiverRegistered = true
+        receiverRegistered.tryEmit(true)
     }
 
     /**
@@ -1233,29 +1243,28 @@ class MqttAndroidClient @JvmOverloads constructor(
      * IntentReceiver leaks.
      */
     fun unregisterResources() {
-        if (receiverRegistered) {
-            synchronized(this@MqttAndroidClient) {
-                context.unregisterReceiver(this)
-                receiverRegistered = false
-            }
-            if (serviceBound) {
-                try {
-                    context.unbindService(serviceConnection)
-                    serviceBound = false
-                } catch (e: IllegalArgumentException) {
+        scope.launch {
+            receiverRegistered
+                .distinctUntilChangedBy { it }
+                .collectLatest { isRegistered ->
+                    if (isRegistered) {
+                        synchronized(this@MqttAndroidClient) {
+                            context.unregisterReceiver(this@MqttAndroidClient)
+                            receiverRegistered.tryEmit(false)
+                        }
+                        if (serviceBound) {
+                            try {
+                                context.unbindService(serviceConnection)
+                                serviceBound = false
+                            } catch (e: IllegalArgumentException) {
+                                Timber.e(e)
+                            }
+                        }
+                    }
                 }
-            }
         }
     }
 
-    /**
-     * Register receiver to receiver intent from MqttService. Call this method when activity is hidden and become to show again.
-     */
-    fun registerResources() {
-        if (!receiverRegistered) {
-            registerReceiver(this)
-        }
-    }
 
     /**
      * ServiceConnection to process when we bind to our service
