@@ -3,6 +3,7 @@ package info.mqtt.android
 import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.junit.Assert.*
@@ -10,6 +11,7 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
@@ -22,9 +24,10 @@ class AndroidServiceTest : IMqttActionListener {
     private var waitForCompletionTime = 700L
     private lateinit var keyStorePwd: String
 
-
     @Before
     fun setUp() {
+        Timber.plant(DebugFormatTree())
+
         val properties = TestProperties(InstrumentationRegistry.getInstrumentation().targetContext)
         mqttServerURI = properties.serverURI
         mqttSSLServerURI = properties.serverSSLURI

@@ -27,7 +27,7 @@ internal open class MqttTokenAndroid constructor(
         synchronized(lock) {
             try {
                 lock.wait()
-            } catch (e: InterruptedException) {
+            } catch (_: InterruptedException) {
             }
         }
         pendingException?.let { throw it }
@@ -38,11 +38,11 @@ internal open class MqttTokenAndroid constructor(
         synchronized(lock) {
             try {
                 lock.wait(timeout)
-            } catch (e: InterruptedException) {
+            } catch (_: InterruptedException) {
             }
         }
         if (!isComplete) {
-            throw MqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT.toInt())
+            throw MqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT.toInt(), Throwable("After $timeout ms"))
         }
         pendingException?.let { throw it }
     }

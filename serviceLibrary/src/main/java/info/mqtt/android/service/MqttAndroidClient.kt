@@ -6,6 +6,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import java.io.IOException
 import java.io.InputStream
@@ -14,7 +17,6 @@ import java.security.KeyStore
 import java.security.KeyStoreException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
-import java.util.concurrent.Executors
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
@@ -220,7 +222,7 @@ class MqttAndroidClient @JvmOverloads constructor(
                 registerReceiver(this)
             }
         } else {
-            pool.execute {
+            CoroutineScope(Dispatchers.IO).launch {
                 doConnect()
 
                 //Register receiver to show shoulder tap.
@@ -1275,7 +1277,6 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     companion object {
         private val SERVICE_NAME = MqttService::class.java.name
-        private val pool = Executors.newCachedThreadPool()
     }
 
 }
