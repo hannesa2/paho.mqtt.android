@@ -1,19 +1,21 @@
 package info.mqtt.android.service
 
 import android.app.Notification
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -45,7 +47,8 @@ import javax.net.ssl.TrustManagerFactory
  */
 class MqttAndroidClient @JvmOverloads constructor(
     val context: Context, private val serverURI: String, private val clientId: String, ackType: Ack = Ack.AUTO_ACK,
-    private var persistence: MqttClientPersistence? = null) :
+    private var persistence: MqttClientPersistence? = null
+) :
     BroadcastReceiver(), IMqttAsyncClient {
 
     private val scope = CoroutineScope(Dispatchers.IO)
