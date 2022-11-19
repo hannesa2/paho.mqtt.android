@@ -189,9 +189,6 @@ class MqttService : Service(), MqttTraceHandler {
     // An intent receiver to deal with changes in network connectivity
     private var networkConnectionMonitor: NetworkConnectionIntentReceiver? = null
 
-    @Volatile
-    private var backgroundDataEnabled = true
-
     var mqttServiceBinder: MqttServiceBinder? = null
 
     override fun onCreate() {
@@ -633,10 +630,7 @@ class MqttService : Service(), MqttTraceHandler {
         client.deleteBufferedMessage(bufferIndex)
     }
 
-    fun getInFlightMessageCount(clientHandle: String): Int {
-        val client = getConnection(clientHandle)
-        return client.inFlightMessageCount
-    }
+    fun getInFlightMessageCount(clientHandle: String) = getConnection(clientHandle).inFlightMessageCount
 
     /*
      * Called in response to a change in network connection - after losing a
