@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.util.SparseArray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
@@ -50,6 +51,8 @@ class MqttAndroidClient @JvmOverloads constructor(
     private var persistence: MqttClientPersistence? = null
 ) :
     IMqttAsyncClient {
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     // Listener for when the service is connected or disconnected
     private val serviceConnection = MyServiceConnection()
@@ -226,11 +229,11 @@ class MqttAndroidClient @JvmOverloads constructor(
             // until the last time it is stopped by a call to stopService()
             context.bindService(serviceStartIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         } else {
-            CoroutineScope(Dispatchers.IO).launch {
+            scope.launch {
                 doConnect()
             }
         }
-        CoroutineScope(Dispatchers.IO).launch {
+        scope.launch {
             mqttService?.localBroadcastFlow?.filter { receiverRegistered.value != true && it.extras != null && !it.extras!!.isEmpty }
                 ?.collectLatest { intent ->
                     CoroutineScope(Dispatchers.Main).launch {
