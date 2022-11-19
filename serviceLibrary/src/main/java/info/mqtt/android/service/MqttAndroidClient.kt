@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -238,7 +237,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private fun registerReceiver(receiver: BroadcastReceiver) {
         val filter = IntentFilter()
         filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
-        LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter)
+        context.registerReceiver(receiver, filter)
         receiverRegistered = true
     }
 
@@ -1227,6 +1226,35 @@ class MqttAndroidClient @JvmOverloads constructor(
     @Throws(MqttException::class)
     override fun disconnectForcibly(quiesceTimeout: Long, disconnectTimeout: Long) {
         throw UnsupportedOperationException()
+    }
+
+    /**
+     * Unregister receiver which receives intent from MqttService avoids
+     * IntentReceiver leaks.
+     */
+    fun unregisterResources() {
+        if (receiverRegistered) {
+            synchronized(this@MqttAndroidClient) {
+                context.unregisterReceiver(this)
+                receiverRegistered = false
+            }
+            if (serviceBound) {
+                try {
+                    context.unbindService(serviceConnection)
+                    serviceBound = false
+                } catch (e: IllegalArgumentException) {
+                }
+            }
+        }
+    }
+
+    /**
+     * Register receiver to receiver intent from MqttService. Call this method when activity is hidden and become to show again.
+     */
+    fun registerResources() {
+        if (!receiverRegistered) {
+            registerReceiver(this)
+        }
     }
 
     /**
