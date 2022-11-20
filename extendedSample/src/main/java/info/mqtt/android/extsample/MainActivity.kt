@@ -30,10 +30,9 @@ import java.beans.PropertyChangeListener
 
 class MainActivity : AppCompatActivity(), FragmentDrawerListener {
 
-    private val changeListener: ChangeListener = ChangeListener()
-    private val mainActivity = this
-    private var drawerFragment: DrawerFragment? = null
-    private var connectionMap: ArrayList<String>? = null
+    private val changeListener = ChangeListener()
+    private lateinit var drawerFragment: DrawerFragment
+    private var connectionMap: ArrayList<String> = ArrayList()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -45,30 +44,29 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
 
         setSupportActionBar(binding.toolbar.toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        drawerFragment = supportFragmentManager.findFragmentById(R.id.fragment_navigation_drawer) as DrawerFragment?
-        drawerFragment!!.setUp(R.id.fragment_navigation_drawer, binding.drawerLayout, binding.toolbar.toolbar)
-        drawerFragment!!.setDrawerListener(this)
+        drawerFragment = supportFragmentManager.findFragmentById(R.id.fragment_navigation_drawer) as DrawerFragment
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, binding.drawerLayout, binding.toolbar.toolbar)
+        drawerFragment.setDrawerListener(this)
         populateConnectionList()
     }
 
     fun removeConnectionRow(connection: Connection?) {
-        drawerFragment!!.removeConnection(connection!!)
+        drawerFragment.removeConnection(connection!!)
         populateConnectionList()
     }
 
     private fun populateConnectionList() {
-        drawerFragment!!.clearConnections()
+        drawerFragment.clearConnections()
 
         // get all the available connections
         val connections: Map<String, Connection> = getInstance(this).connections
-        connectionMap = ArrayList()
         val connectionIterator: Iterator<*> = connections.entries.iterator()
         while (connectionIterator.hasNext()) {
             val pair = connectionIterator.next() as Map.Entry<*, *>
-            drawerFragment!!.addConnection((pair.value as Connection?)!!)
-            connectionMap!!.add(pair.key as String)
+            drawerFragment.addConnection((pair.value as Connection?)!!)
+            connectionMap.add(pair.key as String)
         }
-        if (connectionMap!!.size == 0) {
+        if (connectionMap.size == 0) {
             displayView(-1)
         } else {
             displayView(0)
@@ -95,11 +93,11 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         } else {
             val fragment: Fragment = ManageConnectionFragment()
             val bundle = Bundle()
-            bundle.putString(ActivityConstants.CONNECTION_KEY, connectionMap!![position])
+            bundle.putString(ActivityConstants.CONNECTION_KEY, connectionMap[position])
             fragment.arguments = bundle
             val connections: Map<String, Connection> = getInstance(this)
                 .connections
-            val connection = connections[connectionMap!![position]]
+            val connection = connections[connectionMap[position]]
             displayFragment(fragment, connection.toString())
         }
     }
@@ -110,10 +108,10 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         } else {
             val fragment: Fragment = ConnectionFragment()
             val bundle = Bundle()
-            bundle.putString(ActivityConstants.CONNECTION_KEY, connectionMap!![position])
+            bundle.putString(ActivityConstants.CONNECTION_KEY, connectionMap[position])
             fragment.arguments = bundle
             val connections: Map<String, Connection> = getInstance(this).connections
-            val connection = connections[connectionMap!![position]]
+            val connection = connections[connectionMap[position]]
             val title = connection!!.id
             displayFragment(fragment, title)
         }
@@ -147,7 +145,7 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         connection.client.setCallback(MqttCallbackHandler(this, model.clientHandle))
         connection.client.setTraceCallback(MqttTraceCallback())
         getInstance(this).updateConnection(connection)
-        drawerFragment!!.updateConnection(connection)
+        drawerFragment.updateConnection(connection)
         connection.client.connect(connOpts, null, callback)
         val fragment: Fragment = ConnectionFragment()
         val bundle = Bundle()
@@ -176,8 +174,8 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
         connection.client.setCallback(MqttCallbackHandler(this, model.clientHandle))
         connection.client.setTraceCallback(MqttTraceCallback())
         getInstance(this).addConnection(connection)
-        connectionMap!!.add(model.clientHandle)
-        drawerFragment!!.addConnection(connection)
+        connectionMap.add(model.clientHandle)
+        drawerFragment.addConnection(connection)
         connection.client.connect(connOpts, null, callback)
         val connectFragment: Fragment = ConnectionFragment()
         val bundle = Bundle()
@@ -236,10 +234,9 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
      */
     private inner class ChangeListener : PropertyChangeListener {
         override fun propertyChange(event: PropertyChangeEvent) {
-            if (event.propertyName != ActivityConstants.ConnectionStatusProperty) {
-                return
+            if (event.propertyName == ActivityConstants.ConnectionStatusProperty) {
+                this@MainActivity.runOnUiThread { this@MainActivity.drawerFragment.notifyDataSetChanged() }
             }
-            mainActivity.runOnUiThread { mainActivity.drawerFragment!!.notifyDataSetChanged() }
         }
     }
 }
