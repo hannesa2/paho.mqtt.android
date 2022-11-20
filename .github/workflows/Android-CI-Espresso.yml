@@ -75,4 +75,4 @@ jobs:
         if: ${{ always() }}
         with:
           name: MQTT-Lint-report
-          path: ./**/build/reports/lint-results.html
+          path: ./**/build/reports/lint-results*.html
