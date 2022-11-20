@@ -25,7 +25,7 @@ import kotlin.system.measureTimeMillis
 /**
  * Default ping sender implementation on Android. It is based on AlarmManager.
  *
- * This class implements the [MqttPingSender] pinger interface
+ * This class implements the [MqttPingSender] ping interface
  * allowing applications to send ping packet to server every keep alive interval.
  *
  * @see MqttPingSender
