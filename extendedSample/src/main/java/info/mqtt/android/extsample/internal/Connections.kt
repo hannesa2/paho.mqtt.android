@@ -6,8 +6,11 @@ import info.mqtt.android.extsample.room.PersistenceDao
 import info.mqtt.android.extsample.utils.toConnection
 import info.mqtt.android.extsample.utils.toConnectionEntity
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 
@@ -18,13 +21,18 @@ class Connections private constructor(context: Context) {
     private var persistence: PersistenceDao = AppDatabase.getDatabase(context).persistenceDao()
 
     init {
+        runBlocking {
+            readConnectionsAsync(context).await()
+        }
+    }
+
+    private fun readConnectionsAsync(context: Context) = CoroutineScope(Dispatchers.IO).async {
         synchronized(connections) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val connectionDaoList = persistence.all.map { it.toConnection(context) }
-                connectionDaoList.forEach {
-                    Timber.d("Connection was persisted.. ${it.handle()}")
-                    connections[it.handle()] = it
-                }
+            val connectionDaoList = persistence.all.map { it.toConnection(context) }
+
+            connectionDaoList.forEach {
+                Timber.d("Connection was persisted. ${it.handle()}")
+                connections[it.handle()] = it
             }
         }
     }

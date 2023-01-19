@@ -88,9 +88,9 @@ internal class MqttConnection(
     fun connect(options: MqttConnectOptions?, invocationContext: String?, activityToken: String?) {
         connectOptions = options
         reconnectActivityToken = activityToken
-        if (options != null) {
-            cleanSession = options.isCleanSession
-            if (options.isCleanSession) { // if it's a clean session,
+        options?.let {
+            cleanSession = it.isCleanSession
+            if (it.isCleanSession) { // if it's a clean session,
                 // discard old data
                 if (service.messageDatabase.isOpen)
                     CoroutineScope(Dispatchers.IO).launch {
@@ -113,8 +113,7 @@ internal class MqttConnection(
                 // use internal storage instead.
                 try {
                     myDir = service.getDir(TEMP, Context.MODE_PRIVATE)
-                } catch (e: Exception) {
-                    //skip
+                } catch (ignored: Exception) {
                 }
                 if (myDir == null) {
                     try {
