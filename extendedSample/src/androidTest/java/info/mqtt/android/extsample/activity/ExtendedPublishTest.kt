@@ -41,7 +41,7 @@ class ExtendedPublishTest {
     }
 
     @Test
-    fun mainSmokeTest() {
+    fun connectAndPublish() {
         onView(withId(R.id.drawer_layout))
             .check(matches(isClosed(Gravity.LEFT))) // Left Drawer should be closed.
             .perform(DrawerActions.open())
@@ -52,7 +52,7 @@ class ExtendedPublishTest {
             .captureToBitmap()
             .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-AddConnect")
 
-        onView(withId(R.id.switchForActionBar)).perform(click())
+        onView(withId(R.id.disConnectSwitch)).perform(click())
         onView(withId(3)).perform(click())
         //onView(withTagValue(`is`("Subscribe" as Any))).perform(click())
 
