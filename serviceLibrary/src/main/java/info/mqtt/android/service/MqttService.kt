@@ -207,10 +207,7 @@ class MqttService : Service(), MqttTraceHandler {
             client.disconnect(null, null)
         }
 
-        // clear down
-        if (mqttServiceBinder != null) {
-            mqttServiceBinder = null
-        }
+        mqttServiceBinder = null
         unregisterBroadcastReceivers()
         // messageDatabase.close()
         super.onDestroy()
@@ -570,20 +567,18 @@ class MqttService : Service(), MqttTraceHandler {
     fun isOnline(context: Context) = isInternetAvailable(context)
 
     private fun notifyClientsOffline() {
-        for (connection in connections.values) {
-            connection.offline()
+        connections.values.forEach {
+            it.offline()
         }
     }
 
     @Suppress("DEPRECATION")
     private fun isInternetAvailable(context: Context): Boolean {
         var result = false
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val actNw =
-                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            val actNw = connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
             result = when {
                 actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
                 actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
@@ -615,19 +610,12 @@ class MqttService : Service(), MqttTraceHandler {
         client.setBufferOpts(bufferOpts)
     }
 
-    fun getBufferedMessageCount(clientHandle: String): Int {
-        val client = getConnection(clientHandle)
-        return client.bufferedMessageCount
-    }
+    fun getBufferedMessageCount(clientHandle: String) = getConnection(clientHandle).bufferedMessageCount
 
-    fun getBufferedMessage(clientHandle: String, bufferIndex: Int): MqttMessage {
-        val client = getConnection(clientHandle)
-        return client.getBufferedMessage(bufferIndex)
-    }
+    fun getBufferedMessage(clientHandle: String, bufferIndex: Int): MqttMessage = getConnection(clientHandle).getBufferedMessage(bufferIndex)
 
     fun deleteBufferedMessage(clientHandle: String, bufferIndex: Int) {
-        val client = getConnection(clientHandle)
-        client.deleteBufferedMessage(bufferIndex)
+        getConnection(clientHandle).deleteBufferedMessage(bufferIndex)
     }
 
     fun getInFlightMessageCount(clientHandle: String) = getConnection(clientHandle).inFlightMessageCount
