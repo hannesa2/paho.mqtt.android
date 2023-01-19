@@ -6,7 +6,6 @@ import info.mqtt.android.extsample.room.PersistenceDao
 import info.mqtt.android.extsample.utils.toConnection
 import info.mqtt.android.extsample.utils.toConnectionEntity
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
