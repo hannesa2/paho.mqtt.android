@@ -11,9 +11,11 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.screenshot.captureToBitmap
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
+import info.mqtt.android.extsample.room.AppDatabase
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,6 +37,7 @@ class ExtendedMainTest {
     @Before
     fun setUp() {
         Timber.plant(DebugFormatTree())
+        InstrumentationRegistry.getInstrumentation().targetContext.deleteDatabase(AppDatabase.DB_NAME)
     }
 
     @Test

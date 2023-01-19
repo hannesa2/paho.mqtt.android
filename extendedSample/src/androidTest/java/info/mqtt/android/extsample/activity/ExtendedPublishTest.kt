@@ -8,6 +8,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isChecked
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.espresso.screenshot.captureToBitmap
@@ -17,6 +18,7 @@ import com.moka.lib.assertions.WaitingAssertion
 import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
+import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -79,6 +81,28 @@ class ExtendedPublishTest {
             .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-End")
     }
 
+    @Test
+    fun disconnect() {
+        onView(ViewMatchers.isRoot())
+            .captureToBitmap()
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-Before")
+        // it should be checked on previous test
+        onView(withId(R.id.disConnectSwitch)).check(matches(isChecked()))
+
+        onView(withId(R.id.disConnectSwitch)).perform(click())
+        onView(ViewMatchers.isRoot())
+            .captureToBitmap()
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-isDisConnected")
+
+        onView(withId(R.id.disConnectSwitch)).check(matches(not(isChecked())))
+
+        onView(withId(R.id.disConnectSwitch)).perform(click())
+        onView(ViewMatchers.isRoot())
+            .captureToBitmap()
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-isConnectedAgain")
+
+        onView(withId(R.id.disConnectSwitch)).check(matches(isChecked()))
+    }
     companion object {
         private const val TOPIC = "AnotherTest"
     }

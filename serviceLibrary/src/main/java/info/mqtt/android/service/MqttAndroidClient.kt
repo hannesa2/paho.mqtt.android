@@ -1242,7 +1242,7 @@ class MqttAndroidClient @JvmOverloads constructor(
                 try {
                     context.unbindService(serviceConnection)
                     serviceBound = false
-                } catch (e: IllegalArgumentException) {
+                } catch (ignored: IllegalArgumentException) {
                 }
             }
         }
