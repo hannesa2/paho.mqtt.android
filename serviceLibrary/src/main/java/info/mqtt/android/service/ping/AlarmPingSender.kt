@@ -1,16 +1,11 @@
 package info.mqtt.android.service.ping
 
-import android.content.Context
 import androidx.work.*
 import info.mqtt.android.service.MqttService
-import kotlinx.coroutines.suspendCancellableCoroutine
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttToken
 import org.eclipse.paho.client.mqttv3.MqttPingSender
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.resume
 
 
 /**
@@ -22,11 +17,11 @@ import kotlin.coroutines.resume
  * @see MqttPingSender
  */
 internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
-    private var clientComms: ClientComms? = null
+
     private val workManager = WorkManager.getInstance(service)
 
     override fun init(comms: ClientComms) {
-        this.clientComms = comms
+        clientComms = comms
     }
 
     override fun start() {
@@ -51,27 +46,7 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
 
     companion object {
         private const val PING_JOB = "PING_JOB"
-    }
-
-    internal inner class PingWorker(context: Context, workerParams: WorkerParameters) :
-        CoroutineWorker(context, workerParams) {
-        override suspend fun doWork(): Result =
-            suspendCancellableCoroutine { continuation ->
-                Timber.d("Sending Ping at: ${System.currentTimeMillis()}")
-                clientComms?.checkForActivity(object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken?) {
-                        Timber.d("Success.")
-                        continuation.resume(Result.success())
-                    }
-
-                    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                        Timber.d("Failure.")
-                        continuation.resume(Result.failure())
-                    }
-                }) ?: kotlin.run {
-                    continuation.resume(Result.failure())
-                }
-            }
+        internal var clientComms: ClientComms? = null
     }
 
 }
