@@ -75,6 +75,9 @@ class ExtendedPublishTest {
 
         onView(withId(1)).perform(click())
 
+        // wait for the Worker crash
+        Thread.sleep(1000 * 60 * 3)
+
         WaitingAssertion.checkAssertion(R.id.history_list_view, Matchers.withListSizeBigger(0), 2500)
         onView(ViewMatchers.isRoot())
             .captureToBitmap()
@@ -103,6 +106,7 @@ class ExtendedPublishTest {
 
         onView(withId(R.id.disConnectSwitch)).check(matches(isChecked()))
     }
+
     companion object {
         private const val TOPIC = "AnotherTest"
     }
