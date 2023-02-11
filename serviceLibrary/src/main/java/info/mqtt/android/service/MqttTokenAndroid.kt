@@ -35,7 +35,6 @@ internal open class MqttTokenAndroid constructor(
 
     @Throws(MqttException::class)
     override fun waitForCompletion(timeout: Long) {
-        val start = System.currentTimeMillis()
         synchronized(lock) {
             try {
                 lock.wait(timeout)
