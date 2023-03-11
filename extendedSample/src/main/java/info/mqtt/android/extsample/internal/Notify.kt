@@ -25,7 +25,6 @@ internal object Notify {
     }
 
     fun notification(context: Context, messageString: String, intent: Intent?, notificationTitle: Int) {
-
         //Get the notification manage which we will use to display the notification
         val ns = Context.NOTIFICATION_SERVICE
         val notificationManager = context.getSystemService(ns) as NotificationManager
