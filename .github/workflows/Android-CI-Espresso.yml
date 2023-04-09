@@ -46,7 +46,6 @@ jobs:
           path: |
             ./**/build/reports/androidTests/connected
             ./**/build/outputs/androidTest-results/connected
-            artifacts/logcat.log
       - name: Archive screenshots
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
