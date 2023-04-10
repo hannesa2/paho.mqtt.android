@@ -185,7 +185,7 @@ class EditConnectionFragment : Fragment() {
     }
 
     private fun saveConnection() {
-        Timber.d(formModel.toString())
+        Timber.d("newConnection=$newConnection $formModel")
         if (newConnection) {
             // Generate a new Client Handle
             val sb = StringBuilder(length)

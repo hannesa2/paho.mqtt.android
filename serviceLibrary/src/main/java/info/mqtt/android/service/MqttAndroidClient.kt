@@ -212,7 +212,7 @@ class MqttAndroidClient @JvmOverloads constructor(
             }
             if (service == null) {
                 val listener = token.actionCallback
-                listener?.onFailure(token, RuntimeException("cannot start service " + SERVICE_NAME))
+                listener?.onFailure(token, RuntimeException("cannot start service $SERVICE_NAME"))
             }
 
             // We bind with BIND_SERVICE_FLAG (0), leaving us the manage the lifecycle
@@ -329,7 +329,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      * This method must not be called from inside [MqttCallback] methods.
      *
-     * The method returns control before the disconnect completes. Completioncan be tracked by:
+     * The method returns control before the disconnect completes. Completion can be tracked by:
      *
      *  * Waiting on the returned token [IMqttToken.waitForCompletion]
      * or
@@ -422,7 +422,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      *  * The connection is re-established with the same clientID
      *  * The original connection was made with (@link MqttConnectOptions#setCleanSession(boolean)} set to false
      *  * The connection is re-established with (@link MqttConnectOptions#setCleanSession(boolean)} set to false
-     *  * Depending when the failure occurs QoS 0 messages may not be elivered.
+     *  * Depending when the failure occurs QoS 0 messages may not be delivered.
      *
      * When building an application, the design of the topic tree should take
      * into account the following principles of topic name syntax and semantics:
