@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
+import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -176,7 +177,7 @@ import java.util.concurrent.ConcurrentHashMap
 @SuppressLint("Registered")
 class MqttService : Service(), MqttTraceHandler {
     // mapping from client handle strings to actual client connections.
-    private val connections: MutableMap<String, MqttConnection> = ConcurrentHashMap()
+    internal val connections: MutableMap<String, MqttConnection> = ConcurrentHashMap()
 
     // somewhere to persist received messages until we're sure that they've reached the application
     lateinit var messageDatabase: MqMessageDatabase
@@ -201,8 +202,8 @@ class MqttService : Service(), MqttTraceHandler {
         messageDatabase = MqMessageDatabase.getDatabase(this)
     }
 
-
     override fun onDestroy() {
+        Timber.i("Destroy service")
         for (client in connections.values) {
             client.disconnect(null, null)
         }
