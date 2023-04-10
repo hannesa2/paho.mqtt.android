@@ -477,7 +477,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @return the MqttConnection identified by this handle
      */
     private fun getConnection(clientHandle: String): MqttConnection {
-        return connections[clientHandle] ?: throw IllegalArgumentException("Invalid ClientHandle")
+        return connections[clientHandle] ?: throw IllegalArgumentException("Invalid ClientHandle >$clientHandle<")
     }
 
     /**

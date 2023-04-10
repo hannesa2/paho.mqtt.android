@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
+import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
 import java.security.KeyManagementException
@@ -1270,6 +1271,7 @@ class MqttAndroidClient @JvmOverloads constructor(
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
+            Timber.d("Service disconnected")
             mqttService = null
         }
     }
