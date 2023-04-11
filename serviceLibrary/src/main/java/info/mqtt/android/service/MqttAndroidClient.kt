@@ -21,6 +21,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
 
+
 /**
  * Enables an android application to communicate with an MQTT server using non-blocking methods.
  *
@@ -71,7 +72,6 @@ class MqttAndroidClient @JvmOverloads constructor(
     private var serviceBound = false
 
     // notification for Foreground Service
-    private var foregroundServiceNotificationId = -1
     private var foregroundServiceNotification: Notification? = null
 
     /**
@@ -200,7 +200,7 @@ class MqttAndroidClient @JvmOverloads constructor(
             var service: Any? = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && foregroundServiceNotification != null) {
                 serviceStartIntent.putExtra(MqttService.MQTT_FOREGROUND_SERVICE_NOTIFICATION, foregroundServiceNotification)
-                serviceStartIntent.putExtra(MqttService.MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, foregroundServiceNotificationId)
+                serviceStartIntent.putExtra(MqttService.MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, FOREGROUND_ID)
                 service = context.startForegroundService(serviceStartIntent)
             } else {
                 try {
@@ -1146,9 +1146,8 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      * @param notification notification to be used when MqttService runs in foreground mode
      */
-    fun setForegroundService(notification: Notification, id: Int) {
+    fun setForegroundService(notification: Notification) {
         foregroundServiceNotification = notification
-        foregroundServiceNotificationId = id
     }
 
     /**
@@ -1277,6 +1276,7 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     companion object {
         private val SERVICE_NAME = MqttService::class.java.name
+        private const val FOREGROUND_ID = 77
     }
 
 }

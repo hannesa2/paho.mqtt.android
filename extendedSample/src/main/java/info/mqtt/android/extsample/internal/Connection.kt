@@ -225,7 +225,7 @@ class Connection private constructor(
             val foregroundNotification = Notify.foregroundNotification(context, clientId, intent, R.string.notifyForeground)
             val client = MqttAndroidClient(context, uri, clientId).apply {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && FOREGROUND)
-                    setForegroundService(foregroundNotification, 77)
+                    setForegroundService(foregroundNotification)
             }
             return Connection(clientHandle, clientId, host, port, context, client, tlsConnection, connectionOptions)
         }
