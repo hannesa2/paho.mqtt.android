@@ -65,17 +65,11 @@ dependencies {
     androidTestImplementation "androidx.test:rules:1.5.0"
 }
 
-task androidSourcesJar(type: Jar) {
-    classifier 'sources'
-    from android.sourceSets.main.java.srcDirs
-}
-
-project.afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
+publishing {
+    publications {
+        release(MavenPublication) {
+            afterEvaluate {
                 from components.release
-                artifact androidSourcesJar
             }
         }
     }
