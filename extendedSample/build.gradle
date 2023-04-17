@@ -24,8 +24,13 @@ android {
     buildFeatures {
         viewBinding true
     }
-    namespace 'info.mqtt.android.extsample'
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    namespace 'info.mqtt.android.extsample'
 }
 
 dependencies {

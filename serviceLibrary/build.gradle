@@ -35,6 +35,20 @@ android {
             }
         }
     }
+
+    // https://stackoverflow.com/a/71366104/1079990 for Gradle 8.x
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
     namespace 'info.mqtt.android.service'
     testNamespace 'info.mqtt.android.service.test'
 }
@@ -54,20 +68,4 @@ dependencies {
     androidTestUtil "androidx.test.services:test-services:1.4.2"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
     androidTestImplementation "androidx.test:rules:1.5.0"
-}
-
-task androidSourcesJar(type: Jar) {
-    classifier 'sources'
-    from android.sourceSets.main.java.srcDirs
-}
-
-project.afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                artifact androidSourcesJar
-            }
-        }
-    }
 }
