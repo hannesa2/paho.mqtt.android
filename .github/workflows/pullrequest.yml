@@ -22,13 +22,6 @@ jobs:
 #            abi: x86_64
 #            api: 28
 #            tag: 'default'
-#        include:
-#          - api: 31
-#            abi: x86_64
-#            tag: 'google_apis'
-#          - api: 30
-#            abi: x86_64
-#            tag: 'google_apis'
     steps:
       - uses: actions/checkout@v3
       - name: set up JDK 11
