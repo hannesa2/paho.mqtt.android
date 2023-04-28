@@ -9,13 +9,19 @@ on:
 jobs:
   Build:
     name: Build & Test
-    runs-on: macOS-latest
+    runs-on:  ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ macOS-latest ]
         api: [ 28 ]
         abi: [ x86_64 ]
         tag: [ 'default' ]
+        include:
+          - os: ARM64
+            abi: arm64-v8a
+            api: 31
+            tag: 'default'
 #        include:
 #          - api: 31
 #            abi: x86_64
@@ -33,9 +39,9 @@ jobs:
       - name: Run tests
         run: ./gradlew test
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.4
+        uses: hannesa2/action-android/install-sdk@0.1.4.10
       - name: Android Emulator test
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.4
+        uses: hannesa2/action-android/emulator-run-cmd@0.1.4.10
         with:
           cmd: ./gradlew cAT --continue
           api: ${{ matrix.api }}
@@ -69,7 +75,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.4
+        uses: hannesa2/action-android/install-sdk@0.1.4.10
       - name: Kotlin code checks
         run: ./gradlew ktlintCheck
       - name: Code checks
