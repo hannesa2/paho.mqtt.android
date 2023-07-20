@@ -61,10 +61,10 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     override fun stop() {
         Timber.d("Unregister AlarmReceiver to MqttService ${clientComms!!.client.clientId}")
         if (hasStarted) {
-            if (pendingIntent != null) {
+            pendingIntent?.let {
                 // Cancel Alarm.
                 val alarmManager = service.getSystemService(Service.ALARM_SERVICE) as AlarmManager
-                alarmManager.cancel(pendingIntent)
+                alarmManager.cancel(it)
             }
             hasStarted = false
             try {
@@ -79,14 +79,16 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
         val nextAlarmInMilliseconds = SystemClock.elapsedRealtime() + delayInMilliseconds
         Timber.d("Schedule next alarm at $nextAlarmInMilliseconds ms")
         val alarmManager = service.getSystemService(Service.ALARM_SERVICE) as AlarmManager
-        if (Build.VERSION.SDK_INT >= 23) {
-            // In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
-            // the device to run this task whilst dosing.
-            Timber.d("Alarm schedule using setExactAndAllowWhileIdle, next: $delayInMilliseconds")
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent)
-        } else
-            Timber.d("Alarm schedule using setExact, delay: $delayInMilliseconds")
-        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent)
+        pendingIntent?.let {
+            if (Build.VERSION.SDK_INT >= 23) {
+                // In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
+                // the device to run this task whilst dosing.
+                Timber.d("Alarm schedule using setExactAndAllowWhileIdle, next: $delayInMilliseconds")
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
+            } else
+                Timber.d("Alarm schedule using setExact, delay: $delayInMilliseconds")
+            alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
+        }
     }
 
     fun backgroundExecute(comms: ClientComms?): Boolean {
