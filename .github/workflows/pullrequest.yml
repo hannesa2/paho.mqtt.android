@@ -24,11 +24,11 @@ jobs:
 #            tag: 'default'
     steps:
       - uses: actions/checkout@v3
-      - name: set up JDK 11
+      - name: set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: 11
+          java-version: 17
       - name: Install Android SDK
         uses: hannesa2/action-android/install-sdk@0.1.4.10
       - name: Run tests
@@ -67,6 +67,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: 17
       - name: Install Android SDK
         uses: hannesa2/action-android/install-sdk@0.1.4.10
       - name: Kotlin code checks
