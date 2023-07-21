@@ -3,8 +3,6 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application>
-        <!-- Mqtt Service -->
-        <service android:name="info.mqtt.android.service.MqttService" />
 
     </application>
 
