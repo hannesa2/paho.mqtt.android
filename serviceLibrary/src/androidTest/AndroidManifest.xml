@@ -4,7 +4,9 @@
 
     <application>
         <!-- Mqtt Service -->
-        <service android:name="info.mqtt.android.service.MqttService" />
+        <service
+            android:name="info.mqtt.android.service.MqttService"
+            android:foregroundServiceType="dataSync" />
 
     </application>
 
