@@ -52,7 +52,10 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     override fun start() {
         val action = MqttServiceConstants.PING_SENDER + clientComms!!.client.clientId
         Timber.d("Register AlarmReceiver to MqttService$action")
-        service.registerReceiver(alarmReceiver, IntentFilter(action))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            service.registerReceiver(alarmReceiver, IntentFilter(action), Context.RECEIVER_NOT_EXPORTED)
+        else
+            service.registerReceiver(alarmReceiver, IntentFilter(action))
         pendingIntent = PendingIntent.getBroadcast(service, 0, Intent(action), pendingIntentFlags)
         schedule(clientComms!!.keepAlive)
         hasStarted = true
