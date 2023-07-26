@@ -17,11 +17,11 @@ jobs:
         api: [ 31 ]
         abi: [ arm64-v8a ]
         tag: [ 'default' ]
-#        include:
-#          - os: macOS-latest
-#            abi: x86_64
-#            api: 28
-#            tag: 'default'
+        include:
+          - os: macOS-latest
+            abi: x86_64
+            api: 28
+            tag: 'default'
     steps:
       - uses: actions/checkout@v3
       - name: set up JDK
