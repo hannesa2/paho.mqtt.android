@@ -34,9 +34,9 @@ class MessagesFragment : Fragment() {
         setHasOptionsMenu(true)
         Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection.id}'")
         setHasOptionsMenu(true)
-        connection.messages.observe(this.viewLifecycleOwner, {
+        connection.messages.observe(this.viewLifecycleOwner) {
             messageListAdapter.notifyDataSetChanged()
-        })
+        }
 
         messageListAdapter = MessageListItemAdapter(requireContext(), connection.messages.value!!)
         binding.historyListView.adapter = messageListAdapter
