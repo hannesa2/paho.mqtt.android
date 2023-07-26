@@ -20,7 +20,7 @@ println "Gradle uses Java ${Jvm.current()}"
 ext {
     compileSdkVersion = 34
     room_version = "2.5.2"
-    logcatVersion = "2.12"
+    logcatVersion = "2.12.delegation-beta1"
 }
 
 subprojects {
