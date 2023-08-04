@@ -198,7 +198,7 @@ class MqttService : Service(), MqttTraceHandler {
 
     private var serviceJob: Job? = null
     private var serviceScope: CoroutineScope? = null
-    private val flow: MutableSharedFlow<Bundle> = MutableSharedFlow(onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val flow: MutableSharedFlow<Bundle> = MutableSharedFlow()
 
     override fun onCreate() {
         super.onCreate()
