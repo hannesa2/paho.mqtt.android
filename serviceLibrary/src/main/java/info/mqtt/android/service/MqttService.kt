@@ -16,6 +16,10 @@ import android.os.PowerManager
 import info.mqtt.android.service.room.MqMessageDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -190,11 +194,17 @@ class MqttService : Service(), MqttTraceHandler {
     // An intent receiver to deal with changes in network connectivity
     private var networkConnectionMonitor: NetworkConnectionIntentReceiver? = null
 
-    var mqttServiceBinder: MqttServiceBinder? = null
+    private var mqttServiceBinder: MqttServiceBinder? = null
+
+    private var serviceJob: Job? = null
+    private var serviceScope: CoroutineScope? = null
+    private val flow: MutableSharedFlow<Bundle> = MutableSharedFlow(onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     override fun onCreate() {
         super.onCreate()
-
+        val supervisorJob = SupervisorJob()
+        serviceJob = supervisorJob
+        serviceScope = CoroutineScope(Dispatchers.Main + supervisorJob)
         // create a binder that will let the Activity UI send commands to the Service
         mqttServiceBinder = MqttServiceBinder(this)
 
@@ -207,7 +217,9 @@ class MqttService : Service(), MqttTraceHandler {
         for (client in connections.values) {
             client.disconnect(null, null)
         }
-
+        serviceJob?.cancel()
+        serviceJob = null
+        serviceScope = null
         mqttServiceBinder = null
         unregisterBroadcastReceivers()
         // messageDatabase.close()
@@ -237,7 +249,7 @@ class MqttService : Service(), MqttTraceHandler {
     }
 
     /**
-     * pass data back to the Activity, by building a suitable Intent object and broadcasting it
+     * pass data back to the Activity, by flow
      *
      * @param clientHandle source of the data
      * @param status       OK or Error
@@ -245,15 +257,16 @@ class MqttService : Service(), MqttTraceHandler {
      */
     fun callbackToActivity(clientHandle: String, status: Status, dataBundle: Bundle) {
         // Don't call traceDebug, as it will try to callbackToActivity leading to recursion.
-        val callbackIntent = Intent(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
-        clientHandle.let {
-            callbackIntent.putExtra(MqttServiceConstants.CALLBACK_CLIENT_HANDLE, it)
+        val bundle = Bundle(dataBundle)
+        bundle.putString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE, clientHandle)
+        bundle.putSerializable(MqttServiceConstants.CALLBACK_STATUS, status)
+        serviceScope?.launch {
+            flow.emit(bundle)
         }
-        callbackIntent.putExtra(MqttServiceConstants.CALLBACK_STATUS, status)
-        dataBundle.let {
-            callbackIntent.putExtras(it)
-        }
-        applicationContext.sendBroadcast(callbackIntent)
+    }
+
+    suspend fun collect(block: (Bundle) -> Unit) {
+        flow.collect(block)
     }
 
     /**
