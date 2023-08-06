@@ -8,6 +8,8 @@ import android.os.IBinder
 import android.util.SparseArray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -18,6 +20,7 @@ import java.security.KeyStore
 import java.security.KeyStoreException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
@@ -40,8 +43,8 @@ import javax.net.ssl.TrustManagerFactory
  */
 class MqttAndroidClient @JvmOverloads constructor(
     val context: Context, private val serverURI: String, private val clientId: String, ackType: Ack = Ack.AUTO_ACK,
-    private var persistence: MqttClientPersistence? = null) :
-    BroadcastReceiver(), IMqttAsyncClient {
+    private var persistence: MqttClientPersistence? = null
+) : IMqttAsyncClient {
 
     // Listener for when the service is connected or disconnected
     private val serviceConnection = MyServiceConnection()
@@ -67,7 +70,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private var traceEnabled = false
 
     @Volatile
-    private var receiverRegistered = false
+    private var receiverRegistered = AtomicBoolean(false)
 
     @Volatile
     private var serviceBound = false
@@ -75,6 +78,8 @@ class MqttAndroidClient @JvmOverloads constructor(
     // notification for Foreground Service
     private var foregroundServiceNotification: Notification? = null
 
+    private var clientJob: Job? = null
+    private var clientScope: CoroutineScope? = null
     /**
      * Constructor- create an MqttAndroidClient that can be used to communicate
      * with an MQTT server on android
@@ -219,27 +224,30 @@ class MqttAndroidClient @JvmOverloads constructor(
             // We bind with BIND_SERVICE_FLAG (0), leaving us the manage the lifecycle
             // until the last time it is stopped by a call to stopService()
             context.bindService(serviceStartIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-            if (!receiverRegistered) {
-                registerReceiver(this)
-            }
         } else {
             CoroutineScope(Dispatchers.IO).launch {
                 doConnect()
 
                 //Register receiver to show shoulder tap.
-                if (!receiverRegistered) {
-                    registerReceiver(this@MqttAndroidClient)
+                if (!receiverRegistered.get()) {
+                    collect()
                 }
             }
         }
         return token
     }
 
-    private fun registerReceiver(receiver: BroadcastReceiver) {
-        val filter = IntentFilter()
-        filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
-        context.registerReceiver(receiver, filter)
-        receiverRegistered = true
+    private fun collect() {
+        if (mqttService == null) {
+            return
+        }
+        val supervisorJob = SupervisorJob()
+        clientJob = supervisorJob
+        clientScope = CoroutineScope(Dispatchers.IO + supervisorJob)
+        clientScope?.launch {
+            mqttService?.collect(::onReceive)
+        }
+        receiverRegistered.set(true)
     }
 
     /**
@@ -875,9 +883,9 @@ class MqttAndroidClient @JvmOverloads constructor(
      * This method should not be explicitly invoked.
      *
      */
-    override fun onReceive(context: Context, intent: Intent) {
-        val data = intent.extras
-        val handleFromIntent = data!!.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE)
+    private fun onReceive(data: Bundle) {
+        Timber.d(data.toString())
+        val handleFromIntent = data.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE)
         if (handleFromIntent == null || handleFromIntent != clientHandle) {
             return
         }
@@ -1233,10 +1241,12 @@ class MqttAndroidClient @JvmOverloads constructor(
      * IntentReceiver leaks.
      */
     fun unregisterResources() {
-        if (receiverRegistered) {
+        if (receiverRegistered.get()) {
             synchronized(this@MqttAndroidClient) {
-                context.unregisterReceiver(this)
-                receiverRegistered = false
+                clientJob?.cancel()
+                clientJob = null
+                clientScope = null
+                receiverRegistered.set(false)
             }
             if (serviceBound) {
                 try {
@@ -1252,8 +1262,8 @@ class MqttAndroidClient @JvmOverloads constructor(
      * Register receiver to receiver intent from MqttService. Call this method when activity is hidden and become to show again.
      */
     fun registerResources() {
-        if (!receiverRegistered) {
-            registerReceiver(this)
+        if (!receiverRegistered.get()) {
+            collect()
         }
     }
 
@@ -1265,6 +1275,7 @@ class MqttAndroidClient @JvmOverloads constructor(
             if (MqttServiceBinder::class.java.isAssignableFrom(binder.javaClass)) {
                 mqttService = (binder as MqttServiceBinder).service
                 serviceBound = true
+                collect()
                 // now that we have the service available, we can actually connect
                 doConnect()
             }

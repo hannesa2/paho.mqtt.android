@@ -9,7 +9,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.widget.Toast
+import androidx.annotation.WorkerThread
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import info.mqtt.android.extsample.R
 
 internal object Notify {
@@ -93,8 +95,11 @@ internal object Notify {
         return notificationCompat.build()
     }
 
-    fun toast(context: Context?, text: CharSequence?, duration: Int) {
-        val toast = Toast.makeText(context, text, duration)
-        toast.show()
+    @WorkerThread
+    fun toast(context: Context, text: CharSequence, duration: Int) {
+        ContextCompat.getMainExecutor(context).execute {
+            val toast = Toast.makeText(context, text, duration)
+            toast.show()
+        }
     }
 }
