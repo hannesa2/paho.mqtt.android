@@ -884,7 +884,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      */
     private fun onReceive(data: Bundle) {
-        println(data.toString())
+        Timber.d(data.toString())
         val handleFromIntent = data.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE)
         if (handleFromIntent == null || handleFromIntent != clientHandle) {
             return
