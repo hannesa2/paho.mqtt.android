@@ -52,13 +52,8 @@ internal object Notify {
 
         //build the notification
         val notificationCompat = NotificationCompat.Builder(context, channelId)
-        notificationCompat.setAutoCancel(true)
-            .setContentTitle(contentTitle)
-            .setContentIntent(pendingIntent)
-            .setContentText(messageString)
-            .setTicker(ticker)
-            .setWhen(`when`)
-            .setSmallIcon(R.mipmap.ic_launcher)
+        notificationCompat.setAutoCancel(true).setContentTitle(contentTitle).setContentIntent(pendingIntent).setContentText(messageString)
+            .setTicker(ticker).setWhen(`when`).setSmallIcon(R.mipmap.ic_launcher)
         val notification = notificationCompat.build()
 
         notificationManager.notify(MessageID, notification)
@@ -93,13 +88,8 @@ internal object Notify {
 
         //build the notification
         val notificationCompat = NotificationCompat.Builder(context, channelId)
-        notificationCompat.setAutoCancel(true)
-            .setContentTitle(contentTitle)
-            .setContentIntent(pendingIntent)
-            .setContentText(connectionName)
-            .setTicker(ticker)
-            .setWhen(`when`)
-            .setSmallIcon(R.mipmap.ic_launcher)
+        notificationCompat.setAutoCancel(true).setContentTitle(contentTitle).setContentIntent(pendingIntent).setContentText(connectionName)
+            .setTicker(ticker).setWhen(`when`).setSmallIcon(R.mipmap.ic_launcher)
         return notificationCompat.build()
     }
 
