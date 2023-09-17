@@ -6,11 +6,10 @@ plugins {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 34
+        compileSdk rootProject.ext.compileSdkVersion
+        targetSdkVersion rootProject.ext.targetSdk
 
         // Android Studio 4.1 doesn't generate versionName in libraries any more
         // https://developer.android.com/studio/releases/gradle-plugin#version_properties_removed_from_buildconfig_class_in_library_projects

@@ -5,12 +5,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-
     defaultConfig {
         applicationId 'info.mqtt.android.extsample'
         minSdkVersion 21
-        targetSdkVersion 34
+        compileSdk rootProject.ext.compileSdkVersion
+        targetSdkVersion rootProject.ext.targetSdk
         versionCode getGitCommitCount()
         versionName getTag()
 
