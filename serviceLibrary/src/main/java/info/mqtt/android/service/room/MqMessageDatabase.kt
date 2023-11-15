@@ -50,24 +50,26 @@ abstract class MqMessageDatabase : RoomDatabase() {
         return result
     }
 
-    @Suppress("SimpleRedundantLet")
     companion object {
 
         const val MQ_DB_VERSION = 1
-        private var db: MqMessageDatabase? = null
+
+        @Volatile
+        private var instance: MqMessageDatabase? = null
 
         @Synchronized
         fun getDatabase(context: Context, storageName: String = "messageMQ"): MqMessageDatabase {
-            return db?.let {
-                it
-            } ?: run {
-                db = Room.databaseBuilder(
-                    context.applicationContext,
-                    MqMessageDatabase::class.java,
-                    storageName
-                ).build()
-                db!!
+            return instance ?: synchronized(this) {
+                instance ?: buildDatabase(context.applicationContext, storageName).also { instance = it }
             }
+        }
+
+        private fun buildDatabase(context: Context, storageName: String): MqMessageDatabase {
+            return Room.databaseBuilder(
+                context.applicationContext,
+                MqMessageDatabase::class.java,
+                storageName
+            ).build()
         }
     }
 }

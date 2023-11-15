@@ -13,13 +13,13 @@ interface MqMessageDao {
     fun allArrived(clientHandle: String): List<MqMessageEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(MqMessageEntity: MqMessageEntity): Long
+    fun insert(mqMessageEntity: MqMessageEntity): Long
 
     @Update
-    fun updateAll(vararg MqMessageEntities: MqMessageEntity)
+    fun updateAll(vararg mqMessageEntity: MqMessageEntity)
 
     @Delete
-    fun delete(MqMessageEntity: MqMessageEntity)
+    fun delete(mqMessageEntity: MqMessageEntity)
 
     @Query("DELETE FROM MqMessageEntity WHERE clientHandle = :clientHandle AND messageId = :id")
     fun deleteId(clientHandle: String, id: String): Int
