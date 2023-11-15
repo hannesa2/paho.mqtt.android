@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
+import info.mqtt.android.service.extension.parcelable
+import info.mqtt.android.service.extension.serializable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -970,7 +972,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      * Process a Connection Lost notification
      */
     private fun connectionLostAction(data: Bundle?) {
-        val reason = data!!.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
+        val reason = data!!.parcelable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
         callbacksList.forEach {
             it.connectionLost(reason)
         }
@@ -995,18 +997,18 @@ class MqttAndroidClient @JvmOverloads constructor(
      */
     private fun simpleAction(token: IMqttToken?, data: Bundle) {
         if (token != null) {
-            val status = data.getSerializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
+            val status = data.serializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
             if (status == Status.OK) {
                 (token as MqttTokenAndroid).notifyComplete()
             } else {
-                val errorMessage = data.getSerializable(MqttServiceConstants.CALLBACK_ERROR_MESSAGE) as String?
-                var exceptionThrown = data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Throwable?
+                val errorMessage = data.serializable(MqttServiceConstants.CALLBACK_ERROR_MESSAGE) as String?
+                var exceptionThrown = data.serializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Throwable?
                 if (exceptionThrown == null && errorMessage != null) {
                     exceptionThrown = Throwable(errorMessage)
                 } else if (exceptionThrown == null) {
                     val bundleToString = data.keySet()
                         .joinToString(", ", "{", "}") { key ->
-                            "$key=${data[key]}"
+                            "$key=${data.getString(key)}"
                         }
                     exceptionThrown = Throwable("No Throwable given\n$bundleToString")
                 }
@@ -1049,7 +1051,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      */
     private fun messageDeliveredAction(data: Bundle) {
         val token = removeMqttToken(data)
-        val status = data.getSerializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
+        val status = data.serializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
         if (token != null) {
             if (status == Status.OK && token is IMqttDeliveryToken) {
                 callbacksList.forEach { callback ->
@@ -1065,7 +1067,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private fun messageArrivedAction(data: Bundle?) {
         val messageId = data!!.getString(MqttServiceConstants.CALLBACK_MESSAGE_ID)!!
         val destinationName = data.getString(MqttServiceConstants.CALLBACK_DESTINATION_NAME)
-        val message: ParcelableMqttMessage = data.getParcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL)!!
+        val message: ParcelableMqttMessage = data.parcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL)!!
         try {
             if (messageAck == Ack.AUTO_ACK) {
                 callbacksList.forEach { callback ->
@@ -1095,7 +1097,7 @@ class MqttAndroidClient @JvmOverloads constructor(
                 MqttServiceConstants.TRACE_DEBUG -> it.traceDebug(message)
                 MqttServiceConstants.TRACE_ERROR -> it.traceError(message)
                 else -> {
-                    val e = data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
+                    val e = data.serializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
                     it.traceException(message, e)
                 }
             }
@@ -1287,7 +1289,7 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     companion object {
         private val SERVICE_NAME = MqttService::class.java.name
-        private const val FOREGROUND_ID = 77
+        private const val FOREGROUND_ID = 77 shl 16
     }
 
 }

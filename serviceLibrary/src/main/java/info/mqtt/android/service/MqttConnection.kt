@@ -48,7 +48,9 @@ import java.util.*
  */
 internal class MqttConnection(
     private val service: MqttService, // fields for the connection definition
-    var serverURI: String, var clientId: String, private var persistence: MqttClientPersistence?, // Client handle, used for callbacks...
+    var serverURI: String,
+    var clientId: String,
+    private var persistence: MqttClientPersistence?, // Client handle, used for callbacks...
     var clientHandle: String
 ) : MqttCallbackExtended {
     // Saved sent messages and their corresponding Topics, activityTokens and
