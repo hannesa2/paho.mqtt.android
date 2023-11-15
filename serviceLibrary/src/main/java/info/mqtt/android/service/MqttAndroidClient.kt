@@ -1291,7 +1291,7 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     companion object {
         private val SERVICE_NAME = MqttService::class.java.name
-        private const val FOREGROUND_ID = 77 shl 16
+        private const val FOREGROUND_ID = 77
     }
 
 }
