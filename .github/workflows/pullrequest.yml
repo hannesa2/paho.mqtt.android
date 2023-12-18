@@ -42,7 +42,7 @@ jobs:
           abi: ${{ matrix.abi }}
           cmdOptions: -noaudio -no-boot-anim -no-window
           bootTimeout: 720
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: MQ-Espresso-${{ matrix.api }}-${{ matrix.abi }}-report
@@ -50,7 +50,7 @@ jobs:
             ./**/build/reports/androidTests/connected
             ./**/build/outputs/androidTest-results/connected
       - name: Archive screenshots
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: MQ-Screenshots-${{ matrix.api }}-${{ matrix.abi }}
@@ -79,7 +79,7 @@ jobs:
       - name: Code checks
         run: ./gradlew check
       - name: Archive Lint report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: MQTT-Lint-report
