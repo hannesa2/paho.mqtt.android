@@ -16,7 +16,7 @@ internal interface MqttServiceConstants {
         const val MESSAGE_ID = "messageId"
         const val SESSION_PRESENT = "sessionPresent"
 
-        /* Tags for actions passed between the Activity and the Service */
+        // Tags for actions passed between the Activity and the Service
         const val SEND_ACTION = "send"
         const val UNSUBSCRIBE_ACTION = "unsubscribe"
         const val SUBSCRIBE_ACTION = "subscribe"
@@ -28,10 +28,10 @@ internal interface MqttServiceConstants {
         const val ON_CONNECTION_LOST_ACTION = "onConnectionLost"
         const val TRACE_ACTION = "trace"
 
-        /* Identifies an Intent which calls back to the Activity */
+        // Identifies an Intent which calls back to the Activity
         const val CALLBACK_TO_ACTIVITY = ".callbackToActivity.$VERSION"
 
-        /* Identifiers for extra data on Intents broadcast to the Activity */
+        // Identifiers for extra data on Intents broadcast to the Activity
         const val CALLBACK_ACTION = ".callbackAction"
         const val CALLBACK_STATUS = ".callbackStatus"
         const val CALLBACK_CLIENT_HANDLE = ".$CLIENT_HANDLE"

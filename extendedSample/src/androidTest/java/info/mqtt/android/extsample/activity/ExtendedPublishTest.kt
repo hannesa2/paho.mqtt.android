@@ -26,7 +26,6 @@ import org.junit.rules.TestName
 import org.junit.runner.RunWith
 import timber.log.Timber
 
-
 @RunWith(AndroidJUnit4::class)
 class ExtendedPublishTest {
 
@@ -56,7 +55,7 @@ class ExtendedPublishTest {
 
         onView(withId(R.id.disConnectSwitch)).perform(click())
         onView(withId(3)).perform(click())
-        //onView(withTagValue(`is`("Subscribe" as Any))).perform(click())
+        // onView(withTagValue(`is`("Subscribe" as Any))).perform(click())
 
         onView(withId(R.id.subscribe_button)).perform(click())
         onView(withId(R.id.subscription_topic_edit_text)).perform(typeText(TOPIC))
