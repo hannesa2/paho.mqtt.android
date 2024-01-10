@@ -9,7 +9,7 @@ enum class QoS(val value: Int) {
     companion object {
         @JvmStatic
         fun valueOf(qos: Int): QoS {
-            return values()[qos]
+            return entries[qos]
         }
     }
 
