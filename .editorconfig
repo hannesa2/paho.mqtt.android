@@ -1,5 +1,10 @@
 [*]
 max_line_length = 150
 
-[*.{kt, kts}]
-ktlint_disabled_rules=argument-list-wrapping,wrapping,multiline-if-else,no-consecutive-blank-lines,no-wildcard-imports,import-ordering,max-line-length,import-ordering,no-blank-line-before-rbrace,final-newline,indent,no-multi-spaces,comment-spacing,parameter-list-wrapping
+ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
+ktlint_standard_final-newline = enabled # Enables the `final-newline` rule in the `standard` rule set provided by KtLint
+ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
+ktlint_standard_some-experimental-rule = disabled # Disables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
+ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
+
