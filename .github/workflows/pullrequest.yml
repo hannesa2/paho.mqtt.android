@@ -29,6 +29,7 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 17
+      - uses: gradle/wrapper-validation-action@v1
       - name: Install Android SDK
         uses: hannesa2/action-android/install-sdk@0.1.4.10
       - name: Run tests
@@ -83,4 +84,6 @@ jobs:
         if: ${{ always() }}
         with:
           name: MQTT-Lint-report
-          path: ./**/build/reports/lint-results*.html
+          path: |
+            ./**/build/reports/lint-results*.html
+            ./**/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.txt
