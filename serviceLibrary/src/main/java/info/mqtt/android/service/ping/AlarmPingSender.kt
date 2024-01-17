@@ -11,6 +11,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.PowerManager
 import android.os.SystemClock
+import androidx.core.content.ContextCompat
 import info.mqtt.android.service.MqttService
 import info.mqtt.android.service.MqttServiceConstants
 import kotlinx.coroutines.*
@@ -52,7 +53,7 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     override fun start() {
         val action = MqttServiceConstants.PING_SENDER + clientComms!!.client.clientId
         Timber.d("Register AlarmReceiver to MqttService$action")
-        service.registerReceiver(alarmReceiver, IntentFilter(action))
+        ContextCompat.registerReceiver(service, alarmReceiver, IntentFilter(action), ContextCompat.RECEIVER_NOT_EXPORTED)
         pendingIntent = PendingIntent.getBroadcast(service, 0, Intent(action), pendingIntentFlags)
         schedule(clientComms!!.keepAlive)
         hasStarted = true
