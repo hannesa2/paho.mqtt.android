@@ -164,11 +164,11 @@ internal class MqttConnection(
                 }
             } else {
                 alarmPingSender = AlarmPingSender(service)
+                setConnectingState(true)
                 myClient = MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender)
                 //, null,	new AndroidHighResolutionTimer());
                 myClient!!.setCallback(this)
                 service.traceDebug("Do Real connect!")
-                setConnectingState(true)
                 myClient!!.connect(connectOptions, invocationContext, listener)
             }
         } catch (e: Exception) {

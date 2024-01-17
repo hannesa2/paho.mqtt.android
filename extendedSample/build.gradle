@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId 'info.mqtt.android.extsample'
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
         versionCode getGitCommitCount()
         versionName getTag()
 
@@ -24,8 +24,15 @@ android {
     buildFeatures {
         viewBinding true
     }
-    namespace 'info.mqtt.android.extsample'
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    namespace 'info.mqtt.android.extsample'
 }
 
 dependencies {
@@ -33,8 +40,8 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.recyclerview:recyclerview:1.3.0'
-    implementation "androidx.core:core-ktx:1.10.0"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation "androidx.core:core-ktx:1.10.1"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.github.AppDevNext.Logcat:LogcatCoreUI:$logcatVersion"
     implementation "androidx.room:room-runtime:$room_version"

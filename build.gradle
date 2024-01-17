@@ -1,7 +1,7 @@
 import org.gradle.internal.jvm.Jvm
 
 buildscript {
-    ext.kotlin_version = '1.8.20'
+    ext.kotlin_version = '1.8.22'
     repositories {
         mavenCentral()
         google()
@@ -11,14 +11,14 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.4.2'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jlleitschuh.gradle:ktlint-gradle:11.1.0"
+        classpath "org.jlleitschuh.gradle:ktlint-gradle:11.5.0"
     }
 }
 
 println "Gradle uses Java ${Jvm.current()}"
 
 ext {
-    compileSdkVersion = 33
+    compileSdkVersion = 34
     room_version = "2.5.1"
     logcatVersion = "2.12"
 }

@@ -8,34 +8,33 @@ on:
 
 jobs:
   Build:
-    name: Build & Test
-    runs-on: macOS-latest
+    name: Test
+    runs-on:  ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        api: [ 28 ]
-        abi: [ x86_64 ]
+        os: [ ARM64 ]
+        api: [ 34 ]
+        abi: [ arm64-v8a ]
         tag: [ 'default' ]
 #        include:
-#          - api: 31
+#          - os: macOS-latest
 #            abi: x86_64
-#            tag: 'google_apis'
-#          - api: 30
-#            abi: x86_64
-#            tag: 'google_apis'
+#            api: 28
+#            tag: 'default'
     steps:
       - uses: actions/checkout@v3
-      - name: set up JDK 11
+      - name: set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: 11
+          java-version: 17
+      - name: Install Android SDK
+        uses: hannesa2/action-android/install-sdk@0.1.4.10
       - name: Run tests
         run: ./gradlew test
-      - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.4
       - name: Android Emulator test
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.4
+        uses: hannesa2/action-android/emulator-run-cmd@0.1.4.10
         with:
           cmd: ./gradlew cAT --continue
           api: ${{ matrix.api }}
@@ -68,8 +67,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: 17
       - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.4
+        uses: hannesa2/action-android/install-sdk@0.1.4.10
       - name: Kotlin code checks
         run: ./gradlew ktlintCheck
       - name: Code checks

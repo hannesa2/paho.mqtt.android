@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
+import androidx.core.content.ContextCompat
 import info.mqtt.android.service.room.MqMessageDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -554,7 +555,10 @@ class MqttService : Service(), MqttTraceHandler {
     private fun registerBroadcastReceivers() {
         if (networkConnectionMonitor == null) {
             networkConnectionMonitor = NetworkConnectionIntentReceiver()
-            registerReceiver(networkConnectionMonitor, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+            ContextCompat.registerReceiver(
+                this, networkConnectionMonitor, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
     }
 

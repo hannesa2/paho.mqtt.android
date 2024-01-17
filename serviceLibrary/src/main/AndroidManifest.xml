@@ -3,11 +3,15 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application>
 
-        <service android:name="info.mqtt.android.service.MqttService" />
+        <service
+            android:name="info.mqtt.android.service.MqttService"
+            android:foregroundServiceType="dataSync" />
 
     </application>
 
