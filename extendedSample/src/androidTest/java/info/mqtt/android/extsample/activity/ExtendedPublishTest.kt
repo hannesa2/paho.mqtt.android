@@ -39,9 +39,6 @@ class ExtendedPublishTest {
     @get:Rule
     val activityScenarioRule = activityScenarioRule<MainActivity>()
 
-    @get:Rule
-    val runtimePermission: GrantPermissionRule = GrantPermissionRule.grant(Manifest.permission.SCHEDULE_EXACT_ALARM)
-
     @Before
     fun setUp() {
         Timber.plant(DebugFormatTree())
