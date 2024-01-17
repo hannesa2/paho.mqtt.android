@@ -12,8 +12,10 @@ import androidx.test.espresso.screenshot.captureToBitmap
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.extsample.MainActivity
+import android.Manifest
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.room.AppDatabase
 import org.junit.Before
@@ -33,6 +35,9 @@ class ExtendedMainTest {
 
     @get:Rule
     val activityScenarioRule = activityScenarioRule<MainActivity>()
+
+    @get:Rule
+    val runtimePermission: GrantPermissionRule = GrantPermissionRule.grant(Manifest.permission.SCHEDULE_EXACT_ALARM)
 
     @Before
     fun setUp() {

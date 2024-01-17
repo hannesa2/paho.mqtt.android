@@ -14,9 +14,11 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.espresso.screenshot.captureToBitmap
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
 import com.moka.lib.assertions.WaitingAssertion
 import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.extsample.MainActivity
+import android.Manifest
 import info.mqtt.android.extsample.R
 import org.hamcrest.CoreMatchers.not
 import org.junit.Before
@@ -36,6 +38,9 @@ class ExtendedPublishTest {
 
     @get:Rule
     val activityScenarioRule = activityScenarioRule<MainActivity>()
+
+    @get:Rule
+    val runtimePermission: GrantPermissionRule = GrantPermissionRule.grant(Manifest.permission.SCHEDULE_EXACT_ALARM)
 
     @Before
     fun setUp() {
