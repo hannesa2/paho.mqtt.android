@@ -239,7 +239,7 @@ class MqttAndroidClient @JvmOverloads constructor(
         val filter = IntentFilter()
         filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+            context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
         else
             context.registerReceiver(receiver, filter)
         receiverRegistered = true

@@ -246,7 +246,9 @@ class MqttService : Service(), MqttTraceHandler {
      */
     fun callbackToActivity(clientHandle: String, status: Status, dataBundle: Bundle) {
         // Don't call traceDebug, as it will try to callbackToActivity leading to recursion.
-        val callbackIntent = Intent(MqttServiceConstants.CALLBACK_TO_ACTIVITY)
+        val callbackIntent = Intent(MqttServiceConstants.CALLBACK_TO_ACTIVITY).apply {
+            setPackage(applicationContext.packageName)
+        }
         clientHandle.let {
             callbackIntent.putExtra(MqttServiceConstants.CALLBACK_CLIENT_HANDLE, it)
         }
