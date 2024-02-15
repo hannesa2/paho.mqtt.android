@@ -9,6 +9,9 @@ import com.google.android.material.snackbar.Snackbar
 import info.mqtt.android.service.MqttAndroidClient
 import info.mqtt.android.service.QoS
 import info.mqtt.java.example.databinding.ActivityScrollingBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -77,11 +80,19 @@ class MQTTExampleActivity : AppCompatActivity() {
         })
     }
 
+    override fun onDestroy() {
+        Timber.d("onDestroy")
+        mqttAndroidClient.disconnect()
+        super.onDestroy()
+    }
+
     private fun addToHistory(mainText: String) {
         Timber.d(mainText)
         @SuppressLint("SimpleDateFormat")
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
-        adapter.add("$timestamp $mainText")
+        CoroutineScope(Dispatchers.Main).launch {
+            adapter.add("$timestamp $mainText")
+        }
         Snackbar.make(findViewById(android.R.id.content), mainText, Snackbar.LENGTH_LONG).setAction("Action", null).show()
     }
 
