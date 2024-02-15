@@ -322,12 +322,13 @@ class MqttService : Service(), MqttTraceHandler {
         val client = getConnection(clientHandle)
         client.close()
     }
+
     /**
      * Stop service, removing the notification if needed
      */
-    private fun stopService(){
-        if (isForegroundStarted ) {
-            if  (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+    private fun stopService() {
+        if (isForegroundStarted) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                 stopForeground(Service.STOP_FOREGROUND_REMOVE)
             else
                 stopForeground(true)
