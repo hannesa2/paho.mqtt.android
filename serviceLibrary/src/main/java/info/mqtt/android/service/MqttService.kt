@@ -187,6 +187,7 @@ class MqttService : Service(), MqttTraceHandler {
 
     // callback id for making trace callbacks to the Activity needs to be set by the activity as appropriate
     private var traceCallbackId: String? = null
+    private var isForegroundStarted = false
 
     var isTraceEnabled = false
 
@@ -238,6 +239,7 @@ class MqttService : Service(), MqttTraceHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val foregroundServiceNotification = intent?.getParcelableExtra<Notification>(MQTT_FOREGROUND_SERVICE_NOTIFICATION)
             if (foregroundServiceNotification != null) {
+                isForegroundStarted = true
                 startForeground(
                     intent.getIntExtra(MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, 1),
                     foregroundServiceNotification
@@ -322,6 +324,19 @@ class MqttService : Service(), MqttTraceHandler {
     }
 
     /**
+     * Stop service, removing the notification if needed
+     */
+    private fun stopService() {
+        if (isForegroundStarted) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                stopForeground(Service.STOP_FOREGROUND_REMOVE)
+            else
+                stopForeground(true)
+        }
+        stopSelf()
+    }
+
+    /**
      * Disconnect from the server
      *
      * @param clientHandle      identifies the MqttConnection to use
@@ -337,7 +352,7 @@ class MqttService : Service(), MqttTraceHandler {
         // the activity has finished using us, so we can stop the service
         // the activities are bound with BIND_AUTO_CREATE, so the service will
         // remain around until the last activity disconnects
-        stopSelf()
+        stopService()
     }
 
     /**
@@ -356,7 +371,7 @@ class MqttService : Service(), MqttTraceHandler {
         // the activity has finished using us, so we can stop the service
         // the activities are bound with BIND_AUTO_CREATE, so the service will
         // remain around until the last activity disconnects
-        stopSelf()
+        stopService()
     }
 
     /**
