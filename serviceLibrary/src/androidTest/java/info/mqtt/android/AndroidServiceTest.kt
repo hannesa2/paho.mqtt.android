@@ -50,6 +50,7 @@ class AndroidServiceTest : IMqttActionListener {
                 var connectToken: IMqttToken = mqttClient.connect(null, null)
                 connectToken.waitForCompletion(waitForCompletionTime)
                 var disconnectToken: IMqttToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
+                mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
                 disconnectToken.waitForCompletion(waitForCompletionTime)
                 connectToken = mqttClient.connect(null, null)
                 connectToken.waitForCompletion(waitForCompletionTime)
@@ -86,6 +87,7 @@ class AndroidServiceTest : IMqttActionListener {
                 val connectedToken1 = connectCallback1.asyncActionToken
                 assertFalse(connectedToken1!!.sessionPresent)
                 var disconnectToken: IMqttToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
+                mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
                 disconnectToken.waitForCompletion(waitForCompletionTime)
                 val options2 = MqttConnectOptions()
                 options2.isCleanSession = false
@@ -102,6 +104,7 @@ class AndroidServiceTest : IMqttActionListener {
                 val connectedToken3 = connectCallback3.asyncActionToken
                 assertTrue(connectedToken3!!.sessionPresent)
                 disconnectToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
+                mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
                 disconnectToken.waitForCompletion(waitForCompletionTime)
             }
         } catch (exception: Exception) {
@@ -454,6 +457,7 @@ class AndroidServiceTest : IMqttActionListener {
 
             // Disconnect and reconnect to make sure the subscription and all queued messages are cleared.
             disconnectToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
+            mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
             disconnectToken.waitForCompletion(waitForCompletionTime)
             mqttClient.close()
 
@@ -478,6 +482,7 @@ class AndroidServiceTest : IMqttActionListener {
                 fail(validateResult.message)
             }
             disconnectToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
+            mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, this)
             disconnectToken.waitForCompletion(waitForCompletionTime)
             mqttClient.close()
 
@@ -507,6 +512,7 @@ class AndroidServiceTest : IMqttActionListener {
         } finally {
             try {
                 disconnectToken = mqttClient!!.disconnect(null, null)
+                mqttClient.disconnect(null, null)
                 disconnectToken.waitForCompletion(waitForCompletionTime)
                 mqttClient.close()
             } catch (ignored: Exception) {

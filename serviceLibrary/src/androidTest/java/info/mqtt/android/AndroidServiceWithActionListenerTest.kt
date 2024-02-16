@@ -73,10 +73,12 @@ class AndroidServiceWithActionListenerTest {
         var token = mqttClient.connect(null, ActionListener())
         token.waitForCompletion(waitForCompletionTime)
         token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
         token.waitForCompletion(waitForCompletionTime)
         token = mqttClient.connect(null, ActionListener())
         token.waitForCompletion(waitForCompletionTime)
         token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
         token.waitForCompletion(waitForCompletionTime)
     }
 

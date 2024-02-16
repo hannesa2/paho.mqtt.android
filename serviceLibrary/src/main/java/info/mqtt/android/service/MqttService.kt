@@ -344,10 +344,12 @@ class MqttService : Service(), MqttTraceHandler {
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
     fun disconnect(clientHandle: String, invocationContext: String?, activityToken: String?) {
-        val client = getConnection(clientHandle)
-        client.disconnect(invocationContext, activityToken)
-        connections.remove(clientHandle)
-
+        if (isConnectionAvailable(clientHandle)) {
+            val client = getConnection(clientHandle)
+            client.disconnect(invocationContext, activityToken)
+            connections.remove(clientHandle)
+        } else
+            Timber.w("Connection is not available $clientHandle")
 
         // the activity has finished using us, so we can stop the service
         // the activities are bound with BIND_AUTO_CREATE, so the service will
@@ -506,6 +508,8 @@ class MqttService : Service(), MqttTraceHandler {
     private fun getConnection(clientHandle: String): MqttConnection {
         return connections[clientHandle] ?: throw IllegalArgumentException("Invalid ClientHandle >$clientHandle<")
     }
+
+    private fun isConnectionAvailable(clientHandle: String) = connections.contains(clientHandle)
 
     /**
      * Called by the Activity when a message has been passed back to the application
