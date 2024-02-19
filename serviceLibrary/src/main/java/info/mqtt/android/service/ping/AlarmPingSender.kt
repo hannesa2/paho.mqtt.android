@@ -81,14 +81,27 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
         Timber.d("Schedule next alarm at $nextAlarmInMilliseconds ms")
         val alarmManager = service.getSystemService(Service.ALARM_SERVICE) as AlarmManager
         pendingIntent?.let {
-            if (Build.VERSION.SDK_INT >= 23) {
+            //add check for android 13 and up
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                //check if we can scheduele exact alarms
+                if (alarmManager.canScheduleExactAlarms()) {
+                    Timber.d("Alarm schedule using setExactAndAllowWhileIdle, next: $delayInMilliseconds")
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
+                } else // it's up to the app to ask for permission so we schedule with a no exact but we do warn in the logs about it
+                {
+                    Timber.w("Not allowed to schedule exact alarms! using non exact alarm")
+                    Timber.w("Alarm schedule using setAndAllowWhileIdle, next: $delayInMilliseconds")
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
+                }
+            } else if (Build.VERSION.SDK_INT >= 23) {
                 // In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
                 // the device to run this task whilst dosing.
                 Timber.d("Alarm schedule using setExactAndAllowWhileIdle, next: $delayInMilliseconds")
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
-            } else
+            } else {
                 Timber.d("Alarm schedule using setExact, delay: $delayInMilliseconds")
-            alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
+                alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
+            }
         }
     }
 
