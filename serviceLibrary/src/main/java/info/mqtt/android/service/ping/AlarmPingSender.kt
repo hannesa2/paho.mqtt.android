@@ -98,9 +98,10 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
                 // the device to run this task whilst dosing.
                 Timber.d("Alarm schedule using setExactAndAllowWhileIdle, next: $delayInMilliseconds")
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
-            } else
+            } else {
                 Timber.d("Alarm schedule using setExact, delay: $delayInMilliseconds")
-            alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
+                alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
+            }
         }
     }
 
