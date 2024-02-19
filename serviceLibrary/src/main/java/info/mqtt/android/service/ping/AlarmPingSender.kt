@@ -90,7 +90,7 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
                 } else // it's up to the app to ask for permission so we schedule with a no exact but we do warn in the logs about it
                 {
                     Timber.w("Not allowed to schedule exact alarms! using non exact alarm")
-                    Timber.w("Alarm schedule using setExactAndAllowWhileIdle, next: $delayInMilliseconds")
+                    Timber.w("Alarm schedule using setAndAllowWhileIdle, next: $delayInMilliseconds")
                     alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, it)
                 }
             }
