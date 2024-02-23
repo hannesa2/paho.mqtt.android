@@ -975,7 +975,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      * Process a Connection Lost notification
      */
     private fun connectionLostAction(data: Bundle?) {
-        val reason = data?.parcelable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
+        val reason = data?.serializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
         callbacksList.forEach {
             it.connectionLost(reason)
         }
