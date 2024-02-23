@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
+import info.mqtt.android.service.extension.parcelableExtra
 import info.mqtt.android.service.room.MqMessageDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -237,7 +238,7 @@ class MqttService : Service(), MqttTraceHandler {
         // run till explicitly stopped, restart when process restarted
         registerBroadcastReceivers()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val foregroundServiceNotification = intent?.getParcelableExtra<Notification>(MQTT_FOREGROUND_SERVICE_NOTIFICATION)
+            val foregroundServiceNotification = intent?.parcelableExtra<Notification>(MQTT_FOREGROUND_SERVICE_NOTIFICATION)
             if (foregroundServiceNotification != null) {
                 isForegroundStarted = true
                 startForeground(
@@ -328,6 +329,7 @@ class MqttService : Service(), MqttTraceHandler {
      */
     private fun stopService() {
         if (isForegroundStarted) {
+            @Suppress("DEPRECATION")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                 stopForeground(Service.STOP_FOREGROUND_REMOVE)
             else
