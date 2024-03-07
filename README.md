@@ -44,7 +44,7 @@ dependencies {
 
 The main advantages
 * it doesn't use `android.permission.SCHEDULE_EXACT_ALARM` which drain the battery
-* it use `androidx.work:work-runtime-ktx` to receive messages during device sleep 
+* it uses `androidx.work:work-runtime-ktx` to receive messages during device sleep 
 
 
 #### Version 3.x and Android O foreground service (deprecated)
