@@ -38,10 +38,18 @@ dependencies {
   implementation 'com.github.hannesa2:paho.mqtt.android:$latestVersion'
 }
 ```
+## Background behavior
 
-#### Android O foreground service
+#### Version 4.x doesn't need a foreground service
 
-Android >= O you should use it as foreground service
+The main advantages
+* it doesn't use `android.permission.SCHEDULE_EXACT_ALARM` which drain the battery
+* it use `androidx.work:work-runtime-ktx` to receive messages during device sleep 
+
+
+#### Version 3.x and Android O foreground service (deprecated)
+
+When you use a version 3.x on Android >= O you should use it as foreground service
 
 ```
 val client = MqttAndroidClient(context, uri, clientId).apply {
@@ -52,7 +60,7 @@ val client = MqttAndroidClient(context, uri, clientId).apply {
 ## License
 
 ```
-Copyright 2023
+Copyright 2024
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
