@@ -203,8 +203,6 @@ class Connection private constructor(
     }
 
     companion object {
-        private const val FOREGROUND = false
-
         fun createConnection(
             clientHandle: String,
             clientId: String,
@@ -219,14 +217,7 @@ class Connection private constructor(
             } else {
                 "tcp://$host:$port"
             }
-            val intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-            }
-            val foregroundNotification = Notify.foregroundNotification(context, clientId, intent, R.string.notifyForeground)
-            val client = MqttAndroidClient(context, uri, clientId).apply {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && FOREGROUND)
-                    setForegroundService(foregroundNotification)
-            }
+            val client = MqttAndroidClient(context, uri, clientId)
             return Connection(clientHandle, clientId, host, port, context, client, tlsConnection, connectionOptions)
         }
     }
