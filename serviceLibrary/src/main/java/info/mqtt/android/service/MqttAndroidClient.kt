@@ -1,8 +1,6 @@
 package info.mqtt.android.service
 
-import android.app.Notification
 import android.content.*
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseArray
@@ -76,9 +74,6 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     @Volatile
     private var serviceBound = false
-
-    // notification for Foreground Service
-    private var foregroundServiceNotification: Notification? = null
 
     private var clientJob: Job? = null
     private var clientScope: CoroutineScope? = null
@@ -206,17 +201,11 @@ class MqttAndroidClient @JvmOverloads constructor(
             val serviceStartIntent = Intent()
             serviceStartIntent.setClassName(context, SERVICE_NAME)
             var service: Any? = null
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && foregroundServiceNotification != null) {
-                serviceStartIntent.putExtra(MqttService.MQTT_FOREGROUND_SERVICE_NOTIFICATION, foregroundServiceNotification)
-                serviceStartIntent.putExtra(MqttService.MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, FOREGROUND_ID)
-                service = context.startForegroundService(serviceStartIntent)
-            } else {
-                try {
-                    service = context.startService(serviceStartIntent)
-                } catch (ex: IllegalStateException) {
-                    val listener = token.actionCallback
-                    listener?.onFailure(token, ex)
-                }
+            try {
+                service = context.startService(serviceStartIntent)
+            } catch (ex: IllegalStateException) {
+                val listener = token.actionCallback
+                listener?.onFailure(token, ex)
             }
             if (service == null) {
                 val listener = token.actionCallback
@@ -1151,21 +1140,6 @@ class MqttAndroidClient @JvmOverloads constructor(
     }
 
     /**
-     * Sets foregroundServiceNotification object. If it is not null at the time of
-     * MqttService start then the service  will run in foreground mode which is
-     * mandatory to keep MQTT service operation when app is
-     * in the background on Android version >=8.
-     *
-     *
-     * This method has no effect if Build.VERSION.SDK_INT < Build.VERSION_CODES.O
-     *
-     * @param notification notification to be used when MqttService runs in foreground mode
-     */
-    fun setForegroundService(notification: Notification) {
-        foregroundServiceNotification = notification
-    }
-
-    /**
      * Sets the DisconnectedBufferOptions for this client
      *
      * @param bufferOpts the DisconnectedBufferOptions
@@ -1295,7 +1269,6 @@ class MqttAndroidClient @JvmOverloads constructor(
 
     companion object {
         private val SERVICE_NAME = MqttService::class.java.name
-        private const val FOREGROUND_ID = 77
     }
 
 }
