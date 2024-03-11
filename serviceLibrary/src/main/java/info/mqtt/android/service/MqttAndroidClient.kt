@@ -1084,6 +1084,7 @@ class MqttAndroidClient @JvmOverloads constructor(
                 }
             }
         } catch (e: Exception) {
+            Timber.e("failed: $e")
             mqttService!!.traceError("messageArrivedAction failed: $e")
         }
     }
