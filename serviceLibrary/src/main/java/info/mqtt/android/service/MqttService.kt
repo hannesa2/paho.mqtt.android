@@ -1,7 +1,6 @@
 package info.mqtt.android.service
 
 import android.annotation.SuppressLint
-import android.app.Notification
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -13,7 +12,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
-import info.mqtt.android.service.extension.parcelableExtra
 import info.mqtt.android.service.room.MqMessageDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -237,16 +235,6 @@ class MqttService : Service(), MqttTraceHandler {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // run till explicitly stopped, restart when process restarted
         registerBroadcastReceivers()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val foregroundServiceNotification = intent?.parcelableExtra<Notification>(MQTT_FOREGROUND_SERVICE_NOTIFICATION)
-            if (foregroundServiceNotification != null) {
-                isForegroundStarted = true
-                startForeground(
-                    intent.getIntExtra(MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, 1),
-                    foregroundServiceNotification
-                )
-            }
-        }
         return START_STICKY
     }
 
@@ -331,7 +319,7 @@ class MqttService : Service(), MqttTraceHandler {
         if (isForegroundStarted) {
             @Suppress("DEPRECATION")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                stopForeground(Service.STOP_FOREGROUND_REMOVE)
+                stopForeground(STOP_FOREGROUND_REMOVE)
             else
                 stopForeground(true)
         }
