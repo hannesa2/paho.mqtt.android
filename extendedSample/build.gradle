@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace 'info.mqtt.android.extsample'
+
     defaultConfig {
         applicationId 'info.mqtt.android.extsample'
         minSdkVersion 21
@@ -31,7 +33,6 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
-    namespace 'info.mqtt.android.extsample'
 }
 
 dependencies {

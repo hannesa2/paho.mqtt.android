@@ -6,6 +6,8 @@ plugins {
 }
 
 android {
+    namespace 'info.mqtt.android.service'
+    testNamespace 'info.mqtt.android.service.test'
     defaultConfig {
         minSdkVersion 21
         compileSdk rootProject.ext.compileSdkVersion
@@ -46,8 +48,6 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
-    namespace 'info.mqtt.android.service'
-    testNamespace 'info.mqtt.android.service.test'
 }
 
 dependencies {
