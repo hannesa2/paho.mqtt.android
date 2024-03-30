@@ -1,10 +1,14 @@
 package info.mqtt.android.service.ping
 
+import android.annotation.SuppressLint
 import androidx.work.*
 import info.mqtt.android.service.MqttService
 import org.eclipse.paho.client.mqttv3.MqttPingSender
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
@@ -33,7 +37,7 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     }
 
     override fun schedule(delayInMilliseconds: Long) {
-        Timber.d("Schedule next alarm at ${System.currentTimeMillis() + delayInMilliseconds}")
+        Timber.d("Schedule next alarm at ${sdf.format(Date(System.currentTimeMillis() + delayInMilliseconds))}")
         workManager.enqueueUniqueWork(
             PING_JOB,
             ExistingWorkPolicy.REPLACE,
@@ -47,6 +51,9 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     companion object {
         private const val PING_JOB = "PING_JOB"
         internal var clientComms: ClientComms? = null
+
+        @SuppressLint("ConstantLocale")
+        internal val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'", Locale.getDefault())
     }
 
 }
