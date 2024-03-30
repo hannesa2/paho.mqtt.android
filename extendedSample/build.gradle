@@ -15,9 +15,10 @@ android {
         versionCode getGitCommitCount()
         versionName getTag()
 
-        javaCompileOptions {
-            annotationProcessorOptions { arguments = ["room.schemaLocation": "$projectDir/schemas".toString()] }
+        ksp {
+            arg('room.schemaLocation', "$projectDir/schemas")
         }
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments useTestStorageService: 'true'
     }
