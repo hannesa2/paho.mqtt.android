@@ -67,7 +67,7 @@ class Connection private constructor(
     @SuppressLint("SimpleDateFormat")
     fun addHistory(action: String) {
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
-        historyList.add(action + timestamp)
+        historyList.add("$action $timestamp")
         history.postValue(historyList)
         notifyListeners(PropertyChangeEvent(this, ActivityConstants.historyProperty, null, null))
     }

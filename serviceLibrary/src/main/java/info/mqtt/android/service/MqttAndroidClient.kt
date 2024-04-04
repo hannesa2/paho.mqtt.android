@@ -886,7 +886,10 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      */
     private fun onReceive(data: Bundle) {
-        Timber.v(data.toString())
+        if (data.toString().lowercase().contentEquals("exception"))
+            Timber.w(data.toString())
+        else
+            Timber.v(data.toString())
         val handleFromIntent = data.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE)
         if (handleFromIntent == null || handleFromIntent != clientHandle) {
             return
