@@ -35,6 +35,10 @@ android {
                 consumerProguardFile('proguard-sdk.pro')
             }
         }
+
+        buildFeatures {
+            buildConfig = true
+        }
     }
 
     testFixtures {
