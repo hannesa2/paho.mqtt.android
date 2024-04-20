@@ -22,12 +22,11 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
         val connection = getInstance(context).getConnection(clientHandle)
         connection?.addHistory("Connection Lost [${cause?.message}]")
         connection?.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED)
-
-        val intent = Intent()
-        intent.setClassName(context, activityClass)
-        intent.putExtra("handle", clientHandle)
-
         cause?.let {
+            val intent = Intent()
+            intent.setClassName(context, activityClass)
+            intent.putExtra("handle", clientHandle)
+
             notification(context, "id=${connection?.id} host=${connection?.hostName}", intent, R.string.notifyTitle_connectionLost)
         }
     }
