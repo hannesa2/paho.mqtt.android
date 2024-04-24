@@ -94,7 +94,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      * @return `true` if connected, `false` otherwise.
      */
-    override fun isConnected() = clientHandle != null && mqttService != null && mqttService!!.isConnected(clientHandle!!)
+    override fun isConnected() = clientHandle != null && mqttService?.isConnected(clientHandle!!) == true
 
     /**
      * Returns the client ID used by this client.
