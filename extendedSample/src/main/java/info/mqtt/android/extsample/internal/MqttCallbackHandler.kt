@@ -14,20 +14,21 @@ import timber.log.Timber
 internal class MqttCallbackHandler(private val context: Context, private val clientHandle: String) : MqttCallback {
 
     override fun connectionLost(cause: Throwable?) {
-        cause?.let {
-            Timber.w("Connection Lost: ${it.message}")
-        } ?: run {
-            Timber.d("Connection Lost")
-        }
         val connection = getInstance(context).getConnection(clientHandle)
+
+        cause?.let {
+            Timber.w("isAutomaticReconnect=${connection?.connectionOptions?.isAutomaticReconnect} ${it.cause} ")
+        } ?: run {
+            Timber.d("isAutomaticReconnect=${connection?.connectionOptions?.isAutomaticReconnect}")
+        }
+
         connection?.addHistory("Connection Lost [${cause?.message}]")
         connection?.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED)
 
-        val intent = Intent()
-        intent.setClassName(context, activityClass)
-        intent.putExtra("handle", clientHandle)
-
         cause?.let {
+            val intent = Intent()
+            intent.setClassName(context, activityClass)
+            intent.putExtra("handle", clientHandle)
             notification(context, "id=${connection?.id} host=${connection?.hostName}", intent, R.string.notifyTitle_connectionLost)
         }
     }
