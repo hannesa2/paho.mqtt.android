@@ -64,7 +64,11 @@ jobs:
             serviceLibrary/build/outputs/androidTest-results/connected
   Check:
     name: Check
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
