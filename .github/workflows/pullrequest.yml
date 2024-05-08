@@ -41,7 +41,7 @@ jobs:
           api: ${{ matrix.api }}
           tag: ${{ matrix.tag }}
           abi: ${{ matrix.abi }}
-          cmdOptions: -noaudio -no-boot-anim -no-window
+          cmdOptions: -noaudio -no-boot-anim -no-window -metrics-collection
           bootTimeout: 720
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
