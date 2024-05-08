@@ -31,11 +31,11 @@ jobs:
           java-version: 17
       - uses: gradle/wrapper-validation-action@v3
       - name: Install Android SDK
-        uses: hannesa2/action-android/install-sdk@0.1.16.5
+        uses: hannesa2/action-android/install-sdk@0.1.16.6
       - name: Run tests
         run: ./gradlew test
       - name: Android Emulator test
-        uses: hannesa2/action-android/emulator-run-cmd@0.1.16.5
+        uses: hannesa2/action-android/emulator-run-cmd@0.1.16.6
         with:
           cmd: ./gradlew cAT --continue
           api: ${{ matrix.api }}
@@ -78,7 +78,7 @@ jobs:
           distribution: 'adopt'
           java-version: 17
       - name: Install Android SDK
-        uses: hannesa2/action-android/install-sdk@0.1.16.5
+        uses: hannesa2/action-android/install-sdk@0.1.16.6
       - name: Kotlin code checks
         run: ./gradlew ktlintCheck
       - name: Code checks
