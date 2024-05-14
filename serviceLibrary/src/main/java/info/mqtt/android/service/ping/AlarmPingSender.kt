@@ -29,7 +29,10 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
     }
 
     override fun start() {
-        schedule(clientComms!!.keepAlive)
+        // add clientState null check to avoid ClientState.getKeepAlive() NPE(#358,#433)
+        clientComms?.clientState?.let {
+            schedule(clientComms!!.keepAlive)
+        }?: Timber.e("FIXME: try to start ping schedule, but clientState null, not able to get keepAlive")
     }
 
     override fun stop() {
