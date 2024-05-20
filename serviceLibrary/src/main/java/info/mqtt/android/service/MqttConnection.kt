@@ -364,8 +364,8 @@ internal class MqttConnection(
                 val message = MqttMessage(payload)
                 message.qos = qos.value
                 message.isRetained = retained
+                sendToken = myClient!!.publish(topic, payload, qos.value, retained, invocationContext, listener)
                 CoroutineScope(Dispatchers.IO).launch {
-                    sendToken = myClient!!.publish(topic, payload, qos.value, retained, invocationContext, listener)
                     storeSendDetailsInMemory(topic, message, sendToken, invocationContext, activityToken)
                 }
             } catch (e: Exception) {
