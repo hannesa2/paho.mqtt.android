@@ -41,7 +41,7 @@ import javax.net.ssl.TrustManagerFactory
  *  * disconnect
  *
  */
-class MqttAndroidClient @JvmOverloads constructor(
+class MqttAndroidClient(
     val context: Context, private val serverURI: String, private val clientId: String, ackType: Ack = Ack.AUTO_ACK,
     private var persistence: MqttClientPersistence? = null
 ) : IMqttAsyncClient {
