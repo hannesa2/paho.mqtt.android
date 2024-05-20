@@ -55,10 +55,11 @@ internal class MqttConnection(
 ) : MqttCallbackExtended {
     // Saved sent messages and their corresponding Topics, activityTokens and
     // invocationContexts, so we can handle "deliveryComplete" callbacks from the mqttClient
-    private val savedTopics: MutableMap<IMqttDeliveryToken?, String> = HashMap()
-    private val savedSentMessages: MutableMap<IMqttDeliveryToken?, MqttMessage> = HashMap()
-    private val savedActivityTokens: MutableMap<IMqttDeliveryToken?, String> = HashMap()
-    private val savedInvocationContexts: MutableMap<IMqttDeliveryToken?, String> = HashMap()
+    private val mapTopics: MutableMap<IMqttDeliveryToken?, String> = HashMap()
+    private val mapSentMessages: MutableMap<IMqttDeliveryToken?, MqttMessage> = HashMap()
+    private val mapActivityTokens: MutableMap<IMqttDeliveryToken?, String> = HashMap()
+    private val mapInvocationContexts: MutableMap<IMqttDeliveryToken?, String> = HashMap()
+
     private val wakeLockTag = javaClass.simpleName + " " + clientId + " " + "on host " + serverURI
     private var connectOptions: MqttConnectOptions? = null
 
@@ -365,7 +366,7 @@ internal class MqttConnection(
                 message.isRetained = retained
                 CoroutineScope(Dispatchers.IO).launch {
                     sendToken = myClient!!.publish(topic, payload, qos.value, retained, invocationContext, listener)
-                    storeSendDetails(topic, message, sendToken, invocationContext, activityToken)
+                    storeSendDetailsInMemory(topic, message, sendToken, invocationContext, activityToken)
                 }
             } catch (e: Exception) {
                 handleException(resultBundle, e)
@@ -398,7 +399,7 @@ internal class MqttConnection(
             val listener: IMqttActionListener = MqttConnectionListener(resultBundle)
             try {
                 sendToken = myClient!!.publish(topic, message, invocationContext, listener)
-                storeSendDetails(topic, message, sendToken, invocationContext, activityToken)
+                storeSendDetailsInMemory(topic, message, sendToken, invocationContext, activityToken)
             } catch (e: Exception) {
                 handleException(resultBundle, e)
             }
@@ -407,7 +408,7 @@ internal class MqttConnection(
             val listener: IMqttActionListener = MqttConnectionListener(resultBundle)
             try {
                 sendToken = myClient!!.publish(topic, message, invocationContext, listener)
-                storeSendDetails(topic, message, sendToken, invocationContext, activityToken)
+                storeSendDetailsInMemory(topic, message, sendToken, invocationContext, activityToken)
             } catch (e: Exception) {
                 handleException(resultBundle, e)
             }
@@ -652,12 +653,12 @@ internal class MqttConnection(
      */
     @Synchronized
     private fun popSendDetails(messageToken: IMqttDeliveryToken): Bundle? {
-        val message = savedSentMessages.remove(messageToken)
+        val message = mapSentMessages.remove(messageToken)
         if (message != null) { // If I don't know about the message, it's
             // irrelevant
-            val topic = savedTopics.remove(messageToken)
-            val activityToken = savedActivityTokens.remove(messageToken)
-            val invocationContext = savedInvocationContexts.remove(messageToken)
+            val topic = mapTopics.remove(messageToken)
+            val activityToken = mapActivityTokens.remove(messageToken)
+            val invocationContext = mapInvocationContexts.remove(messageToken)
             val resultBundle = messageToBundle(null, topic, message)
             if (activityToken != null) {
                 resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SEND_ACTION)
@@ -670,21 +671,22 @@ internal class MqttConnection(
     }
 
     /**
-     * Store details of sent messages so we can handle "deliveryComplete"
-     * callbacks from the mqttClient
+     * Store details of sent messages so we can handle "deliveryComplete" callbacks from the mqttClient
      */
     @Synchronized
-    private fun storeSendDetails(
-        topic: String, msg: MqttMessage, messageToken: IMqttDeliveryToken?,
-        invocationContext: String?, activityToken: String
+    private fun storeSendDetailsInMemory(
+        topic: String,
+        msg: MqttMessage,
+        messageToken: IMqttDeliveryToken?,
+        invocationContext: String?,
+        activityToken: String
     ) {
-        savedTopics[messageToken] = topic
-        savedSentMessages[messageToken] = msg
-        savedActivityTokens[messageToken] = activityToken
+        mapTopics[messageToken] = topic
+        mapSentMessages[messageToken] = msg
+        mapActivityTokens[messageToken] = activityToken
         invocationContext?.let {
-            savedInvocationContexts[messageToken] = it
+            mapInvocationContexts[messageToken] = it
         }
-
     }
 
     /**
