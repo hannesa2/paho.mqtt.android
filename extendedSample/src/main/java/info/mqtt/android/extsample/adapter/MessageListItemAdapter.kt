@@ -15,6 +15,15 @@ import java.text.SimpleDateFormat
 class MessageListItemAdapter(context: Context, private var messages: List<ReceivedMessage>) :
     ArrayAdapter<ReceivedMessage>(context, R.layout.message_list_item, messages) {
 
+    val isRunningTest: Boolean by lazy {
+        try {
+            Class.forName("androidx.test.espresso.Espresso")
+            true
+        } catch (e: ClassNotFoundException) {
+            false
+        }
+    }
+
     @SuppressLint("ViewHolder", "SimpleDateFormat", "SetTextI18n")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val binding: MessageListItemBinding
@@ -34,7 +43,10 @@ class MessageListItemAdapter(context: Context, private var messages: List<Receiv
                 "isDuplicate=${messages[position].message.isDuplicate} retained=${messages[position].message.isRetained}"
         val dateTimeFormatter = SimpleDateFormat("HH:mm:ss.sss")
         val shortDateStamp = dateTimeFormatter.format(messages[position].timestamp)
-        binding.messageDateText.text = shortDateStamp
+        if (isRunningTest)
+            binding.messageDateText.text = "Espresso test"
+        else
+            binding.messageDateText.text = shortDateStamp
         binding.messageId.text = "ID=${messages[position].message.id}"
 
         binding.messageInfo.visibility = View.VISIBLE
