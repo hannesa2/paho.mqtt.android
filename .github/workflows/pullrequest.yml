@@ -26,6 +26,8 @@ jobs:
     #            tag: 'default'
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: set up JDK
         uses: actions/setup-java@v4
         with:
