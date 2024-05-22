@@ -58,7 +58,7 @@ class ExtendedPublishTest {
 
         onView(ViewMatchers.isRoot())
             .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-AddConnect")
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-1AddConnect")
 
         onView(withId(R.id.disConnectSwitch)).perform(click())
         onView(withId(3)).perform(click())
@@ -68,7 +68,7 @@ class ExtendedPublishTest {
         onView(withId(R.id.subscription_topic_edit_text)).perform(typeText(TOPIC))
         onView(ViewMatchers.isRoot())
             .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-Subscribe")
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-2Subscribe")
         onView(withText("OK")).perform(click())
 
         Assert.assertTrue(device.isScreenOn)
@@ -79,7 +79,7 @@ class ExtendedPublishTest {
         sleep(200)
         onView(ViewMatchers.isRoot())
             .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-publish")
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-4publish")
         onView(withId(R.id.publish_button)).perform(click())
 
         onView(withId(1)).perform(click())
@@ -87,7 +87,7 @@ class ExtendedPublishTest {
         WaitingAssertion.checkAssertion(R.id.history_list_view, Matchers.withListSizeBigger(0), 2500)
         onView(ViewMatchers.isRoot())
             .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-End")
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-6End")
     }
 
     @Test
