@@ -16,11 +16,13 @@ jobs:
         os: [ ARM64 ]
         api: [ 34 ]
         abi: [ arm64-v8a ]
+        emulatorApi: [ 14 ]
         tag: [ 'google_apis' ]
     #        include:
     #          - os: macOS-latest
     #            abi: x86_64
     #            api: 28
+    #            emulatorApi: [ 9 ]
     #            tag: 'default'
     steps:
       - uses: actions/checkout@v4
@@ -44,15 +46,15 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: MQ-Espresso-${{ matrix.api }}-${{ matrix.abi }}-report
+          name: MQ-Espresso-${{ matrix.api }}-${{ matrix.abi }}-report-${{ matrix.emulatorApi }}
           path: |
             ./**/build/reports/androidTests/connected
             ./**/build/outputs/androidTest-results/connected
-      - name: Archive screenshots
+      - name: Archive screenshots ${{ matrix.emulatorApi }}
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: MQ-Screenshots-${{ matrix.api }}-${{ matrix.abi }}
+          name: MQ-Screenshots-${{ matrix.api }}-${{ matrix.abi }}-${{ matrix.emulatorApi }}
           path: |
             basicSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
             basicSample/build/outputs/androidTest-results/connected
@@ -60,6 +62,29 @@ jobs:
             extendedSample/build/outputs/androidTest-results/connected
             serviceLibrary/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
             serviceLibrary/build/outputs/androidTest-results/connected
+      - name: Compare screenshots
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          emulatorApi: ${{ matrix.emulatorApi }}
+        run: |
+          ls -ls extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
+          set -x
+          cp extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected/emulator\(AVD\)\ -\ ${{ matrix.emulatorApi }}/* screenshotsToCompare${{ matrix.emulatorApi }}
+          set +x
+          ./screenShotCompare.sh
+      - name: Archive screenshots diffs ${{ matrix.emulatorApi }}
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: MQ-Screenshots-diffs-${{ matrix.emulatorApi }}
+          path: |
+            screenshotDiffs
+      - name: Show git status ${{ matrix.emulatorApi }}
+        if: ${{ always() }}
+        run: |
+          git add screenshotsToCompare${{ matrix.emulatorApi }}
+          git status
+          [ "$(git status -s -uno)" ] && exit 1 || exit 0
   Check:
     name: Check
     runs-on: ${{ matrix.os }}
