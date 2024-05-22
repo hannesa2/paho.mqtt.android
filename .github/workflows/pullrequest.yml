@@ -32,8 +32,6 @@ jobs:
       - uses: gradle/actions/wrapper-validation@v3
       - name: Install Android SDK
         uses: hannesa2/action-android/install-sdk@0.1.16.7
-      - name: Run tests
-        run: ./gradlew test
       - name: Android Emulator test
         uses: hannesa2/action-android/emulator-run-cmd@0.1.16.7
         with:
@@ -79,6 +77,8 @@ jobs:
           java-version: 17
       - name: Install Android SDK
         uses: hannesa2/action-android/install-sdk@0.1.16.7
+      - name: Run tests
+        run: ./gradlew test
       - name: Kotlin code checks
         run: ./gradlew ktlintCheck
       - name: Code checks
