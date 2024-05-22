@@ -14,11 +14,14 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.espresso.screenshot.captureToBitmap
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.moka.lib.assertions.WaitingAssertion
 import info.hannes.timber.DebugFormatTree
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import org.hamcrest.CoreMatchers.not
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,6 +33,8 @@ import java.lang.Thread.sleep
 @RunWith(AndroidJUnit4::class)
 class ExtendedPublishTest {
 
+    private lateinit var device: UiDevice
+
     // a handy JUnit rule that stores the method name, so it can be used to generate unique screenshot files per test method
     @get:Rule
     var nameRule = TestName()
@@ -40,6 +45,7 @@ class ExtendedPublishTest {
     @Before
     fun setUp() {
         Timber.plant(DebugFormatTree())
+        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     }
 
     @Test
@@ -64,6 +70,8 @@ class ExtendedPublishTest {
             .captureToBitmap()
             .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-Subscribe")
         onView(withText("OK")).perform(click())
+
+        Assert.assertTrue(device.isScreenOn)
 
         onView(withId(2)).perform(click())
         onView(withId(R.id.topic)).perform(replaceText(TOPIC))
