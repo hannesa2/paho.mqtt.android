@@ -115,6 +115,6 @@ class ExtendedPublishSleepTest {
 
     companion object {
         private const val TOPIC = "AnotherTest"
-        private const val WAIT_SECONDS = 310L
+        private const val WAIT_SECONDS = 620L
     }
 }
