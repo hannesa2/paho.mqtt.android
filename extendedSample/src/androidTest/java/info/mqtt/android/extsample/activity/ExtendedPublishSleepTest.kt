@@ -81,8 +81,11 @@ class ExtendedPublishSleepTest {
 //        onView(ViewMatchers.isRoot())
 //            .captureToBitmap()
 //            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-sleep")
-        Timber.i("wait $WAIT_SECONDS seconds")
-        sleep(1000 * WAIT_SECONDS)
+        Timber.i("wait $WAIT_SECONDS seconds start")
+        for (i in 0..WAIT_SECONDS) {
+            sleep(1000)
+            Timber.i("wait for ${WAIT_SECONDS - i} seconds")
+        }
         device.wakeUp()
         sleep(1000)
 
