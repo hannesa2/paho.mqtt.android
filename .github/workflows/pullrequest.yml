@@ -82,6 +82,7 @@ jobs:
           name: MQ-Screenshots-diffs-${{ matrix.emulatorApi }}
           path: |
             screenshotDiffs
+            screenshotsToCompare${{ matrix.emulatorApi }}/view-*.png
       - name: Show git status ${{ matrix.emulatorApi }}
         if: ${{ always() }}
         run: |
