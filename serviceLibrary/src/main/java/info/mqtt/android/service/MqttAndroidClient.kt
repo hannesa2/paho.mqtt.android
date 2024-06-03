@@ -43,7 +43,9 @@ import javax.net.ssl.TrustManagerFactory
  */
 class MqttAndroidClient(
     val context: Context, private val serverURI: String, private val clientId: String, ackType: Ack = Ack.AUTO_ACK,
-    private var persistence: MqttClientPersistence? = null
+    private var persistence: MqttClientPersistence? = null,
+    private val pingLogging: Boolean = false,
+    private val keepPingRecords: Int = 1000
 ) : IMqttAsyncClient {
 
     // Listener for when the service is connected or disconnected
@@ -217,7 +219,7 @@ class MqttAndroidClient(
             context.bindService(serviceStartIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         } else {
             CoroutineScope(Dispatchers.IO).launch {
-                doConnect()
+                doConnect(pingLogging, keepPingRecords)
 
                 //Register receiver to show shoulder tap.
                 if (!receiverRegistered.get()) {
@@ -244,9 +246,10 @@ class MqttAndroidClient(
     /**
      * Actually do the mqtt connect operation
      */
-    private fun doConnect() {
+    private fun doConnect(pingLogging: Boolean, keepPingRecords: Int) {
         if (clientHandle == null) {
-            clientHandle = mqttService!!.getClient(serverURI, clientId, context.applicationInfo.packageName, persistence)
+            clientHandle =
+                mqttService!!.getClient(serverURI, clientId, context.applicationInfo.packageName, persistence, pingLogging, keepPingRecords)
         }
         mqttService!!.isTraceEnabled = traceEnabled
         mqttService!!.setTraceCallbackId(clientHandle)
@@ -1257,7 +1260,7 @@ class MqttAndroidClient(
                 serviceBound = true
                 collect()
                 // now that we have the service available, we can actually connect
-                doConnect()
+                doConnect(pingLogging, keepPingRecords)
             }
         }
 

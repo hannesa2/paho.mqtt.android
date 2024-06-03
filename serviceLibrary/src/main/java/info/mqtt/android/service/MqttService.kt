@@ -268,10 +268,14 @@ class MqttService : Service(), MqttTraceHandler {
      * @param persistence specifies the persistence layer to be used with this client
      * @return a string to be used by the Activity as a "handle" for this MqttConnection
      */
-    fun getClient(serverURI: String, clientId: String, contextId: String, persistence: MqttClientPersistence?): String {
+    fun getClient(
+        serverURI: String, clientId: String, contextId: String, persistence: MqttClientPersistence?,
+        pingLogging: Boolean = false,
+        keepPingRecords: Int = 1000
+    ): String {
         val clientHandle = "$serverURI:$clientId:$contextId"
         if (!connections.containsKey(clientHandle)) {
-            val client = MqttConnection(this, serverURI, clientId, persistence, clientHandle)
+            val client = MqttConnection(this, serverURI, clientId, persistence, clientHandle, pingLogging, keepPingRecords)
             connections[clientHandle] = client
         }
         return clientHandle

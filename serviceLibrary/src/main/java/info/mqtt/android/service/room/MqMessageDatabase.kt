@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import info.mqtt.android.service.QoS
 import info.mqtt.android.service.room.MqMessageDatabase.Companion.MQ_DB_VERSION
 import info.mqtt.android.service.room.entity.MqMessageEntity
+import info.mqtt.android.service.room.entity.PingEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -15,11 +16,12 @@ import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.util.*
 
-@Database(entities = [MqMessageEntity::class], version = MQ_DB_VERSION)
+@Database(entities = [MqMessageEntity::class, PingEntity::class], version = MQ_DB_VERSION)
 @TypeConverters(Converters::class)
 abstract class MqMessageDatabase : RoomDatabase() {
 
     abstract fun persistenceDao(): MqMessageDao
+    abstract fun pingDao(): PingDao
 
     fun storeArrived(clientHandle: String, topic: String, message: MqttMessage): String {
         val id = UUID.randomUUID().toString()
@@ -52,7 +54,7 @@ abstract class MqMessageDatabase : RoomDatabase() {
 
     companion object {
 
-        const val MQ_DB_VERSION = 1
+        const val MQ_DB_VERSION = 2
 
         @Volatile
         private var instance: MqMessageDatabase? = null
@@ -69,7 +71,8 @@ abstract class MqMessageDatabase : RoomDatabase() {
                 context.applicationContext,
                 MqMessageDatabase::class.java,
                 storageName
-            ).build()
+            ).fallbackToDestructiveMigrationFrom(1, 2)
+                .build()
         }
     }
 }
