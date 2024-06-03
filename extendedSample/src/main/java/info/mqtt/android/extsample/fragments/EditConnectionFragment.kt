@@ -88,6 +88,7 @@ class EditConnectionFragment : Fragment() {
             }
         })
         binding.cleanSessionSwitch.setOnCheckedChangeListener { _, isChecked -> formModel.isCleanSession = isChecked }
+        binding.reconnectSwitch.setOnCheckedChangeListener { _, isChecked -> formModel.isAutomaticReconnect = isChecked }
         binding.username.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
@@ -172,6 +173,7 @@ class EditConnectionFragment : Fragment() {
         binding.hostname.setText(connectionModel.serverHostName)
         binding.addConnectionPort.setText(connectionModel.serverPort.toString())
         binding.cleanSessionSwitch.isChecked = connectionModel.isCleanSession
+        binding.reconnectSwitch.isChecked = connectionModel.isAutomaticReconnect
         binding.username.setText(connectionModel.username)
         binding.password.setText(connectionModel.password)
         binding.tlsServerKey.setText(connectionModel.tlsServerKey)

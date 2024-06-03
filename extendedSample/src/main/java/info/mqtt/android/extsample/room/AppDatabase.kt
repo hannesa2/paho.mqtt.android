@@ -22,7 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
     @Suppress("SimpleRedundantLet")
     companion object {
 
-        const val DB_VERSION = 1
+        const val DB_VERSION = 2
         private var db: AppDatabase? = null
         const val DB_NAME = "persistenceMQ"
 
@@ -35,7 +35,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     storageName
-                ).build()
+                ).fallbackToDestructiveMigrationFrom(1, 2)
+                    .build()
                 db!!
             }
         }

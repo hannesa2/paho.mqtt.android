@@ -332,6 +332,12 @@
             android:text="@string/add_connection_clean_session_label" />
 
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/reconnect_switch"
+            style="@style/Switch"
+            android:layout_below="@+id/clean_session_switch"
+            android:text="@string/add_connection_reconnect_label" />
+
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/retain_switch"
             style="@style/Switch"
             android:layout_below="@+id/divider10"
@@ -346,7 +352,7 @@
         <TextView
             android:id="@+id/advancedTextView"
             style="@style/HeaderText"
-            android:layout_below="@+id/clean_session_switch"
+            android:layout_below="@+id/reconnect_switch"
             android:text="@string/add_connection_advanced_label" />
 
         <TextView
