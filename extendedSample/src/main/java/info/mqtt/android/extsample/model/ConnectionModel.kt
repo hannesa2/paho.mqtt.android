@@ -20,6 +20,7 @@ class ConnectionModel {
     var lwtMessage: String = ""
     var lwtQos = QoS.AtMostOnce
     var isLwtRetain = false
+    var isAutomaticReconnect = false
 
     constructor()
 
@@ -57,6 +58,7 @@ class ConnectionModel {
             lwtQos = QoS.AtMostOnce
             isLwtRetain = false
         }
+        isAutomaticReconnect = connection.connectionOptions.isAutomaticReconnect
     }
 
     override fun toString(): String {
@@ -77,6 +79,7 @@ class ConnectionModel {
                 ", lwtMessage='" + lwtMessage + '\'' +
                 ", lwtQos=" + lwtQos +
                 ", lwtRetain=" + isLwtRetain +
+                ", isAutomaticReconnect=" + isAutomaticReconnect +
                 '}'
     }
 
@@ -107,6 +110,9 @@ class ConnectionModel {
             return false
         }
         if (isLwtRetain != that.isLwtRetain) {
+            return false
+        }
+        if (isAutomaticReconnect != that.isAutomaticReconnect) {
             return false
         }
         if (clientHandle != that.clientHandle) {
@@ -152,6 +158,7 @@ class ConnectionModel {
         result = 31 * result + lwtMessage.hashCode()
         result = 31 * result + lwtQos.value
         result = 31 * result + if (isLwtRetain) 1 else 0
+        result = 31 * result + if (isAutomaticReconnect) 1 else 0
         return result
     }
 }

@@ -6,6 +6,7 @@ import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.internal.Notify.notification
+import info.mqtt.android.extsample.utils.connect
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
@@ -18,6 +19,10 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
 
         cause?.let {
             Timber.w("isAutomaticReconnect=${connection?.connectionOptions?.isAutomaticReconnect} ${it.cause} ")
+            if (connection?.connectionOptions?.isAutomaticReconnect == true) {
+                Timber.i("Try to reconnect")
+                connection.connect(context)
+            }
         } ?: run {
             Timber.d("isAutomaticReconnect=${connection?.connectionOptions?.isAutomaticReconnect}")
         }

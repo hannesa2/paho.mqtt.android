@@ -188,6 +188,7 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
 
     private fun optionsFromModel(model: ConnectionModel): MqttConnectOptions {
         val connOpts = MqttConnectOptions()
+        connOpts.isAutomaticReconnect = model.isAutomaticReconnect
         connOpts.isCleanSession = model.isCleanSession
         connOpts.connectionTimeout = model.timeout
         connOpts.keepAliveInterval = model.keepAlive

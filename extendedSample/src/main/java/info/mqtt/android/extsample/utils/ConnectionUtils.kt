@@ -30,6 +30,7 @@ fun ConnectionEntity.toConnection(context: Context): Connection {
     val connectOptions = MqttConnectOptions()
     connectOptions.isCleanSession = cleanSession.toBoolean()
     connectOptions.keepAliveInterval = keepAlive
+    connectOptions.isAutomaticReconnect = isAutomaticReconnect.toBoolean()
     connectOptions.connectionTimeout = timeout
     connectOptions.password = userPass?.toCharArray() ?: "".toCharArray()
     connectOptions.userName = userName
@@ -64,5 +65,6 @@ fun Connection.toConnectionEntity(): ConnectionEntity = ConnectionEntity(
     connectionOptions.willDestination,
     connectionOptions.willMessage?.payload.toString(), // message
     QoS.valueOf(connectionOptions.willMessage?.qos ?: QoS.AtMostOnce.value),
-    connectionOptions.willMessage?.isRetained?.toInt() ?: 0
+    connectionOptions.willMessage?.isRetained?.toInt() ?: 0,
+    connectionOptions.isAutomaticReconnect.toInt() ?: 0,
 )

@@ -12,6 +12,7 @@
     <string name="add_connection_server_default">broker.hivemq.com</string>
     <string name="add_connection_port_label">Port</string>
     <string name="add_connection_clean_session_label">Clean Session</string>
+    <string name="add_connection_reconnect_label">Reconnect on connection lost</string>
     <string name="add_connection_advanced_label">Advanced</string>
     <string name="add_connection_username_label">Username</string>
     <string name="add_connection_password_label">Password</string>
