@@ -6,7 +6,8 @@ import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.internal.Notify.notification
-import info.mqtt.android.extsample.utils.connect
+import info.mqtt.android.service.room.MqMessageDatabase
+import info.mqtt.android.service.room.entity.PingEntity
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
@@ -17,18 +18,27 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
     override fun connectionLost(cause: Throwable?) {
         val connection = getInstance(context).getConnection(clientHandle)
 
+        connection?.addHistory("Connection Lost [${cause?.message}]")
+        connection?.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED)
+
         cause?.let {
-            Timber.w("isAutomaticReconnect=${connection?.connectionOptions?.isAutomaticReconnect} ${it.cause} ")
-            if (connection?.connectionOptions?.isAutomaticReconnect == true) {
-                Timber.i("Try to reconnect")
-                connection.connect(context)
-            }
+            Timber.w("${it.javaClass.simpleName} ${it.message}")
+            val pingMQ = PingEntity(
+                System.currentTimeMillis(),
+                connection?.client?.clientId,
+                connection?.client?.serverURI,
+                false,
+                message = "${it.javaClass.simpleName} ${it.message}"
+            )
+            val pingDao = MqMessageDatabase.getDatabase(context).pingDao()
+            pingDao.insert(pingMQ)
+//            if (connection?.connectionOptions?.isAutomaticReconnect == true) {
+//                Timber.i("Try to reconnect")
+//                connection.connect(context)
+//            }
         } ?: run {
             Timber.d("isAutomaticReconnect=${connection?.connectionOptions?.isAutomaticReconnect}")
         }
-
-        connection?.addHistory("Connection Lost [${cause?.message}]")
-        connection?.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED)
 
         cause?.let {
             val intent = Intent()

@@ -51,7 +51,9 @@ internal class MqttConnection(
     var serverURI: String,
     var clientId: String,
     private var persistence: MqttClientPersistence?, // Client handle, used for callbacks...
-    var clientHandle: String
+    var clientHandle: String,
+    private val pingLogging: Boolean,
+    private val keepPingRecords: Int
 ) : MqttCallbackExtended {
     // Saved sent messages and their corresponding Topics, activityTokens and
     // invocationContexts, so we can handle "deliveryComplete" callbacks from the mqttClient
@@ -166,7 +168,7 @@ internal class MqttConnection(
                     myClient!!.connect(connectOptions, invocationContext, listener)
                 }
             } else {
-                alarmPingSender = AlarmPingSender(service)
+                alarmPingSender = AlarmPingSender(service, pingLogging, keepPingRecords)
                 setConnectingState(true)
                 myClient = MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender)
                 //, null,	new AndroidHighResolutionTimer());

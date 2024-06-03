@@ -61,7 +61,7 @@ class Connection private constructor(
         hostName = host
         this.port = port
         this.tlsConnection = tlsConnection
-        client = MqttAndroidClient(context, uri, clientId)
+        client = MqttAndroidClient(context, uri, clientId, pingLogging = true, keepPingRecords = 1500)
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -217,7 +217,7 @@ class Connection private constructor(
             } else {
                 "tcp://$host:$port"
             }
-            val client = MqttAndroidClient(context, uri, clientId)
+            val client = MqttAndroidClient(context, uri, clientId, pingLogging = true, keepPingRecords = 1500)
             return Connection(clientHandle, clientId, host, port, context, client, tlsConnection, connectionOptions)
         }
     }

@@ -40,6 +40,7 @@ class ConnectionFragment : Fragment() {
         binding.tablayout.addTab(binding.tablayout.newTab().setText("Messages").setId(1))
         binding.tablayout.addTab(binding.tablayout.newTab().setText("Publish").setId(2))
         binding.tablayout.addTab(binding.tablayout.newTab().setText("Subscribe").setId(3))
+        binding.tablayout.addTab(binding.tablayout.newTab().setText("Ping").setId(4))
         binding.tablayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(tab: TabLayout.Tab?) = Unit
 
@@ -51,6 +52,7 @@ class ConnectionFragment : Fragment() {
                     1 -> displayFragment(MessagesFragment())
                     2 -> displayFragment(PublishFragment())
                     3 -> displayFragment(SubscriptionFragment())
+                    4 -> displayFragment(PingFragment())
                 }
             }
 
