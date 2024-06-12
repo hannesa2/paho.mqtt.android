@@ -25,7 +25,9 @@ ext {
     compileSdkVersion = 34
     targetSdk = 34
     room_version = "2.6.1"
-    logcatVersion = "3.2"
+    // logcatVersion = "2.12.delegation-beta1"
+    // logcatVersion = "DelegationLogging-3.2-g96563f6-80"
+    logcatVersion = "DelegationLogging-SNAPSHOT"
 }
 
 subprojects {
