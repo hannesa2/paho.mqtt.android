@@ -13,9 +13,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ARM64 ]
+        os: [ ubuntu-latest ]
         api: [ 34 ]
-        abi: [ arm64-v8a ]
+        abi: [ x86_64 ]
         emulatorApi: [ 14 ]
         tag: [ 'google_apis' ]
     #        include:
@@ -25,6 +25,17 @@ jobs:
     #            emulatorApi: [ 9 ]
     #            tag: 'default'
     steps:
+      - name: kvm support
+        run: |
+          egrep -c '(vmx|svm)' /proc/cpuinfo
+          id
+          sudo adduser $USER kvm
+          sudo chown -R $USER /dev/kvm
+          id
+      - name: prepare
+        run: |
+          sudo apt-get update && sudo apt-get install -y exiftool imagemagick xdg-utils libimage-exiftool-perl zsh jq xorg
+      #          brew install exiftool imagemagick
       - uses: actions/checkout@v4
         with:
           submodules: true
@@ -71,9 +82,9 @@ jobs:
           emulatorApi: ${{ matrix.emulatorApi }}
         run: |
           ls -ls extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
-          set -x
-          cp extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected/emulator\(AVD\)\ -\ ${{ matrix.emulatorApi }}/* screenshotsToCompare${{ matrix.emulatorApi }}
-          set +x
+          cp extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected/emulator-5554\ -\ ${{ matrix.emulatorApi }}/* screenshotsToCompare${{ matrix.emulatorApi }}
+          export DISPLAY=:99
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           ./screenShotCompare.sh
       - name: Archive screenshots diffs ${{ matrix.emulatorApi }}
         if: ${{ always() }}
