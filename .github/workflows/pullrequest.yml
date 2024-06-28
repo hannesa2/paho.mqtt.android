@@ -5,6 +5,8 @@ on:
     branches:
       - master
   pull_request:
+env:
+  resourceRunID: ${{ github.run_id }}-${{ github.run_number }}
 
 jobs:
   Build:
@@ -85,7 +87,8 @@ jobs:
           cp extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected/emulator-5554\ -\ ${{ matrix.emulatorApi }}/* screenshotsToCompare${{ matrix.emulatorApi }}
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          ./screenShotCompare.sh
+          echo ${{ env.resourceRunID }}
+          ./screenShotCompare.sh ${{ env.resourceRunID }}
       - name: Archive screenshots diffs ${{ matrix.emulatorApi }}
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
