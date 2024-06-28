@@ -313,7 +313,7 @@ class MqttAndroidClient(
     override fun disconnect(userContext: Any?, callback: IMqttActionListener?): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback)
         val activityToken = storeToken(token)
-        mqttService!!.disconnect(clientHandle!!, null, activityToken)
+        mqttService?.disconnect(clientHandle!!, null, activityToken)
         return token
     }
 
