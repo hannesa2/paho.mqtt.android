@@ -20,6 +20,9 @@ changelog:
     - title: Bug fix
       labels:
         - bugfix
+    - title: Pipeline
+      labels:
+        - pipeline
     - title: Other Changes
       labels:
         - "*"
