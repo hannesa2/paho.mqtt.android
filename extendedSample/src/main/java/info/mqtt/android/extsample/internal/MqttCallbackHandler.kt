@@ -6,6 +6,7 @@ import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.internal.Notify.notification
+import info.mqtt.android.extsample.utils.connect
 import info.mqtt.android.service.room.MqMessageDatabase
 import info.mqtt.android.service.room.entity.PingEntity
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
@@ -32,10 +33,10 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
             )
             val pingDao = MqMessageDatabase.getDatabase(context).pingDao()
             pingDao.insert(pingMQ)
-//            if (connection?.connectionOptions?.isAutomaticReconnect == true) {
-//                Timber.i("Try to reconnect")
-//                connection.connect(context)
-//            }
+            if (connection?.connectionOptions?.isAutomaticReconnect == true) {
+                Timber.i("Try to reconnect")
+                connection.connect(context)
+            }
         } ?: run {
             Timber.d("isAutomaticReconnect=${connection?.connectionOptions?.isAutomaticReconnect}")
         }
