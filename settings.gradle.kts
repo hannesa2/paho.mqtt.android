@@ -1,5 +1,5 @@
 rootProject.name = "MQTT-Android"
 
-include(":serviceLibrary")
+//include(":serviceLibrary")
 include(":extendedSample")
 include(":basicSample")
