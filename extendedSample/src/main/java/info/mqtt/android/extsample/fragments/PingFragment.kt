@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.jeluchu.roomlivedata.PingListAdapter
+import info.mqtt.android.extsample.adapter.PingListAdapter
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.repository.PingViewModel
 import info.mqtt.android.extsample.databinding.ContentPingBinding

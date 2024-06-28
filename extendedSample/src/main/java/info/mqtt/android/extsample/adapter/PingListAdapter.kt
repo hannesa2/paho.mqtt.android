@@ -1,4 +1,4 @@
-package com.jeluchu.roomlivedata
+package info.mqtt.android.extsample.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
