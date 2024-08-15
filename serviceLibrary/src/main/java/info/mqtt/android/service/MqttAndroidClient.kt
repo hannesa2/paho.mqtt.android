@@ -848,6 +848,10 @@ class MqttAndroidClient(
         callbacksList.add(callback)
     }
 
+    fun removeCallback(callback: MqttCallback) {
+        callbacksList.remove(callback)
+    }
+
     /**
      * identify the callback to be invoked when making tracing calls back into
      * the Activity
