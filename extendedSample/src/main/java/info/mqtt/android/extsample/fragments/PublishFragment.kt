@@ -44,13 +44,13 @@ class PublishFragment : Fragment() {
         binding.qosSpinner.onItemSelectedListener = object : OnItemSelectedListener {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedQos = QoS.values()[position]
+                selectedQos = QoS.entries.toTypedArray()[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
         binding.retainSwitch.setOnCheckedChangeListener { _, isChecked -> retainValue = isChecked }
-        val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.values())
+        val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.entries.toTypedArray())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.qosSpinner.adapter = adapter
         binding.publishButton.setOnClickListener {
