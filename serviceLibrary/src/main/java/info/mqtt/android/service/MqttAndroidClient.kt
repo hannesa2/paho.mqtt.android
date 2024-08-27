@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package info.mqtt.android.service
 
 import android.content.*
@@ -52,7 +54,7 @@ class MqttAndroidClient(
     private val serviceConnection = MyServiceConnection()
 
     // We hold the various tokens in a collection and pass identifiers for them to the service
-    private val tokenMap = SparseArray<IMqttToken?>()
+    private val tokenMap = SparseArray<IMqttToken>()
 
     //The acknowledgment that a message has been processed by the application
     private val messageAck = ackType
@@ -959,7 +961,7 @@ class MqttAndroidClient(
     /**
      * Process a notification that we have disconnected
      */
-    private fun disconnected(data: Bundle?) {
+    private fun disconnected(data: Bundle) {
         clientHandle = null // avoid reuse!
         val token = removeMqttToken(data)
         token?.let {
@@ -1114,8 +1116,12 @@ class MqttAndroidClient(
      */
     @Synchronized
     private fun storeToken(token: IMqttToken?): String {
-        tokenMap.put(tokenNumber, token)
-        return (tokenNumber++).toString()
+        token?.let {
+            tokenMap.put(tokenNumber, token)
+            return (tokenNumber++).toString()
+        } ?: run {
+            return tokenNumber.toString()
+        }
     }
 
     /**
@@ -1124,8 +1130,8 @@ class MqttAndroidClient(
      * @return the token
      */
     @Synchronized
-    private fun removeMqttToken(data: Bundle?): IMqttToken? {
-        val activityToken = data!!.getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN)
+    private fun removeMqttToken(data: Bundle): IMqttToken? {
+        val activityToken = data.getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN)
         if (activityToken != null) {
             val tokenNumber = activityToken.toInt()
             val token = tokenMap[tokenNumber]
@@ -1141,8 +1147,8 @@ class MqttAndroidClient(
      * @return the token
      */
     @Synchronized
-    private fun getMqttToken(data: Bundle?): IMqttToken? {
-        val activityToken = data!!.getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN)
+    private fun getMqttToken(data: Bundle): IMqttToken? {
+        val activityToken = data.getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN)
         return tokenMap[activityToken!!.toInt()]
     }
 
