@@ -262,7 +262,7 @@ internal class MqttConnection(
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary string to be passed back to the activity
      */
-    fun disconnect(quiesceTimeout: Long, invocationContext: String?, activityToken: String?) {
+    fun disconnect(quiesceTimeout: Long, invocationContext: String?, activityToken: String) {
         service.traceDebug("disconnect()")
         disconnected = true
         val resultBundle = Bundle()
