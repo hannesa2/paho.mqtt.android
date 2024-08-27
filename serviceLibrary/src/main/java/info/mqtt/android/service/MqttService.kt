@@ -287,7 +287,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param activityToken  arbitrary identifier to be passed back to the Activity
      */
     @Throws(MqttException::class)
-    fun connect(clientHandle: String, connectOptions: MqttConnectOptions?, activityToken: String?) {
+    fun connect(clientHandle: String, connectOptions: MqttConnectOptions?, activityToken: IMqttToken?) {
         val client = getConnection(clientHandle)
         CoroutineScope(Dispatchers.IO).launch {
             client.connect(connectOptions, null, activityToken)
@@ -334,11 +334,10 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun disconnect(clientHandle: String, invocationContext: String?, activityToken: String?) {
+    fun disconnect(clientHandle: String, invocationContext: String?, activityToken: IMqttToken?) {
         val client = getConnection(clientHandle)
         client.disconnect(invocationContext, activityToken)
         connections.remove(clientHandle)
-
 
         // the activity has finished using us, so we can stop the service
         // the activities are bound with BIND_AUTO_CREATE, so the service will
@@ -354,7 +353,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun disconnect(clientHandle: String, quiesceTimeout: Long, invocationContext: String?, activityToken: String) {
+    fun disconnect(clientHandle: String, quiesceTimeout: Long, invocationContext: String?, activityToken: IMqttToken) {
         val client = getConnection(clientHandle)
         client.disconnect(quiesceTimeout, invocationContext, activityToken)
         connections.remove(clientHandle)
@@ -386,7 +385,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @return token for tracking the operation
      */
     fun publish(
-        clientHandle: String, topic: String, payload: ByteArray, qos: QoS, retained: Boolean, invocationContext: String?, activityToken: String?
+        clientHandle: String, topic: String, payload: ByteArray, qos: QoS, retained: Boolean, invocationContext: String?, activityToken: IMqttToken?
     ): IMqttDeliveryToken? {
         return getConnection(clientHandle).publish(topic, payload, qos, retained, invocationContext, activityToken!!)
     }
@@ -406,7 +405,7 @@ class MqttService : Service(), MqttTraceHandler {
         topic: String,
         message: MqttMessage,
         invocationContext: String?,
-        activityToken: String
+        activityToken: IMqttToken
     ): IMqttDeliveryToken? {
         return getConnection(clientHandle).publish(topic, message, invocationContext, activityToken)
     }
@@ -420,7 +419,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun subscribe(clientHandle: String, topic: String, qos: QoS, invocationContext: String?, activityToken: String) {
+    fun subscribe(clientHandle: String, topic: String, qos: QoS, invocationContext: String?, activityToken: IMqttToken) {
         getConnection(clientHandle).subscribe(topic, qos, invocationContext, activityToken)
     }
 
@@ -433,7 +432,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun subscribe(clientHandle: String, topic: Array<String>, qos: IntArray?, invocationContext: String?, activityToken: String) {
+    fun subscribe(clientHandle: String, topic: Array<String>, qos: IntArray?, invocationContext: String?, activityToken: IMqttToken) {
         getConnection(clientHandle).subscribe(topic, qos, invocationContext, activityToken)
     }
 
@@ -448,7 +447,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param messageListeners  a callback to handle incoming messages
      */
     fun subscribe(
-        clientHandle: String, topicFilters: Array<String>, qos: Array<QoS>, invocationContext: String?, activityToken: String?,
+        clientHandle: String, topicFilters: Array<String>, qos: Array<QoS>, invocationContext: String?, activityToken: IMqttToken?,
         messageListeners: Array<IMqttMessageListener>?
     ) {
         getConnection(clientHandle).subscribe(topicFilters, qos, invocationContext, activityToken!!, messageListeners)
@@ -462,7 +461,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun unsubscribe(clientHandle: String, topic: String, invocationContext: String?, activityToken: String) {
+    fun unsubscribe(clientHandle: String, topic: String, invocationContext: String?, activityToken: IMqttToken) {
         getConnection(clientHandle).unsubscribe(topic, invocationContext, activityToken)
     }
 
@@ -474,7 +473,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun unsubscribe(clientHandle: String, topic: Array<String>, invocationContext: String?, activityToken: String?) {
+    fun unsubscribe(clientHandle: String, topic: Array<String>, invocationContext: String?, activityToken: IMqttToken?) {
         getConnection(clientHandle).unsubscribe(topic, invocationContext, activityToken!!)
     }
 
