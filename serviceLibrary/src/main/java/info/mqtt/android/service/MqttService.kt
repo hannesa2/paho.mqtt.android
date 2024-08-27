@@ -359,7 +359,7 @@ class MqttService : Service(), MqttTraceHandler {
      * @param invocationContext arbitrary data to be passed back to the application
      * @param activityToken     arbitrary identifier to be passed back to the Activity
      */
-    fun disconnect(clientHandle: String, quiesceTimeout: Long, invocationContext: String?, activityToken: String?) {
+    fun disconnect(clientHandle: String, quiesceTimeout: Long, invocationContext: String?, activityToken: String) {
         val client = getConnection(clientHandle)
         client.disconnect(quiesceTimeout, invocationContext, activityToken)
         connections.remove(clientHandle)
