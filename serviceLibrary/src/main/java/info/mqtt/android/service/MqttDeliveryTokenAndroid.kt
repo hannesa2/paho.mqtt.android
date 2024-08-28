@@ -8,7 +8,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
  * Implementation of the IMqttDeliveryToken interface for use from within the MqttAndroidClient implementation
  */
 internal class MqttDeliveryTokenAndroid(
-    client: MqttAndroidClient, userContext: Any?, listener: IMqttActionListener?, // The message which is being tracked by this token
+    client: MqttAndroidClient,
+    userContext: Any?,
+    listener: IMqttActionListener?, // The message which is being tracked by this token
     private var message: MqttMessage
 ) : MqttTokenAndroid(client, userContext, listener), IMqttDeliveryToken {
 
