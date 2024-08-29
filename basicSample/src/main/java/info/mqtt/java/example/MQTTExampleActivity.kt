@@ -37,7 +37,7 @@ class MQTTExampleActivity : AppCompatActivity() {
         adapter = HistoryAdapter()
         binding.historyRecyclerView.adapter = adapter
         clientId += System.currentTimeMillis()
-        mqttAndroidClient = MqttAndroidClient(applicationContext, serverUri, clientId)
+        mqttAndroidClient = MqttAndroidClient(applicationContext, SERVER_URI, clientId)
         mqttAndroidClient.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(reconnect: Boolean, serverURI: String) {
                 if (reconnect) {
@@ -57,12 +57,12 @@ class MQTTExampleActivity : AppCompatActivity() {
                 addToHistory("Incoming message: " + String(message.payload))
             }
 
-            override fun deliveryComplete(token: IMqttDeliveryToken) {}
+            override fun deliveryComplete(token: IMqttDeliveryToken) = Unit
         })
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
         mqttConnectOptions.isCleanSession = false
-        addToHistory("Connecting: $serverUri")
+        addToHistory("Connecting: $SERVER_URI")
         mqttAndroidClient.connect(mqttConnectOptions, null, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 val disconnectedBufferOptions = DisconnectedBufferOptions()
@@ -75,7 +75,7 @@ class MQTTExampleActivity : AppCompatActivity() {
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                addToHistory("Failed to connect: $serverUri")
+                addToHistory("Failed to connect: $SERVER_URI")
             }
         })
     }
@@ -97,9 +97,9 @@ class MQTTExampleActivity : AppCompatActivity() {
     }
 
     fun subscribeToTopic() {
-        mqttAndroidClient.subscribe(subscriptionTopic, QoS.AtMostOnce.value, null, object : IMqttActionListener {
+        mqttAndroidClient.subscribe(SUBSCRIPTION_TOPIC, QoS.AtMostOnce.value, null, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
-                addToHistory("Subscribed! $subscriptionTopic")
+                addToHistory("Subscribed! $SUBSCRIPTION_TOPIC")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -108,7 +108,7 @@ class MQTTExampleActivity : AppCompatActivity() {
         })
 
         // THIS DOES NOT WORK!
-        mqttAndroidClient.subscribe(subscriptionTopic, QoS.AtMostOnce.value) { topic, message ->
+        mqttAndroidClient.subscribe(SUBSCRIPTION_TOPIC, QoS.AtMostOnce.value) { topic, message ->
             Timber.d("Message arrived $topic : ${String(message.payload)}")
             addToHistory("Message arrived $message")
         }
@@ -116,10 +116,10 @@ class MQTTExampleActivity : AppCompatActivity() {
 
     private fun publishMessage() {
         val message = MqttMessage()
-        message.payload = publishMessage.toByteArray()
+        message.payload = PUBLISH_MESSAGE.toByteArray()
         if (mqttAndroidClient.isConnected) {
-            mqttAndroidClient.publish(publishTopic, message)
-            addToHistory("Message Published >$publishMessage<")
+            mqttAndroidClient.publish(PUBLISH_TOPIC, message)
+            addToHistory("Message Published >$PUBLISH_MESSAGE<")
             if (!mqttAndroidClient.isConnected) {
                 addToHistory(mqttAndroidClient.bufferedMessageCount.toString() + " messages in buffer.")
             }
@@ -129,10 +129,10 @@ class MQTTExampleActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val serverUri = "tcp://broker.hivemq.com:1883"
-        private const val subscriptionTopic = "exampleAndroidTopic"
-        private const val publishTopic = "exampleAndroidPublishTopic"
-        private const val publishMessage = "Hello World"
+        private const val SERVER_URI = "tcp://broker.hivemq.com:1883"
+        private const val SUBSCRIPTION_TOPIC = "exampleAndroidTopic"
+        private const val PUBLISH_TOPIC = "exampleAndroidPublishTopic"
+        private const val PUBLISH_MESSAGE = "Hello World"
         private var clientId = "BasicSample"
     }
 }

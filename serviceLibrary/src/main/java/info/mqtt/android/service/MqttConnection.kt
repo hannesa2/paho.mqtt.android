@@ -654,8 +654,7 @@ internal class MqttConnection(
     @Synchronized
     private fun popSendDetails(messageToken: IMqttDeliveryToken): Bundle? {
         val message = mapSentMessages.remove(messageToken)
-        if (message != null) { // If I don't know about the message, it's
-            // irrelevant
+        if (message != null) { // If I don't know about the message, it's irrelevant
             val topic = mapTopics.remove(messageToken)
             val activityToken = mapActivityTokens.remove(messageToken)
             val invocationContext = mapInvocationContexts.remove(messageToken)
