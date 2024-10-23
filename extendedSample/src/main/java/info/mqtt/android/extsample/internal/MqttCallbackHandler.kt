@@ -50,7 +50,7 @@ internal class MqttCallbackHandler(private val context: Context, private val cli
 
     @Throws(Exception::class)
     override fun messageArrived(topic: String, message: MqttMessage) {
-        val messageString = "${message.payload} $topic qos=${message.qos} retained:${message.isRetained}"
+        val messageString = "'${String(message.payload)}' $topic qos=${message.qos} retained:${message.isRetained}"
         Timber.i(messageString)
 
         //Get connection object associated with this object

@@ -884,10 +884,13 @@ class MqttAndroidClient(
      *
      */
     private fun onReceive(data: Bundle) {
-        if (data.toString().lowercase().contentEquals("exception"))
-            Timber.w(data.toString())
+        val status = data.serializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
+        if (status == Status.ERROR) {
+            Timber.e("$status $data")
+        } else if (data.toString().lowercase().contentEquals("exception"))
+            Timber.w("$status $data")
         else
-            Timber.v(data.toString())
+            Timber.v("$status $data")
         val handleFromIntent = data.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE)
         if (handleFromIntent == null || handleFromIntent != clientHandle) {
             return

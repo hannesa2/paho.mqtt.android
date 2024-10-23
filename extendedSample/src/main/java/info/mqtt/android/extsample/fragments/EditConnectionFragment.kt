@@ -38,7 +38,7 @@ class EditConnectionFragment : Fragment() {
         _binding = FragmentEditConnectionBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.values())
+        val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_dropdown_item, QoS.entries.toTypedArray())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         if (this.arguments != null && requireArguments().getString(ActivityConstants.CONNECTION_KEY) != null) {
             val connections: HashMap<String, Connection> = getInstance(requireActivity()).connections
@@ -50,7 +50,7 @@ class EditConnectionFragment : Fragment() {
             Timber.d("Form Model: $formModel")
             formModel.clientHandle = connection.handle()
         } else {
-            formModel = ConnectionModel()
+            formModel = ConnectionModel(getString(R.string.add_connection_server_default))
         }
         populateFromConnectionModel(formModel)
         setFormItemListeners()
@@ -159,7 +159,7 @@ class EditConnectionFragment : Fragment() {
         })
         binding.lwtQosSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-                formModel.lwtQos = QoS.values()[position]
+                formModel.lwtQos = QoS.entries.toTypedArray()[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
