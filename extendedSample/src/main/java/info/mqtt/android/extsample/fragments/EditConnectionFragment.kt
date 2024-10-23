@@ -50,7 +50,7 @@ class EditConnectionFragment : Fragment() {
             Timber.d("Form Model: $formModel")
             formModel.clientHandle = connection.handle()
         } else {
-            formModel = ConnectionModel()
+            formModel = ConnectionModel(getString(R.string.add_connection_server_default))
         }
         populateFromConnectionModel(formModel)
         setFormItemListeners()

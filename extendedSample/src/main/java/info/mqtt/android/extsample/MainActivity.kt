@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
 
     override fun onAddConnectionSelected() {
         val editConnectionFragment: Fragment = EditConnectionFragment()
-        val title = "Edit Connection"
+        val title = getString(R.string.manage_edit)
         displayFragment(editConnectionFragment, title)
     }
 
