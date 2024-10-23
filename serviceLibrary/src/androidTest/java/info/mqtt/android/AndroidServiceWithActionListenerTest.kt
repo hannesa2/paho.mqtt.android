@@ -70,15 +70,15 @@ class AndroidServiceWithActionListenerTest {
     fun testConnect() {
         val mqttClient: IMqttAsyncClient?
         mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "testConnect")
-        var token = mqttClient.connect(null, ActionListener())
+        var token = mqttClient.connect(null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
-        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
-        mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
+        mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
-        token = mqttClient.connect(null, ActionListener())
+        token = mqttClient.connect(null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
-        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
-        mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
+        mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
     }
 
@@ -86,28 +86,28 @@ class AndroidServiceWithActionListenerTest {
     fun testRemoteConnect() {
         val mqttClient: IMqttAsyncClient?
         mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "testRemoteConnect")
-        var token = mqttClient.connect(null, ActionListener())
+        var token = mqttClient.connect(null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
-        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         val mqttV3Receiver = MqttReceiver(mqttClient)
         mqttClient.setCallback(mqttV3Receiver)
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isCleanSession = false
-        token = mqttClient.connect(mqttConnectOptions, null, ActionListener())
+        token = mqttClient.connect(mqttConnectOptions, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         val topicNames = arrayOf("${nameRule.methodName}/Topic")
         val topicQos = intArrayOf(0)
-        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         val payload = "Message payload $classCanonicalName.${nameRule.methodName}".toByteArray()
-        token = mqttClient.publish(topicNames[0], payload, 1, false, null, ActionListener())
+        token = mqttClient.publish(topicNames[0], payload, 1, false, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         val validateResult = mqttV3Receiver.validateReceipt(topicNames[0], 0, payload)
         if (!validateResult.ok) {
             Assert.fail(validateResult.message)
         }
-        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
     }
 
@@ -118,20 +118,20 @@ class AndroidServiceWithActionListenerTest {
             mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "testLargeMessage")
             val mqttReceiver = MqttReceiver(mqttClient)
             mqttClient.setCallback(mqttReceiver)
-            var token = mqttClient.connect(null, ActionListener())
+            var token = mqttClient.connect(null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             val largeSize = 1000
             val topicNames = arrayOf("testLargeMessage" + "/Topic")
             val topicQos = intArrayOf(0)
             val message = ByteArray(largeSize)
             Arrays.fill(message, 's'.code.toByte())
-            token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+            token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
-            token = mqttClient.unsubscribe(topicNames, null, ActionListener())
+            token = mqttClient.unsubscribe(topicNames, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
-            token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+            token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
-            token = mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener())
+            token = mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             val validateResult = mqttReceiver.validateReceipt(topicNames[0], 0, message)
             if (!validateResult.ok) {
@@ -141,7 +141,7 @@ class AndroidServiceWithActionListenerTest {
             Assert.fail("Failed to instantiate:${nameRule.methodName} exception=$exception")
         } finally {
             try {
-                val token = mqttClient!!.disconnect(null, ActionListener())
+                val token = mqttClient!!.disconnect(null, ActionListener(null))
                 token.waitForCompletion(waitForCompletionTime)
                 mqttClient.close()
             } catch (ignored: Exception) {
@@ -153,47 +153,47 @@ class AndroidServiceWithActionListenerTest {
     fun testMultipleClients() {
         val publishers = 2
         val subscribers = 5
-        val mqttPublisher = arrayOfNulls<IMqttAsyncClient>(publishers)
-        val mqttSubscriber = arrayOfNulls<IMqttAsyncClient>(subscribers)
+        val mqttPublishers = arrayOfNulls<IMqttAsyncClient>(publishers)
+        val mqttSubscribers = arrayOfNulls<IMqttAsyncClient>(subscribers)
         var disconnectToken: IMqttToken
         val topicNames = arrayOf("${nameRule.methodName}/Topic")
         val topicQos = intArrayOf(0)
-        for (i in mqttPublisher.indices) {
-            mqttPublisher[i] = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "MultiPub$i")
-            val token = mqttPublisher[i]!!.connect(null, ActionListener())
+        for (i in mqttPublishers.indices) {
+            mqttPublishers[i] = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "MultiPub$i")
+            val token = mqttPublishers[i]!!.connect(null, ActionListener(mqttPublishers[i] as MqttAndroidClient))
             token.waitForCompletion(waitForCompletionTime)
         }
-        val mqttReceiver = arrayOfNulls<MqttReceiver>(mqttSubscriber.size)
-        for (i in mqttSubscriber.indices) {
-            mqttSubscriber[i] = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "MultiSubscriber$i")
-            mqttReceiver[i] = MqttReceiver(mqttSubscriber[i]!!)
-            mqttSubscriber[i]!!.setCallback(mqttReceiver[i]!!)
-            var token = mqttSubscriber[i]!!.connect(null, ActionListener())
+        val mqttReceiver = arrayOfNulls<MqttReceiver>(mqttSubscribers.size)
+        for (i in mqttSubscribers.indices) {
+            mqttSubscribers[i] = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "MultiSubscriber$i")
+            mqttReceiver[i] = MqttReceiver(mqttSubscribers[i]!!)
+            mqttSubscribers[i]!!.setCallback(mqttReceiver[i]!!)
+            var token = mqttSubscribers[i]!!.connect(null, ActionListener(mqttSubscribers[i] as MqttAndroidClient))
             token.waitForCompletion(waitForCompletionTime)
-            token = mqttSubscriber[i]!!.subscribe(topicNames, topicQos, null, ActionListener())
+            token = mqttSubscribers[i]!!.subscribe(topicNames, topicQos, null, ActionListener(mqttSubscribers[i] as MqttAndroidClient))
             token.waitForCompletion(waitForCompletionTime)
         }
         for (iMessage in 0..1) {
             val payload = "Message $iMessage".toByteArray()
-            for (aMqttPublisher in mqttPublisher) {
-                val token = aMqttPublisher!!.publish(topicNames[0], payload, 0, false, null, ActionListener())
+            for (publisher in mqttPublishers) {
+                val token = publisher!!.publish(topicNames[0], payload, 0, false, null, ActionListener(publisher as MqttAndroidClient))
                 token.waitForCompletion(waitForCompletionTime)
             }
-            for (i in mqttSubscriber.indices) {
-                repeat(mqttPublisher.count()) {
+            for (i in mqttSubscribers.indices) {
+                repeat(mqttPublishers.count()) {
                     val validateResult = mqttReceiver[i]!!.validateReceipt(topicNames[0], 0, payload)
                     if (!validateResult.ok) {
-                        Assert.fail("$mqttPublisher ${validateResult.message}")
+                        Assert.fail("$mqttPublishers ${validateResult.message}")
                     }
                 }
             }
         }
-        mqttPublisher.forEach {
+        mqttPublishers.forEach {
             disconnectToken = it!!.disconnect(null, null)
             disconnectToken.waitForCompletion(waitForCompletionTime)
             it.close()
         }
-        mqttSubscriber.forEach {
+        mqttSubscribers.forEach {
             disconnectToken = it!!.disconnect(null, null)
             disconnectToken.waitForCompletion(waitForCompletionTime)
             it.close()
@@ -211,14 +211,14 @@ class AndroidServiceWithActionListenerTest {
         var mqttConnectOptions = MqttConnectOptions()
         // Clean session true is the default and implies non durable subscriptions.
         mqttConnectOptions.isCleanSession = true
-        var token = mqttClient.connect(mqttConnectOptions, null, ActionListener())
+        var token = mqttClient.connect(mqttConnectOptions, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         val topicNames = arrayOf("${nameRule.methodName}/Topic")
         val topicQos = intArrayOf(2)
-        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         val payloadNotRetained = "Message payload $classCanonicalName.${nameRule.methodName} not retained".toByteArray()
-        token = mqttClient.publish(topicNames[0], payloadNotRetained, 2, false, null, ActionListener())
+        token = mqttClient.publish(topicNames[0], payloadNotRetained, 2, false, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         var validateResult = mqttReceiver.validateReceipt(topicNames[0], 2, payloadNotRetained)
         if (!validateResult.ok) {
@@ -228,7 +228,7 @@ class AndroidServiceWithActionListenerTest {
         // Retained publications.
         // ----------------------
         val payloadRetained = "Message payload $classCanonicalName.${nameRule.methodName} retained".toByteArray()
-        token = mqttClient.publish(topicNames[0], payloadRetained, 2, true, null, ActionListener())
+        token = mqttClient.publish(topicNames[0], payloadRetained, 2, true, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         validateResult = mqttReceiver.validateReceipt(topicNames[0], 2, payloadRetained)
         if (!validateResult.ok) {
@@ -236,9 +236,9 @@ class AndroidServiceWithActionListenerTest {
         }
 
         // Check that unsubscribe and re subscribe resends the publication.
-        token = mqttClient.unsubscribe(topicNames, null, ActionListener())
+        token = mqttClient.unsubscribe(topicNames, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
-        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         validateResult = mqttReceiver.validateReceipt(topicNames[0], 2, payloadRetained)
         if (!validateResult.ok) {
@@ -247,7 +247,7 @@ class AndroidServiceWithActionListenerTest {
 
         // Check that subscribe without unsubscribe receives the
         // publication.
-        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         validateResult = mqttReceiver.validateReceipt(topicNames[0], 2, payloadRetained)
         if (!validateResult.ok) {
@@ -255,7 +255,7 @@ class AndroidServiceWithActionListenerTest {
         }
 
         // Disconnect, reconnect and check that the retained publication is still delivered.
-        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         mqttClient.close()
         mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "testNonDurableSubs")
@@ -263,15 +263,15 @@ class AndroidServiceWithActionListenerTest {
         mqttClient.setCallback(mqttReceiver)
         mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isCleanSession = true
-        connectToken = mqttClient.connect(mqttConnectOptions, null, ActionListener())
+        connectToken = mqttClient.connect(mqttConnectOptions, null, ActionListener(mqttClient))
         connectToken.waitForCompletion(1000)
-        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         validateResult = mqttReceiver.validateReceipt(topicNames[0], 2, payloadRetained)
         if (!validateResult.ok) {
             Assert.fail(validateResult.message)
         }
-        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         mqttClient.close()
     }
@@ -283,11 +283,11 @@ class AndroidServiceWithActionListenerTest {
         mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "testQoSPreserved")
         val mqttReceiver = MqttReceiver(mqttClient)
         mqttClient.setCallback(mqttReceiver)
-        var token = mqttClient.connect(null, ActionListener())
+        var token = mqttClient.connect(null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         val topicNames = arrayOf("${nameRule.methodName}/Topic0", "${nameRule.methodName}/Topic1", "${nameRule.methodName}/Topic2")
         val topicQos = intArrayOf(0, 1, 2)
-        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+        token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
         for (i in topicNames.indices) {
             val message = ("Message payload " + classCanonicalName + ".${nameRule.methodName} " + topicNames[i]).toByteArray()
@@ -300,7 +300,7 @@ class AndroidServiceWithActionListenerTest {
                 }
             }
         }
-        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+        token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
         token.waitForCompletion(waitForCompletionTime)
     }
 
@@ -315,10 +315,10 @@ class AndroidServiceWithActionListenerTest {
                 val options = MqttConnectOptions()
                 options.serverURIs = urls
                 Timber.i("HA connect")
-                var token = client.connect(options, null, ActionListener())
+                var token = client.connect(options, null, ActionListener(client))
                 token.waitForCompletion(waitForCompletionTime)
                 Timber.i("HA disconnect")
-                token = client.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+                token = client.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(client))
                 token.waitForCompletion(waitForCompletionTime)
                 Timber.i("HA success")
             } catch (e: Exception) {
@@ -337,15 +337,15 @@ class AndroidServiceWithActionListenerTest {
             mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, nameRule.methodName)
             val mqttReceiver = MqttReceiver(mqttClient)
             mqttClient.setCallback(mqttReceiver)
-            var token = mqttClient.connect(null, ActionListener())
+            var token = mqttClient.connect(null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             val topicNames = arrayOf("testPubSub" + "/Topic")
             val topicQos = intArrayOf(0)
             val mqttMessage = MqttMessage("message for testPubSub".toByteArray())
             val message = mqttMessage.payload
-            token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+            token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
-            token = mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener())
+            token = mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             TimeUnit.MILLISECONDS.sleep(3000)
             val validateResult = mqttReceiver.validateReceipt(topicNames[0], 0, message)
@@ -356,7 +356,7 @@ class AndroidServiceWithActionListenerTest {
             Assert.fail("Failed to instantiate:${nameRule.methodName} exception=$exception")
         } finally {
             try {
-                val token = mqttClient!!.disconnect(null, ActionListener())
+                val token = mqttClient!!.disconnect(null, ActionListener(null))
                 token.waitForCompletion(waitForCompletionTime)
                 mqttClient.close()
             } catch (ignored: Exception) {
@@ -372,15 +372,15 @@ class AndroidServiceWithActionListenerTest {
             mqttClient = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, nameRule.methodName)
             val mqttV3Receiver = MqttReceiver(mqttClient)
             mqttClient.setCallback(mqttV3Receiver)
-            var token = mqttClient.connect(null, ActionListener())
+            var token = mqttClient.connect(null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             val topicNames = arrayOf("testRetainedMessage" + "/Topic")
             val topicQos = intArrayOf(0)
             val mqttMessage = MqttMessage("message for testPubSub".toByteArray())
             val message = mqttMessage.payload
-            token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+            token = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
-            token = mqttClient.publish(topicNames[0], message, 0, true, null, ActionListener())
+            token = mqttClient.publish(topicNames[0], message, 0, true, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             TimeUnit.MILLISECONDS.sleep(3000)
             var validateResult = mqttV3Receiver.validateReceipt(topicNames[0], 0, message)
@@ -388,7 +388,7 @@ class AndroidServiceWithActionListenerTest {
                 Assert.fail(validateResult.message)
             }
             Timber.i("First client received message successfully")
-            token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+            token = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             mqttClient.close()
             mqttClientRetained = MqttAndroidClient(InstrumentationRegistry.getInstrumentation().targetContext, serverURI!!, "Retained")
@@ -396,10 +396,10 @@ class AndroidServiceWithActionListenerTest {
             val mqttReceiver = MqttReceiver(mqttClientRetained)
             mqttClientRetained.setCallback(mqttReceiver)
             Timber.i("Assigning callback...")
-            token = mqttClientRetained.connect(null, ActionListener())
+            token = mqttClientRetained.connect(null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             Timber.i("Connect to mqtt server")
-            token = mqttClientRetained.subscribe(topicNames, topicQos, null, ActionListener())
+            token = mqttClientRetained.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             Timber.i("subscribe " + topicNames[0] + " QoS is " + topicQos[0])
             TimeUnit.MILLISECONDS.sleep(3000)
@@ -408,7 +408,7 @@ class AndroidServiceWithActionListenerTest {
                 Assert.fail(validateResult.message)
             }
             Timber.i("Second client received message successfully")
-            token = mqttClientRetained.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+            token = mqttClientRetained.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
             token.waitForCompletion(waitForCompletionTime)
             mqttClientRetained.close()
         } catch (exception: Exception) {
@@ -428,13 +428,16 @@ class AndroidServiceWithActionListenerTest {
             val options = MqttConnectOptions()
             options.socketFactory =
                 mqttClient.getSSLSocketFactory(InstrumentationRegistry.getInstrumentation().targetContext.assets.open("test.bks"), keyStorePwd)
-            var connectToken = mqttClient.connect(options, InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+            var connectToken = mqttClient.connect(options, InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
             connectToken.waitForCompletion(waitForCompletionTime)
-            var disconnectToken: IMqttToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+            var disconnectToken: IMqttToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(
+                mqttClient
+            )
+            )
             disconnectToken.waitForCompletion(waitForCompletionTime)
-            connectToken = mqttClient.connect(options, InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+            connectToken = mqttClient.connect(options, InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
             connectToken.waitForCompletion(waitForCompletionTime)
-            disconnectToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+            disconnectToken = mqttClient.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
             disconnectToken.waitForCompletion(waitForCompletionTime)
         } catch (exception: Exception) {
             Assert.fail("Failed:testSSLConnect exception=$exception")
@@ -461,15 +464,15 @@ class AndroidServiceWithActionListenerTest {
                 mqttClient.getSSLSocketFactory(InstrumentationRegistry.getInstrumentation().targetContext.assets.open("test.bks"), keyStorePwd)
             val mqttReceiver = MqttReceiver(mqttClient)
             mqttClient.setCallback(mqttReceiver)
-            connectToken = mqttClient.connect(options, InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+            connectToken = mqttClient.connect(options, InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
             connectToken.waitForCompletion(waitForCompletionTime)
             val topicNames = arrayOf("testSSLPubSub" + "/Topic")
             val topicQos = intArrayOf(0)
             val mqttMessage = MqttMessage("message for testSSLPubSub".toByteArray())
             val message = mqttMessage.payload
-            subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener())
+            subToken = mqttClient.subscribe(topicNames, topicQos, null, ActionListener(mqttClient))
             subToken.waitForCompletion(waitForCompletionTime)
-            pubToken = mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener())
+            pubToken = mqttClient.publish(topicNames[0], message, 0, false, null, ActionListener(mqttClient))
             pubToken.waitForCompletion(waitForCompletionTime)
             TimeUnit.MILLISECONDS.sleep(6000)
             val validateResult = mqttReceiver.validateReceipt(topicNames[0], 0, message)
@@ -479,16 +482,16 @@ class AndroidServiceWithActionListenerTest {
         } catch (exception: Exception) {
             Assert.fail("Failed:testSSLPubSub exception=$exception")
         } finally {
-            disconnectToken = mqttClient!!.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener())
+            disconnectToken = mqttClient!!.disconnect(InstrumentationRegistry.getInstrumentation().targetContext, ActionListener(mqttClient))
             disconnectToken.waitForCompletion(waitForCompletionTime)
             mqttClient.close()
         }
     }
 
-    private inner class ActionListener : IMqttActionListener {
+    private inner class ActionListener(val mqttClient: MqttAndroidClient?) : IMqttActionListener {
 
         override fun onFailure(token: IMqttToken?, exception: Throwable?) {
-            Assert.fail("onFailure $exception")
+            Assert.fail("onFailure ${mqttClient?.serverURI} $exception")
         }
 
         override fun onSuccess(token: IMqttToken) {
