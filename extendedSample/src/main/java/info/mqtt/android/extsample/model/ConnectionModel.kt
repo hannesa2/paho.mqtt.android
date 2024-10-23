@@ -6,7 +6,7 @@ import info.mqtt.android.service.QoS
 class ConnectionModel {
     var clientHandle: String = ""
     var clientId: String = "ExtendedSampleClient"
-    var serverHostName: String = "broker.hivemq.com"
+    var serverHostName: String = "undefined" //"broker.hivemq.com"
     var serverPort = 1883
     var isCleanSession = true
     var username: String = ""
@@ -21,7 +21,9 @@ class ConnectionModel {
     var lwtQos = QoS.AtMostOnce
     var isLwtRetain = false
 
-    constructor()
+    constructor(defaultServer: String) {
+        serverHostName = defaultServer
+    }
 
     constructor(connection: Connection) {
         clientHandle = connection.handle()

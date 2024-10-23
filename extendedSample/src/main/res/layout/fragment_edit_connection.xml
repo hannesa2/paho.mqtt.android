@@ -30,6 +30,7 @@
                 android:ems="10"
                 android:inputType="text"
                 android:lines="1"
+                android:hint="@string/client_id"
                 android:text="@string/add_connection_client_id_default" />
 
             <TextView
