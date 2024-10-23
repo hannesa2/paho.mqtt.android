@@ -54,6 +54,10 @@ class ExtendedPublishTest {
             .check(matches(isClosed(Gravity.LEFT))) // Left Drawer should be closed.
             .perform(DrawerActions.open())
         onView(withId(R.id.action_add_connection)).perform(click())
+        onView(ViewMatchers.isRoot())
+            .captureToBitmap()
+            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-0ShowConnection")
+
         onView(withId(R.id.action_save_connection)).perform(click())
 
         onView(ViewMatchers.isRoot())
