@@ -778,6 +778,5 @@ class AndroidServiceTest : IMqttActionListener {
 
     companion object {
         private val classSimpleName = this::class.java.simpleName
-        private val TAG = classSimpleName
     }
 }

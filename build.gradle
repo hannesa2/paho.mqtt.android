@@ -25,7 +25,7 @@ ext {
     compileSdkVersion = 34
     targetSdk = 34
     room_version = "2.6.1"
-    logcatVersion = "3.2"
+    logcatVersion = "3.3.1"
 }
 
 subprojects {
