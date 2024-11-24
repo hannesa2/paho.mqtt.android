@@ -498,9 +498,4 @@ class AndroidServiceWithActionListenerTest {
             Timber.d("onSuccess")
         }
     }
-
-    companion object {
-        private val classCanonicalName = this::class.java.canonicalName
-        private val TAG = classCanonicalName
-    }
 }
