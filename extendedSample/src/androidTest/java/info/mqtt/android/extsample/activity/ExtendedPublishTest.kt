@@ -86,7 +86,7 @@ class ExtendedPublishTest {
         onView(withId(2)).perform(click())
         onView(withId(R.id.topic)).perform(replaceText(TOPIC))
         onView(withId(R.id.message)).perform(replaceText("Typed message"))
-        sleep(200)
+        sleep(400)
         onView(isRoot())
             .perform(captureToBitmap { bitmap: Bitmap ->
                 bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-4publish")
@@ -96,6 +96,7 @@ class ExtendedPublishTest {
         onView(withId(1)).perform(click())
 
         WaitingAssertion.checkAssertion(R.id.history_list_view, Matchers.withListSizeBigger(0), 2500)
+        sleep(400)
         onView(isRoot())
             .perform(captureToBitmap { bitmap: Bitmap ->
                 bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-6End")
@@ -112,6 +113,7 @@ class ExtendedPublishTest {
         onView(withId(R.id.disConnectSwitch)).check(matches(isChecked()))
 
         onView(withId(R.id.disConnectSwitch)).perform(click())
+        sleep(400)
         onView(isRoot())
             .perform(captureToBitmap { bitmap: Bitmap ->
                 bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-isDisConnected")
@@ -120,6 +122,7 @@ class ExtendedPublishTest {
         onView(withId(R.id.disConnectSwitch)).check(matches(not(isChecked())))
 
         onView(withId(R.id.disConnectSwitch)).perform(click())
+        sleep(400)
         onView(isRoot())
             .perform(captureToBitmap { bitmap: Bitmap ->
                 bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-isConnectedAgain")
