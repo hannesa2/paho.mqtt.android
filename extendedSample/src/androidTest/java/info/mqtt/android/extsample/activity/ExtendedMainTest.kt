@@ -1,14 +1,15 @@
 package info.mqtt.android.extsample.activity
 
+import android.graphics.Bitmap
 import android.view.Gravity
 import androidx.test.core.graphics.writeToTestStorage
-import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.captureToBitmap
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.screenshot.captureToBitmap
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -42,12 +43,11 @@ class ExtendedMainTest {
 
     @Test
     fun mainSmokeTest() {
-        Espresso.onView(withId(R.id.drawer_layout))
+        onView(withId(R.id.drawer_layout))
             .check(matches(isClosed(Gravity.LEFT))) // Left Drawer should be closed.
             .perform(DrawerActions.open())
-        Espresso.onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-End")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap -> bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-End") })
     }
 
 }

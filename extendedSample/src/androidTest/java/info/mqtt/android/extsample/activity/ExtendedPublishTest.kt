@@ -1,17 +1,20 @@
 package info.mqtt.android.extsample.activity
 
+import android.graphics.Bitmap
 import android.view.Gravity
 import androidx.test.core.graphics.writeToTestStorage
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.action.ViewActions.captureToBitmap
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isChecked
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.espresso.screenshot.captureToBitmap
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -54,15 +57,17 @@ class ExtendedPublishTest {
             .check(matches(isClosed(Gravity.LEFT))) // Left Drawer should be closed.
             .perform(DrawerActions.open())
         onView(withId(R.id.action_add_connection)).perform(click())
-        onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-0ShowConnection")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap ->
+                bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-0ShowConnection")
+            })
 
         onView(withId(R.id.action_save_connection)).perform(click())
 
-        onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-1AddConnect")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap ->
+                bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-1AddConnect")
+            })
 
         onView(withId(R.id.disConnectSwitch)).perform(click())
         onView(withId(3)).perform(click())
@@ -70,9 +75,10 @@ class ExtendedPublishTest {
 
         onView(withId(R.id.subscribe_button)).perform(click())
         onView(withId(R.id.subscription_topic_edit_text)).perform(typeText(TOPIC))
-        onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-2Subscribe")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap ->
+                bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-2Subscribe")
+            })
         onView(withText("OK")).perform(click())
 
         Assert.assertTrue(device.isScreenOn)
@@ -81,41 +87,47 @@ class ExtendedPublishTest {
         onView(withId(R.id.topic)).perform(replaceText(TOPIC))
         onView(withId(R.id.message)).perform(replaceText("Typed message"))
         sleep(200)
-        onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-4publish")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap ->
+                bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-4publish")
+            })
         onView(withId(R.id.publish_button)).perform(click())
 
         onView(withId(1)).perform(click())
 
         WaitingAssertion.checkAssertion(R.id.history_list_view, Matchers.withListSizeBigger(0), 2500)
-        onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-6End")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap ->
+                bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-6End")
+            })
     }
 
     @Test
     fun disconnect() {
-        onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-Before")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap ->
+                bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-Before")
+            })
         // it should be checked on previous test
         onView(withId(R.id.disConnectSwitch)).check(matches(isChecked()))
 
         onView(withId(R.id.disConnectSwitch)).perform(click())
-        onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-isDisConnected")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap ->
+                bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-isDisConnected")
+            })
 
         onView(withId(R.id.disConnectSwitch)).check(matches(not(isChecked())))
 
         onView(withId(R.id.disConnectSwitch)).perform(click())
-        onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-isConnectedAgain")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap ->
+                bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-isConnectedAgain")
+            })
 
         onView(withId(R.id.disConnectSwitch)).check(matches(isChecked()))
     }
+
     companion object {
         private const val TOPIC = "AnotherTest"
     }
