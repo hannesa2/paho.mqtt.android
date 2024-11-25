@@ -22,8 +22,8 @@ plugins {
 println "Gradle uses Java ${Jvm.current()}"
 
 ext {
-    compileSdkVersion = 35
-    targetSdk = 35
+    compileSdkVersion = 34
+    targetSdk = 34
     room_version = "2.6.1"
     logcatVersion = "3.3.1"
 }
