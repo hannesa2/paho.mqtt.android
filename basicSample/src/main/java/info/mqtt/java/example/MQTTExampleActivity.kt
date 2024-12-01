@@ -17,7 +17,7 @@ import java.util.*
 class MQTTExampleActivity : AppCompatActivity() {
 
     private lateinit var mqttAndroidClient: MqttAndroidClient
-    private lateinit var adapter: HistoryAdapter
+    private lateinit var historyAdapter: HistoryAdapter
     private lateinit var binding: ActivityScrollingBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,8 +31,8 @@ class MQTTExampleActivity : AppCompatActivity() {
         binding.fab.setOnClickListener { publishMessage() }
         val mLayoutManager: LayoutManager = LinearLayoutManager(this)
         binding.historyRecyclerView.layoutManager = mLayoutManager
-        adapter = HistoryAdapter()
-        binding.historyRecyclerView.adapter = adapter
+        historyAdapter = HistoryAdapter()
+        binding.historyRecyclerView.adapter = historyAdapter
         clientId += System.currentTimeMillis()
         mqttAndroidClient = MqttAndroidClient(applicationContext, serverUri, clientId)
         mqttAndroidClient.setCallback(object : MqttCallbackExtended {
@@ -62,11 +62,12 @@ class MQTTExampleActivity : AppCompatActivity() {
         addToHistory("Connecting: $serverUri")
         mqttAndroidClient.connect(mqttConnectOptions, null, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
-                val disconnectedBufferOptions = DisconnectedBufferOptions()
-                disconnectedBufferOptions.isBufferEnabled = true
-                disconnectedBufferOptions.bufferSize = 100
-                disconnectedBufferOptions.isPersistBuffer = false
-                disconnectedBufferOptions.isDeleteOldestMessages = false
+                val disconnectedBufferOptions = DisconnectedBufferOptions().apply {
+                    isBufferEnabled = true
+                    bufferSize = 100
+                    isPersistBuffer = false
+                    isDeleteOldestMessages = false
+                }
                 mqttAndroidClient.setBufferOpts(disconnectedBufferOptions)
                 subscribeToTopic()
             }
@@ -81,7 +82,7 @@ class MQTTExampleActivity : AppCompatActivity() {
         Timber.d(mainText)
         @SuppressLint("SimpleDateFormat")
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
-        adapter.add("$timestamp $mainText")
+        historyAdapter.add("$timestamp $mainText")
         Snackbar.make(findViewById(android.R.id.content), mainText, Snackbar.LENGTH_LONG).setAction("Action", null).show()
     }
 
