@@ -81,7 +81,7 @@ internal class MqttConnection(
     @Volatile
     private var isConnecting = false
     private var wakelock: WakeLock? = null
-    private var bufferOpts: DisconnectedBufferOptions? = null
+    private var disconnectedBufferOptions: DisconnectedBufferOptions? = null
 
     /**
      * Connect to the server specified when we were instantiated
@@ -403,7 +403,7 @@ internal class MqttConnection(
             } catch (e: Exception) {
                 handleException(resultBundle, e)
             }
-        } else if (myClient != null && bufferOpts != null && bufferOpts!!.isBufferEnabled) {
+        } else if (myClient != null && disconnectedBufferOptions != null && disconnectedBufferOptions!!.isBufferEnabled) {
             // Client is not connected, but buffer is enabled, so sending message
             val listener: IMqttActionListener = MqttConnectionListener(resultBundle)
             try {
@@ -810,7 +810,7 @@ internal class MqttConnection(
      * Sets the DisconnectedBufferOptions for this client
      */
     fun setBufferOpts(bufferOpts: DisconnectedBufferOptions?) {
-        this.bufferOpts = bufferOpts
+        this.disconnectedBufferOptions = bufferOpts
         myClient!!.setBufferOpts(bufferOpts)
     }
 
