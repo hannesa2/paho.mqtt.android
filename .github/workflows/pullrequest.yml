@@ -93,7 +93,8 @@ jobs:
           emulatorApi: ${{ matrix.emulatorApi }}
         run: |
           ls -ls extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
-          cp extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected/emulator-5554\ -\ ${{ matrix.emulatorApi }}/* screenshotsToCompare${{ matrix.emulatorApi }}
+          cp extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected/emulator\(AVD\)\ -\ ${{ matrix
+          .emulatorApi }}/* screenshotsToCompare${{ matrix.emulatorApi }}
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           echo ${{ env.resourceRunID }}
