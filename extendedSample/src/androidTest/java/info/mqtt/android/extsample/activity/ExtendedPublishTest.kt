@@ -25,6 +25,7 @@ import org.junit.Test
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
 import timber.log.Timber
+import java.lang.Thread.sleep
 
 
 @RunWith(AndroidJUnit4::class)
@@ -68,6 +69,7 @@ class ExtendedPublishTest {
         onView(withId(2)).perform(click())
         onView(withId(R.id.topic)).perform(replaceText(TOPIC))
         onView(withId(R.id.message)).perform(replaceText("msg"))
+        sleep(500)
         onView(ViewMatchers.isRoot())
             .captureToBitmap()
             .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-publish")

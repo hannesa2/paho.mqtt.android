@@ -14,6 +14,11 @@ android {
         versionCode getGitCommitCount()
         versionName getTag()
 
+        if (System.getenv("CI") == "true") { // Github action
+            resValue "string", "add_connection_server_default", "10.0.2.2"
+        } else
+            resValue "string", "add_connection_server_default", "broker.hivemq.com"
+
         javaCompileOptions {
             annotationProcessorOptions { arguments = ["room.schemaLocation": "$projectDir/schemas".toString()] }
         }
