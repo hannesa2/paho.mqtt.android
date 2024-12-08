@@ -1,10 +1,11 @@
 package info.mqtt.java.example
 
+import android.graphics.Bitmap
 import androidx.test.core.graphics.writeToTestStorage
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.captureToBitmap
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.screenshot.captureToBitmap
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.moka.lib.assertions.MatchOperator
@@ -29,13 +30,11 @@ class ConnectTest {
     @Ignore("On CI it doesn't work anymore")
     fun basicSmokeTest() {
         WaitingAssertion.checkAssertion(R.id.history_recycler_view, isDisplayed(), 1500)
-        Espresso.onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-Step1")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap -> bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-Step1") })
         WaitingAssertion.assertRecyclerAdapterItemsCount(R.id.history_recycler_view, 3, MatchOperator.GREATER_EQUAL, 5500)
-        Espresso.onView(ViewMatchers.isRoot())
-            .captureToBitmap()
-            .writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-End")
+        onView(isRoot())
+            .perform(captureToBitmap { bitmap: Bitmap -> bitmap.writeToTestStorage("${javaClass.simpleName}_${nameRule.methodName}-End") })
     }
 
 }
