@@ -1,38 +1,38 @@
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    id 'maven-publish'
-    id 'com.google.devtools.ksp'
+    id "com.android.library"
+    id "kotlin-android"
+    id "maven-publish"
+    id "com.google.devtools.ksp"
 }
 
 android {
-    namespace 'info.mqtt.android.service'
-    testNamespace 'info.mqtt.android.service.test'
+    namespace "info.mqtt.android.service"
+    testNamespace "info.mqtt.android.service.test"
     defaultConfig {
         minSdkVersion 21
         compileSdk rootProject.ext.compileSdkVersion
         targetSdkVersion rootProject.ext.targetSdk
 
-        // Android Studio 4.1 doesn't generate versionName in libraries any more
+        // Android Studio 4.1 doesn"t generate versionName in libraries any more
         // https://developer.android.com/studio/releases/gradle-plugin#version_properties_removed_from_buildconfig_class_in_library_projects
-        buildConfigField "String", 'VERSION_NAME', "\"" + getTag() + "\""
+        buildConfigField "String", "VERSION_NAME", "\"${getTag()}\""
 
         testApplicationId "info.mgtt.android.service.test"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments useTestStorageService: 'true'
+        testInstrumentationRunnerArguments useTestStorageService: "true"
 
         packagingOptions {
-            pickFirst 'META-INF/serviceLibrary_debug.kotlin_module'
+            pickFirst "META-INF/serviceLibrary_debug.kotlin_module"
         }
 
         ksp {
-            arg('room.schemaLocation', "$projectDir/schemas")
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
 
         buildTypes {
             release {
                 minifyEnabled false
-                consumerProguardFile('proguard-sdk.pro')
+                consumerProguardFile("proguard-sdk.pro")
             }
         }
 
@@ -50,13 +50,13 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = "17"
     }
 }
 
 dependencies {
     api "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5"
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
     implementation "androidx.core:core-ktx:1.15.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"

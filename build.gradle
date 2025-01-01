@@ -1,22 +1,22 @@
 import org.gradle.internal.jvm.Jvm
 
 buildscript {
-    ext.kotlin_version = '2.1.0'
+    ext.kotlin_version = "2.1.0"
     repositories {
         mavenCentral()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "com.android.tools.build:gradle:8.7.3"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:12.1.2"
     }
 }
 
 plugins {
-    id 'com.google.devtools.ksp' version '2.1.0-1.0.29' apply false
+    id "com.google.devtools.ksp" version "2.1.0-1.0.29" apply false
 }
 
 println "Gradle uses Java ${Jvm.current()}"
@@ -42,12 +42,12 @@ allprojects {
         google()
         mavenCentral()
         maven { url "https://repo.eclipse.org/content/repositories/paho-releases/" }
-        maven { url 'https://jitpack.io' }
+        maven { url "https://jitpack.io" }
     }
 
 }
 
-@SuppressWarnings('unused')
+@SuppressWarnings("unused")
 static def getTag() {
     def tagVersion = "$System.env.VERSION"
     if (tagVersion.toString().equals("null")) {
@@ -63,7 +63,7 @@ static def getTag() {
     return tagVersion
 }
 
-@SuppressWarnings('unused')
+@SuppressWarnings("unused")
 static def getGitCommitCount() {
     def process = "git rev-list HEAD --count".execute()
     return process.text.toInteger()
