@@ -4,3 +4,6 @@
 [submodule "screenShotScript"]
 	path = screenShotScript
 	url = git@github.com:hannesa2/screenShotScript.git
+[submodule "buildSrc"]
+	path = buildSrc
+	url = git@github.com:hannesa2/KotlinBuildSource.git

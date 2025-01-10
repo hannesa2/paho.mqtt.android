@@ -121,8 +121,9 @@ jobs:
       matrix:
         os: [ ubuntu-22.04 ]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: set up JDK
         uses: actions/setup-java@v4
         with:
