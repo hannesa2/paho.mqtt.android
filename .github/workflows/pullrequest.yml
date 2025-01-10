@@ -66,6 +66,7 @@ jobs:
           tag: ${{ matrix.tag }}
           abi: ${{ matrix.abi }}
           cmdOptions: -noaudio -no-boot-anim -no-window -metrics-collection
+          disableAnimations: true
           bootTimeout: 720
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
