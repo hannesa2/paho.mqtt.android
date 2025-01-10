@@ -10,10 +10,9 @@ jobs:
     name: Publish release
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          submodules: true
       - name: Find Tag
         id: tagger
         uses: jimschubert/query-tag-action@v2
