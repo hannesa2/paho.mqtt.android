@@ -1,5 +1,4 @@
 [![](https://jitpack.io/v/hannesa2/paho.mqtt.android.svg)](https://jitpack.io/#hannesa2/paho.mqtt.android)
-[<img src="https://api.gitsponsors.com/api/badge/img?id=72192928" height="20">](https://api.gitsponsors.com/api/badge/link?p=5Z5mJzKPRA5ePVil4buw1tTTa9JKc/9B7mkKFGdZtsrR6DHJuoEm+JLIJAo/RcXG2yDod3i6a0CwhzFvREPa7vUaK7fWu1242oU2T3dAIlKZCBmAnU3x+Q49PbDRKvvZLAO7/cwMPPf4pM5vREqrqw==)
 # MQTT Android Service
 
 
