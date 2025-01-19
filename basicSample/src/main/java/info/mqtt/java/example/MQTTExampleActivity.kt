@@ -31,24 +31,23 @@ class MQTTExampleActivity : AppCompatActivity() {
     private lateinit var historyAdapter: HistoryAdapter
     private lateinit var binding: ActivityScrollingBinding
     private var hasNotificationPermissionGranted = false
-    private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            hasNotificationPermissionGranted = isGranted
-            if (!isGranted) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (Build.VERSION.SDK_INT >= 33) {
-                        if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
-                            showNotificationPermissionRationale()
-                        } else {
-                            showSettingDialog()
-                        }
+    private val notificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        hasNotificationPermissionGranted = isGranted
+        if (!isGranted) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
+                        showNotificationPermissionRationale()
+                    } else {
+                        showSettingDialog()
                     }
                 }
-            } else {
-                Snackbar.make(findViewById(android.R.id.content), "notification permission granted", Snackbar.LENGTH_LONG).setAction("Action", null)
-                    .show()
             }
+        } else {
+            Snackbar.make(findViewById(android.R.id.content), "notification permission granted", Snackbar.LENGTH_LONG).setAction("Action", null)
+                .show()
         }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,9 +57,7 @@ class MQTTExampleActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        if (Build.VERSION.SDK_INT >= 33 &&
-            checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         } else {
             hasNotificationPermissionGranted = true
@@ -167,8 +164,7 @@ class MQTTExampleActivity : AppCompatActivity() {
     private fun showSettingDialog() {
         MaterialAlertDialogBuilder(this, R.style.MaterialAlertDialog_Material3)
             .setTitle("Notification Permission")
-            .setMessage("Notification permission is required, Please allow notification permission from setting")
-            .setPositiveButton("Ok") { _, _ ->
+            .setMessage("Notification permission is required, Please allow notification permission from setting").setPositiveButton("Ok") { _, _ ->
                 val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
                 intent.data = Uri.parse("package:$packageName")
                 startActivity(intent)
@@ -180,8 +176,7 @@ class MQTTExampleActivity : AppCompatActivity() {
     private fun showNotificationPermissionRationale() {
         MaterialAlertDialogBuilder(this, R.style.MaterialAlertDialog_Material3)
             .setTitle("Alert")
-            .setMessage("Notification permission is required, to show notification")
-            .setPositiveButton("Ok") { _, _ ->
+            .setMessage("Notification permission is required, to show notification").setPositiveButton("Ok") { _, _ ->
                 if (Build.VERSION.SDK_INT >= 33) {
                     notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                 }
