@@ -46,7 +46,7 @@ dependencies {
     implementation("com.github.AppDevNext.Logcat:LogcatCoreLib:3.3.1")
 
     implementation("androidx.core:core-ktx:1.15.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("com.github.AppDevNext:Moka:1.7")
