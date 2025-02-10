@@ -2,7 +2,9 @@
 
 package info.mqtt.android.service
 
+import android.app.ActivityManager
 import android.content.*
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import info.mqtt.android.service.extension.parcelable
@@ -199,7 +201,13 @@ class MqttAndroidClient(
          * The actual connection depends on the service, which we start and bind to here, but which we can't actually use until the serviceConnection
          * onServiceConnected() method has run (asynchronously), so the connection itself takes place in the onServiceConnected() method
          */
-        if (mqttService == null) { // First time - must bind to the service
+        val isRunning = isMqServiceRunning()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Timber.d("isRunning=$isRunning ${mqttService?.connections?.size} foregroundServiceType=${mqttService?.foregroundServiceType}")
+        } else
+            Timber.d("isRunning=$isRunning ${mqttService?.connections?.size}")
+
+        if (mqttService == null || mqttService?.connections?.size == 0) { // First time - must bind to the service
             val serviceStartIntent = Intent()
             serviceStartIntent.setClassName(context, SERVICE_NAME)
             var service: Any? = null
@@ -228,6 +236,12 @@ class MqttAndroidClient(
             }
         }
         return token
+    }
+
+    private fun isMqServiceRunning(): Boolean {
+        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        return manager.getRunningServices(Integer.MAX_VALUE)
+            .any { it.service.className == SERVICE_NAME }
     }
 
     private fun collect() {
@@ -273,9 +287,26 @@ class MqttAndroidClient(
      * @see .disconnect
      */
     override fun disconnect(): IMqttToken {
+        val isRunning = isMqServiceRunning()
+        Timber.d("isRunning=$isRunning ${mqttService?.connections?.size}")
+
         val token: IMqttToken = MqttTokenAndroid(this, null, null)
         storeToken(token)
-        mqttService!!.disconnect(clientHandle!!, null, token)
+        clientHandle?.let {
+            mqttService?.disconnect(it, null, token)
+        }
+
+        // if there are no more connections, we can shutdown the service
+        if (mqttService?.connections?.isEmpty() == true) {
+            Timber.d("Shutdown service")
+            // For < Android O this should work (untested)
+            val myService = Intent(context, MqttService::class.java)
+            context.stopService(myService)
+            // For Android O it's probably enough
+            mqttService!!.stopForeground(true)
+
+            //unregisterResources()
+        }
         return token
     }
 
