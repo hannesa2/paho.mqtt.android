@@ -2,7 +2,6 @@ package info.mqtt.android.service.ping
 
 import androidx.work.*
 import info.mqtt.android.service.MqttService
-import kotlinx.coroutines.sync.Mutex
 import org.eclipse.paho.client.mqttv3.MqttPingSender
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
 import timber.log.Timber
@@ -26,13 +25,13 @@ internal class AlarmPingSender(val service: MqttService,val id: String) : MqttPi
 
 
     override fun init(comms: ClientComms) {
-        clientCommsMap[id] = comms;
-        Timber.w("Init ping job ${id}")
+        clientCommsMap[id] = comms
+        Timber.w("Init ping job $id")
 
     }
 
     override fun start() {
-        Timber.d("Start ping job ${id}")
+        Timber.d("Start ping job $id")
 
 
             if (clientCommsMap.containsKey(id)) {
@@ -41,25 +40,25 @@ internal class AlarmPingSender(val service: MqttService,val id: String) : MqttPi
 
     }
 
-    private fun getName(): String = "$id"
+    private fun getName(): String = id
 
     override fun stop() {
-        workManager.cancelUniqueWork("PINGJOB_${getName()}")
-        //remove the clientComs from the map
+        workManager.cancelUniqueWork("PING_JOB_${getName()}")
+        //remove the clientComms from the map
         Timber.d("Stop ping job ${getName()}")
         clientCommsMap.remove(id)
     }
 
     override fun schedule(delayInMilliseconds: Long) {
 
-        val name = getName();
+        val name = getName()
         Timber.d("${name}: Schedule next alarm at ${System.currentTimeMillis() + delayInMilliseconds} ")
 
         val d: Data = Data.Builder().putString("id", name)
 
             .build()
 
-      var op =  workManager.enqueueUniqueWork(
+       workManager.enqueueUniqueWork(
             "PING_JOB_$name",
             ExistingWorkPolicy.REPLACE,
             OneTimeWorkRequest
@@ -71,7 +70,6 @@ internal class AlarmPingSender(val service: MqttService,val id: String) : MqttPi
     }
 
     companion object {
-        private const val PING_JOB = "PING_JOB"
         internal var clientCommsMap: ConcurrentMap<String,ClientComms> =  ConcurrentHashMap()
 
     }
