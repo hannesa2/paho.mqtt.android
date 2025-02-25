@@ -2,9 +2,12 @@ package info.mqtt.android.service.ping
 
 import androidx.work.*
 import info.mqtt.android.service.MqttService
+import kotlinx.coroutines.sync.Mutex
 import org.eclipse.paho.client.mqttv3.MqttPingSender
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.TimeUnit
 
 
@@ -16,29 +19,52 @@ import java.util.concurrent.TimeUnit
  *
  * @see MqttPingSender
  */
-internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
+internal class AlarmPingSender(val service: MqttService,val id: String) : MqttPingSender {
 
     private val workManager = WorkManager.getInstance(service)
 
+
+
     override fun init(comms: ClientComms) {
-        clientComms = comms
+        clientCommsMap[id] = comms;
+        Timber.w("Init ping job ${id}")
+
     }
 
     override fun start() {
-        schedule(clientComms!!.keepAlive)
+        Timber.d("Start ping job ${id}")
+
+
+            if (clientCommsMap.containsKey(id)) {
+                schedule(clientCommsMap[id]!!.keepAlive)
+            }
+
     }
 
+    private fun getName(): String = "$id"
+
     override fun stop() {
-        workManager.cancelUniqueWork(PING_JOB)
+        workManager.cancelUniqueWork("PINGJOB_${getName()}")
+        //remove the clientComs from the map
+        Timber.d("Stop ping job ${getName()}")
+        clientCommsMap.remove(id)
     }
 
     override fun schedule(delayInMilliseconds: Long) {
-        Timber.d("Schedule next alarm at ${System.currentTimeMillis() + delayInMilliseconds}")
-        workManager.enqueueUniqueWork(
-            PING_JOB,
+
+        val name = getName();
+        Timber.d("${name}: Schedule next alarm at ${System.currentTimeMillis() + delayInMilliseconds} ")
+
+        val d: Data = Data.Builder().putString("id", name)
+
+            .build()
+
+      var op =  workManager.enqueueUniqueWork(
+            "PING_JOB_$name",
             ExistingWorkPolicy.REPLACE,
             OneTimeWorkRequest
                 .Builder(PingWorker::class.java)
+                .setInputData(d)
                 .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
                 .build()
         )
@@ -46,7 +72,8 @@ internal class AlarmPingSender(val service: MqttService) : MqttPingSender {
 
     companion object {
         private const val PING_JOB = "PING_JOB"
-        internal var clientComms: ClientComms? = null
+        internal var clientCommsMap: ConcurrentMap<String,ClientComms> =  ConcurrentHashMap()
+
     }
 
 }

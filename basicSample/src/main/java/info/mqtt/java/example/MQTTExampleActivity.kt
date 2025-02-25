@@ -20,6 +20,7 @@ import java.util.*
 class MQTTExampleActivity : AppCompatActivity() {
 
     private lateinit var mqttAndroidClient: MqttAndroidClient
+    private lateinit var mqttAndroidClient_new: MqttAndroidClient
     private lateinit var adapter: HistoryAdapter
     private lateinit var binding: ActivityScrollingBinding
 
@@ -38,31 +39,60 @@ class MQTTExampleActivity : AppCompatActivity() {
         binding.historyRecyclerView.adapter = adapter
         clientId += System.currentTimeMillis()
         mqttAndroidClient = MqttAndroidClient(applicationContext, serverUri, clientId)
+        mqttAndroidClient_new = MqttAndroidClient(applicationContext, serverUri, clientId = "BasicSample_2_${System.currentTimeMillis()}")
         mqttAndroidClient.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(reconnect: Boolean, serverURI: String) {
                 if (reconnect) {
-                    addToHistory("Reconnected: $serverURI")
+                    addToHistory("Reconnected: $serverURI mqtt1")
                     // Because Clean Session is true, we need to re-subscribe
-                    subscribeToTopic()
+                    subscribeToTopic(mqttAndroidClient,"mqtt1")
                 } else {
-                    addToHistory("Connected: $serverURI")
+                    addToHistory("Connected: $serverURI mqtt1")
                 }
             }
 
             override fun connectionLost(cause: Throwable?) {
-                addToHistory("The Connection was lost.")
+                addToHistory("The Connection was lost. mqtt1")
             }
 
             override fun messageArrived(topic: String, message: MqttMessage) {
-                addToHistory("Incoming message: " + String(message.payload))
+                addToHistory("mqtt1 Incoming message: " + String(message.payload))
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken) {}
         })
+
+        mqttAndroidClient_new.setCallback(object : MqttCallbackExtended {
+            override fun connectComplete(reconnect: Boolean, serverURI: String) {
+                if (reconnect) {
+                    addToHistory("Reconnected: $serverURI mqtt2")
+                    // Because Clean Session is true, we need to re-subscribe
+                    subscribeToTopic(mqttAndroidClient_new,"mqtt2")
+                } else {
+                    addToHistory("Connected: $serverURI mqtt2")
+                }
+            }
+
+            override fun connectionLost(cause: Throwable?) {
+                addToHistory("The Connection was lost. mqtt2")
+            }
+
+            override fun messageArrived(topic: String, message: MqttMessage) {
+                addToHistory("mqtt2 Incoming message: " + String(message.payload))
+            }
+
+            override fun deliveryComplete(token: IMqttDeliveryToken) {}
+        })
+
+
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
         mqttConnectOptions.isCleanSession = false
-        addToHistory("Connecting: $serverUri")
+        mqttConnectOptions.keepAliveInterval = 20
+        mqttConnectOptions.userName = "cloudapp"
+        mqttConnectOptions.password = "cloudapp".toCharArray()
+
+        addToHistory("Mqtt1 - Connecting: $serverUri")
         mqttAndroidClient.connect(mqttConnectOptions, null, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 val disconnectedBufferOptions = DisconnectedBufferOptions()
@@ -71,11 +101,27 @@ class MQTTExampleActivity : AppCompatActivity() {
                 disconnectedBufferOptions.isPersistBuffer = false
                 disconnectedBufferOptions.isDeleteOldestMessages = false
                 mqttAndroidClient.setBufferOpts(disconnectedBufferOptions)
-                subscribeToTopic()
+                subscribeToTopic(mqttAndroidClient,"mqtt1")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                addToHistory("Failed to connect: $serverUri")
+                addToHistory("Mqtt1 - Failed to connect: $serverUri")
+            }
+        })
+        addToHistory("Mqtt2 - Connecting: $serverUri")
+        mqttAndroidClient_new.connect(mqttConnectOptions, null, object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                val disconnectedBufferOptions = DisconnectedBufferOptions()
+                disconnectedBufferOptions.isBufferEnabled = true
+                disconnectedBufferOptions.bufferSize = 100
+                disconnectedBufferOptions.isPersistBuffer = false
+                disconnectedBufferOptions.isDeleteOldestMessages = false
+                mqttAndroidClient_new.setBufferOpts(disconnectedBufferOptions)
+                subscribeToTopic(mqttAndroidClient_new,"mqtt2")
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                addToHistory("Mqtt2 - Failed to connect: $serverUri")
             }
         })
     }
@@ -96,21 +142,21 @@ class MQTTExampleActivity : AppCompatActivity() {
         Snackbar.make(findViewById(android.R.id.content), mainText, Snackbar.LENGTH_LONG).setAction("Action", null).show()
     }
 
-    fun subscribeToTopic() {
-        mqttAndroidClient.subscribe(subscriptionTopic, QoS.AtMostOnce.value, null, object : IMqttActionListener {
+    fun subscribeToTopic(client: MqttAndroidClient,tag: String) {
+        client.subscribe(subscriptionTopic, QoS.AtMostOnce.value, null, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
-                addToHistory("Subscribed! $subscriptionTopic")
+                addToHistory("${tag} Subscribed! $subscriptionTopic")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                addToHistory("Failed to subscribe $exception")
+                addToHistory("${tag}  Failed to subscribe $exception")
             }
         })
 
         // THIS DOES NOT WORK!
-        mqttAndroidClient.subscribe(subscriptionTopic, QoS.AtMostOnce.value) { topic, message ->
-            Timber.d("Message arrived $topic : ${String(message.payload)}")
-            addToHistory("Message arrived $message")
+        client.subscribe(subscriptionTopic, QoS.AtMostOnce.value) { topic, message ->
+            Timber.d("${tag}  Message arrived $topic : ${String(message.payload)}")
+            addToHistory("${tag}  Message arrived $message")
         }
     }
 
@@ -129,7 +175,7 @@ class MQTTExampleActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val serverUri = "tcp://broker.hivemq.com:1883"
+        private const val serverUri = "tcp://be-test.mqtt.ubiecloud.com:1883"
         private const val subscriptionTopic = "exampleAndroidTopic"
         private const val publishTopic = "exampleAndroidPublishTopic"
         private const val publishMessage = "Hello World"

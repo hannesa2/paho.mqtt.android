@@ -11,17 +11,33 @@ import kotlin.coroutines.resume
 
 class PingWorker(context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
+
     override suspend fun doWork(): Result =
         suspendCancellableCoroutine { continuation ->
-            Timber.d("Sending Ping at: ${System.currentTimeMillis()}")
-            AlarmPingSender.clientComms?.checkForActivity(object : IMqttActionListener {
+            val key = this.inputData.getString("id");
+            Timber.d("${key} Sending Ping at: ${System.currentTimeMillis()}")
+
+            //check if id is not null
+            if(key == null) {
+                continuation.resume(Result.failure())
+                return@suspendCancellableCoroutine
+            }
+
+            //check if there is a clients comm asociated with the key
+            if(!AlarmPingSender.clientCommsMap.containsKey(key)) {
+                continuation.resume(Result.failure())
+                return@suspendCancellableCoroutine
+            }
+
+
+            AlarmPingSender.clientCommsMap[key]?.checkForActivity(object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    Timber.d("Success.")
+                    Timber.d("$key Success.")
                     continuation.resume(Result.success())
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    Timber.e("Failure $exception")
+                    Timber.e("$key Failure $exception")
                     continuation.resume(Result.failure())
                 }
             }) ?: kotlin.run {
