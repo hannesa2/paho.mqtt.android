@@ -168,7 +168,7 @@ internal class MqttConnection(
                     myClient!!.connect(connectOptions, invocationContext, listener)
                 }
             } else {
-                alarmPingSender = AlarmPingSender(service, pingLogging, keepPingRecords)
+                alarmPingSender = AlarmPingSender(service, clientId, pingLogging, keepPingRecords)
                 setConnectingState(true)
                 myClient = MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender)
                 //, null,	new AndroidHighResolutionTimer());

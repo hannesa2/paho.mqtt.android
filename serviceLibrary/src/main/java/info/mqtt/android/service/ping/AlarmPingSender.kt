@@ -7,6 +7,7 @@ import info.mqtt.android.service.room.MqMessageDatabase
 import org.eclipse.paho.client.mqttv3.MqttPingSender
 import org.eclipse.paho.client.mqttv3.internal.ClientComms
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -21,47 +22,61 @@ import java.util.concurrent.TimeUnit
  *
  * @see MqttPingSender
  */
-internal class AlarmPingSender(val service: MqttService, private val pingLogging: Boolean = false, private val keepPingRecords: Int = 1000) :
-    MqttPingSender {
+internal class AlarmPingSender(val service: MqttService,
+                               val id: String,
+                               private val pingLogging: Boolean = false,
+                               private val keepPingRecords: Int = 1000) : MqttPingSender {
+
 
     private val workManager = WorkManager.getInstance(service)
 
     override fun init(comms: ClientComms) {
-        clientComms = comms
+        clientCommsMap[id] = comms
         messageDatabase = service.messageDatabase
+        Timber.w("Init ping job $id")
     }
 
     override fun start() {
-        // add clientState null check to avoid ClientState.getKeepAlive() NPE(#358,#433)
-        clientComms?.clientState?.let {
-            schedule(clientComms!!.keepAlive)
+        Timber.d("Start ping job $id")
+        clientCommsMap[id]?.clientState?.let {
+            schedule(clientCommsMap[id]!!.keepAlive)
         } ?: Timber.e("FIXME: try to start ping schedule, but clientState null, not able to get keepAlive")
     }
 
+
+
     override fun stop() {
-        workManager.cancelUniqueWork(PING_JOB)
+        //remove the clientComms from the map
+        Timber.d("Stop ping job $id")
+        workManager.cancelUniqueWork("${PING_JOB}_$id")
+        clientCommsMap.remove(id)
     }
 
     override fun schedule(delayInMilliseconds: Long) {
-        Timber.d("Schedule next alarm at ${sdf.format(Date(System.currentTimeMillis() + delayInMilliseconds))}")
+        Timber.d("$id: Schedule next alarm at ${sdf.format(Date(System.currentTimeMillis() + delayInMilliseconds))}")
 
         val pingWork = OneTimeWorkRequest.Builder(PingWorker::class.java)
         val data = Data.Builder()
         data.putBoolean("logging", pingLogging)
         data.putInt("keepRecordCount", keepPingRecords)
+        data.putString("id", id)
+
         pingWork
             .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
             .setInputData(data.build())
+
         workManager.enqueueUniqueWork(
-            PING_JOB,
+            "${PING_JOB}_$id",
             ExistingWorkPolicy.REPLACE,
             pingWork.build()
         )
     }
 
     companion object {
+        internal var clientCommsMap: ConcurrentHashMap<String, ClientComms> = ConcurrentHashMap()
+
         private const val PING_JOB = "PING_JOB"
-        internal var clientComms: ClientComms? = null
+
         internal var messageDatabase: MqMessageDatabase? = null
 
         @SuppressLint("ConstantLocale")
