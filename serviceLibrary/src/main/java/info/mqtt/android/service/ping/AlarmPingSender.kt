@@ -22,7 +22,10 @@ import java.util.concurrent.TimeUnit
  *
  * @see MqttPingSender
  */
-internal class AlarmPingSender(val service: MqttService, val id: String, private val pingLogging: Boolean = false, private val keepPingRecords: Int = 1000) : MqttPingSender {
+internal class AlarmPingSender(val service: MqttService,
+                               val id: String,
+                               private val pingLogging: Boolean = false,
+                               private val keepPingRecords: Int = 1000) : MqttPingSender {
 
 
     private val workManager = WorkManager.getInstance(service)
