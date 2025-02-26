@@ -38,12 +38,9 @@ internal class AlarmPingSender(val service: MqttService,
 
     override fun start() {
         Timber.d("Start ping job $id")
-            if (clientCommsMap.containsKey(id)) {
-                clientCommsMap[id]?.clientState?.let {
-                    schedule(clientCommsMap[id]!!.keepAlive)
-                } ?: Timber.e("FIXME: try to start ping schedule, but clientState null, not able to get keepAlive")
-            }
-        // add clientState null check to avoid ClientState.getKeepAlive() NPE(#358, #433)
+        clientCommsMap[id]?.clientState?.let {
+            schedule(clientCommsMap[id]!!.keepAlive)
+        } ?: Timber.e("FIXME: try to start ping schedule, but clientState null, not able to get keepAlive")
     }
 
 
