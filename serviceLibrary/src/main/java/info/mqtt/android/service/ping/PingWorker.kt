@@ -20,19 +20,19 @@ class PingWorker(context: Context, workerParams: WorkerParameters) :
 
             val logging = inputData.getBoolean(LOGGING, false)
             val keepRecords = inputData.getInt(KEEP_RECORDS_COUNT, 1000)
-            val key = this.inputData.getString("id");
+            val key = this.inputData.getString("id")
             Timber.d("$key Sending Ping at: ${sdf.format(Date(System.currentTimeMillis()))}")
 
             //check if id is not null
-            if(key == null) {
-                Timber.e("connection id in ping worker is null!");
+            if (key == null) {
+                Timber.e("connection id in ping worker is null!")
                 continuation.resume(Result.failure())
                 return@suspendCancellableCoroutine
             }
 
             //check if there is a clients comm asociated with the key
-            if(!AlarmPingSender.clientCommsMap.containsKey(key)) {
-                Timber.e("client comm doesnt exist anymore: $key");
+            if (!AlarmPingSender.clientCommsMap.containsKey(key)) {
+                Timber.e("client comm doesn't exist anymore: $key")
                 continuation.resume(Result.failure())
                 return@suspendCancellableCoroutine
             }
