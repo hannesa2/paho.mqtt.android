@@ -43,13 +43,10 @@ internal class AlarmPingSender(val service: MqttService,
         } ?: Timber.e("FIXME: try to start ping schedule, but clientState null, not able to get keepAlive")
     }
 
-
-
     override fun stop() {
         //remove the clientComms from the map
         Timber.d("Stop ping job $id")
         workManager.cancelUniqueWork("${PING_JOB}_$id")
-        clientCommsMap.remove(id)
     }
 
     override fun schedule(delayInMilliseconds: Long) {
