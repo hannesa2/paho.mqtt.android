@@ -69,7 +69,8 @@ abstract class MqMessageDatabase : RoomDatabase() {
                 context.applicationContext,
                 MqMessageDatabase::class.java,
                 storageName
-            ).build()
+            ).fallbackToDestructiveMigrationOnDowngrade()
+                .build()
         }
     }
 }
