@@ -7,7 +7,7 @@ buildscript {
         maven { url = uri("https://plugins.gradle.org/m2/") }
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.8.2")
+        classpath("com.android.tools.build:gradle:8.9.0")
         classpath("com.github.dcendents:android-maven-gradle-plugin:2.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.10")
         classpath("org.jlleitschuh.gradle:ktlint-gradle:12.2.0")
