@@ -33,7 +33,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://repo.eclipse.org/content/repositories/paho-releases/") }
         maven { url = uri("https://jitpack.io") }
     }
 
