@@ -13,7 +13,6 @@ android {
     defaultConfig {
         minSdk = 21
         compileSdk = 35
-        targetSdk = 35
 
         // Android Studio 4.1 doesn"t generate versionName in libraries any more
         // https://developer.android.com/studio/releases/gradle-plugin#version_properties_removed_from_buildconfig_class_in_library_projects
@@ -60,6 +59,9 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    publishing {
+        singleVariant("release") {}
+    }
 }
 
 dependencies {
@@ -80,14 +82,4 @@ dependencies {
     androidTestUtil("androidx.test.services:test-services:1.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation("androidx.test:rules:1.6.1")
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["release"])
-            }
-        }
-    }
 }
