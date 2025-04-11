@@ -45,7 +45,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("com.github.AppDevNext.Logcat:LogcatCoreLib:3.3.1")
 
-    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.core:core-ktx:1.16.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20")
 
     testImplementation("junit:junit:4.13.2")
