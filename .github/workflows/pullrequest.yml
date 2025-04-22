@@ -43,9 +43,10 @@ jobs:
           mosquitto_pub -m "message from mosquitto_pub ForegroundClient" -t "installtest" -d -i ForegroundClient
           echo "=> wait"
           sleep 4
+
       - name: prepare
         run: |
-          sudo apt-get update && sudo apt-get install -y exiftool imagemagick xdg-utils libimage-exiftool-perl zsh jq xorg
+          sudo apt-get update -fix-missing && sudo apt-get install -y exiftool imagemagick xdg-utils libimage-exiftool-perl zsh jq xorg
       #          brew install exiftool imagemagick
       - uses: actions/checkout@v4
         with:
