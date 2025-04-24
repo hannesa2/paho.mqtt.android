@@ -77,7 +77,7 @@ dependencies {
     implementation("com.github.AppDevNext.Logcat:LogcatCoreLib:3.3.1")
 
     implementation("androidx.room:room-runtime:2.7.1")
-    ksp("androidx.room:room-compiler:2.7.0")
+    ksp("androidx.room:room-compiler:2.7.1")
 
     androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
     androidTestUtil("androidx.test.services:test-services:1.5.0")
