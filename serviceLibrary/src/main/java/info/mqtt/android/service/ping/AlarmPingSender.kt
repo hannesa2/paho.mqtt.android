@@ -53,21 +53,31 @@ internal class AlarmPingSender(
     override fun schedule(delayInMilliseconds: Long) {
         Timber.d("$id: Schedule next alarm at ${sdf.format(Date(System.currentTimeMillis() + delayInMilliseconds))}")
 
-        val pingWork = OneTimeWorkRequest.Builder(PingWorker::class.java)
-        val data = Data.Builder()
-        data.putBoolean("logging", pingLogging)
-        data.putInt("keepRecordCount", keepPingRecords)
-        data.putString("id", id)
+        // Check if work is already scheduled with this ID
+        val workInfo = workManager.getWorkInfosForUniqueWork("${PING_JOB}_$id").get()
 
-        pingWork
-            .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
-            .setInputData(data.build())
+        // Only schedule if no work exists or all existing work is finished/cancelled
+        if (workInfo.isEmpty() || workInfo.all { it.state.isFinished }) {
+            val pingWork = OneTimeWorkRequest.Builder(PingWorker::class.java)
+            val data = Data.Builder()
+            data.putBoolean("logging", pingLogging)
+            data.putInt("keepRecordCount", keepPingRecords)
+            data.putString("id", id)
 
-        workManager.enqueueUniqueWork(
-            "${PING_JOB}_$id",
-            ExistingWorkPolicy.REPLACE,
-            pingWork.build()
-        )
+            pingWork
+                .setInitialDelay(30, TimeUnit.SECONDS)
+                .setInputData(data.build())
+
+            workManager.enqueueUniqueWork(
+                "${PING_JOB}_$id",
+                ExistingWorkPolicy.REPLACE,
+                pingWork.build()
+            )
+
+            Timber.d("$id: Successfully scheduled new ping job")
+        } else {
+            Timber.w("$id: I GOT YOU Ping job already scheduled, skipping")
+        }
     }
 
     companion object {
