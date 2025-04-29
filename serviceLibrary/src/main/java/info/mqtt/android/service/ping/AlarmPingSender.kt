@@ -65,7 +65,8 @@ internal class AlarmPingSender(
             data.putString("id", id)
 
             pingWork
-                .setInitialDelay(30, TimeUnit.SECONDS)
+                .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
+//                .setInitialDelay(30, TimeUnit.SECONDS)
                 .setInputData(data.build())
 
             workManager.enqueueUniqueWork(
