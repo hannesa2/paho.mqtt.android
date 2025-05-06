@@ -49,7 +49,7 @@ internal class AlarmPingSender(
     override fun stop() {
         //remove the clientComms from the map
         Timber.d("Stop ping job $id")
-        workManager.cancelUniqueWork("${PING_JOB}_$id")
+        workManager.cancelAllWorkByTag("${PING_JOB}_$id")
     }
 
     override fun schedule(delayInMilliseconds: Long) {
@@ -64,6 +64,7 @@ internal class AlarmPingSender(
         pingWork
             .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
             .setInputData(data.build())
+            .addTag("${PING_JOB}_$id") 
 
         // we add the currentTimeMillis to keep the prev job running
         val uniqueWorkName = "${PING_JOB}_${id}_${System.currentTimeMillis()}"
@@ -73,6 +74,9 @@ internal class AlarmPingSender(
             ExistingWorkPolicy.REPLACE,
             pingWork.build()
         )
+
+
+
         Timber.d("$id: Successfully scheduled new ping job")
     }
 
