@@ -9,7 +9,6 @@ import org.eclipse.paho.client.mqttv3.internal.ClientComms
 import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -64,7 +63,7 @@ internal class AlarmPingSender(
         pingWork
             .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
             .setInputData(data.build())
-            .addTag("${PING_JOB}_$id") 
+            .addTag("${PING_JOB}_$id")
 
         // we add the currentTimeMillis to keep the prev job running
         val uniqueWorkName = "${PING_JOB}_${id}_${System.currentTimeMillis()}"
