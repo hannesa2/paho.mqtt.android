@@ -69,7 +69,9 @@ class PingWorker(context: Context, workerParams: WorkerParameters) :
                     continuation.resume(Result.failure())
                 }
             }) ?: kotlin.run {
-                continuation.resume(Result.failure())
+                // when token is null doesn't always mean a failure sometimes there wasn't a need
+                // send a ping request yet
+                continuation.resume(Result.success())
             }
         }
 
