@@ -2,4 +2,4 @@ rootProject.name = "MQTT-Android"
 
 include(":serviceLibrary")
 include(":extendedSample")
-include(":basicSample")
+include(":basicSample_(not_maintained)")
