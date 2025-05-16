@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.core.net.toUri
 
-class MQTTExampleActivity : AppCompatActivity() {
+class BasicActivity : AppCompatActivity() {
 
     private lateinit var mqttAndroidClient: MqttAndroidClient
     private lateinit var historyAdapter: HistoryAdapter

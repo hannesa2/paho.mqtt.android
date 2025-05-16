@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    tools:context="info.mqtt.java.example.MQTTExampleActivity">
+    tools:context="info.mqtt.java.example.BasicActivity">
 
     <HorizontalScrollView
         android:layout_width="match_parent"
