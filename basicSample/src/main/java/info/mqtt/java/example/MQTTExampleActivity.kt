@@ -3,7 +3,6 @@ package info.mqtt.java.example
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
@@ -24,6 +23,7 @@ import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.core.net.toUri
 
 class MQTTExampleActivity : AppCompatActivity() {
 
@@ -68,7 +68,6 @@ class MQTTExampleActivity : AppCompatActivity() {
         binding.historyRecyclerView.layoutManager = mLayoutManager
         historyAdapter = HistoryAdapter()
         binding.historyRecyclerView.adapter = historyAdapter
-        clientId += System.currentTimeMillis()
         mqttAndroidClient = MqttAndroidClient(applicationContext, SERVER_URI, clientId)
         mqttAndroidClient.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(reconnect: Boolean, serverURI: String) {
@@ -166,7 +165,7 @@ class MQTTExampleActivity : AppCompatActivity() {
             .setTitle("Notification Permission")
             .setMessage("Notification permission is required, Please allow notification permission from setting").setPositiveButton("Ok") { _, _ ->
                 val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
+                intent.data = "package:$packageName".toUri()
                 startActivity(intent)
             }
             .setNegativeButton("Cancel", null)
@@ -190,6 +189,6 @@ class MQTTExampleActivity : AppCompatActivity() {
         private const val SUBSCRIPTION_TOPIC = "exampleAndroidTopic"
         private const val PUBLISH_TOPIC = "exampleAndroidPublishTopic"
         private const val PUBLISH_MESSAGE = "Hello World"
-        private var clientId = "BasicSample"
+        private var clientId = "BasicSample" + System.currentTimeMillis()
     }
 }
