@@ -2,4 +2,6 @@ rootProject.name = "MQTT-Android"
 
 include(":serviceLibrary")
 include(":extendedSample")
-include(":basicSample")
+
+include(":basicSample_(not_maintained)")
+project(":basicSample_(not_maintained)").projectDir = File("./basicSample")

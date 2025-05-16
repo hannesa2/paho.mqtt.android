@@ -24,7 +24,7 @@ class ConnectTest {
     var nameRule = TestName()
 
     @get:Rule
-    val activityScenarioRule = activityScenarioRule<MQTTExampleActivity>()
+    val activityScenarioRule = activityScenarioRule<BasicActivity>()
 
     @Test
     @Ignore("On CI it doesn't work anymore")
