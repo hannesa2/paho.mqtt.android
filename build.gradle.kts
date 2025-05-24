@@ -10,7 +10,7 @@ buildscript {
         classpath("com.android.tools.build:gradle:8.10.0")
         classpath("com.github.dcendents:android-maven-gradle-plugin:2.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
-        classpath("org.jlleitschuh.gradle:ktlint-gradle:12.2.0")
+        classpath("org.jlleitschuh.gradle:ktlint-gradle:12.3.0")
     }
 }
 
