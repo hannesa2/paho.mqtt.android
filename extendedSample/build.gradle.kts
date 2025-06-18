@@ -59,9 +59,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21")
     implementation("com.github.AppDevNext.Logcat:LogcatCoreUI:3.3.1")
-    implementation("androidx.room:room-runtime:2.7.1")
+    implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.test.uiautomator:uiautomator:2.3.0")
-    ksp("androidx.room:room-compiler:2.7.1")
+    ksp("androidx.room:room-compiler:2.7.2")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("com.github.AppDevNext:Moka:1.7")
