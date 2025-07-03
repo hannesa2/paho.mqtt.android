@@ -11,9 +11,6 @@ changelog:
     - title: Exciting New Features 🎉
       labels:
         - enhancement
-    - title: Dependencies
-      labels:
-        - dependencies
     - title: Espresso test
       labels:
         - Espresso
@@ -23,6 +20,9 @@ changelog:
     - title: Pipeline
       labels:
         - pipeline
+    - title: Dependencies
+      labels:
+        - dependencies
     - title: Other Changes
       labels:
         - "*"
