@@ -10,7 +10,7 @@ plugins {
 android {
     namespace = "info.mqtt.android.service"
     testNamespace = "info.mqtt.android.service.test"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         minSdk = 21
 
@@ -49,7 +49,7 @@ android {
     }
 
     testOptions {
-        targetSdk = 35
+        targetSdk = 36
     }
 
     testFixtures {
