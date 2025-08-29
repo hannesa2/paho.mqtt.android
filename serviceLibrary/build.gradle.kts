@@ -79,7 +79,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.7.2")
     ksp("androidx.room:room-compiler:2.7.2")
 
-    androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.3.0")
     androidTestUtil("androidx.test.services:test-services:1.6.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
     androidTestImplementation("androidx.test:rules:1.7.0")
