@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import java.io.IOException
 import java.io.InputStream
-import java.util.*
+import java.util.Properties
 
 internal class TestProperties(private val context: Context) {
 
@@ -15,7 +15,7 @@ internal class TestProperties(private val context: Context) {
         var stream: InputStream? = null
         try {
             stream = context.resources.assets.open(fileName)
-        } catch (exception: Exception) {
+        } catch (_: Exception) {
             Log.e("TestProperties", "Property file: '$fileName' not found")
         }
         return stream
@@ -41,9 +41,7 @@ internal class TestProperties(private val context: Context) {
     val waitForCompletionTime: Long
         get() = getIntProperty(KEY_WAIT_FOR_COMPLETION_TIME).toLong()
 
-    /**
-     * Reads properties from a properties file
-     */
+    // Reads properties from a properties file
     init {
         var stream: InputStream? = null
         try {
@@ -60,7 +58,7 @@ internal class TestProperties(private val context: Context) {
         } finally {
             if (stream != null) {
                 try {
-                    stream!!.close()
+                    stream.close()
                 } catch (e: IOException) {
                     Log.e("TestProperties", "caught exception:", e)
                 }
@@ -69,9 +67,9 @@ internal class TestProperties(private val context: Context) {
     }
 
     companion object {
-        private val KEY_SERVER_URI = "SERVER_URI"
-        private val KEY_CLIENT_KEY_STORE_PASSWORD = "CLIENT_KEY_STORE_PASSWORD"
-        private val KEY_SERVER_SSL_URI = "SERVER_SSL_URI"
-        private val KEY_WAIT_FOR_COMPLETION_TIME = "WAIT_FOR_COMPLETION_TIME"
+        private const val KEY_SERVER_URI = "SERVER_URI"
+        private const val KEY_CLIENT_KEY_STORE_PASSWORD = "CLIENT_KEY_STORE_PASSWORD"
+        private const val KEY_SERVER_SSL_URI = "SERVER_SSL_URI"
+        private const val KEY_WAIT_FOR_COMPLETION_TIME = "WAIT_FOR_COMPLETION_TIME"
     }
 }
