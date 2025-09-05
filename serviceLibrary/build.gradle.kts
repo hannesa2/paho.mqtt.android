@@ -90,6 +90,14 @@ afterEvaluate {
         publications {
             create<MavenPublication>("maven") {
                 from(components["release"])
+                pom {
+                    licenses {
+                        license {
+                            name = "Apache License Version 2.0"
+                            url = "https://github.com/hannesa2/paho.mqtt.android/blob/master/LICENSE"
+                        }
+                    }
+                }
             }
         }
     }
