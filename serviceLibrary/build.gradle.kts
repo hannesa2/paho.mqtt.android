@@ -74,7 +74,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10")
     implementation("androidx.work:work-runtime-ktx:2.10.3")
-    implementation("com.github.AppDevNext.Logcat:LogcatCoreLib:3.3.1")
+    implementation("com.github.AppDevNext.Logcat:LogcatCoreLib:3.4")
 
     implementation("androidx.room:room-runtime:2.7.2")
     ksp("androidx.room:room-compiler:2.7.2")
