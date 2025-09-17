@@ -21,6 +21,7 @@ import java.security.KeyStore
 import java.security.KeyStoreException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
@@ -67,7 +68,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     private var connectToken: IMqttToken? = null
 
     // The MqttCallback list provided by the application
-    private var callbacksList: ArrayList<MqttCallback> = ArrayList()
+    private var callbacksList: CopyOnWriteArrayList<MqttCallback> = CopyOnWriteArrayList()
     private var traceCallback: MqttTraceHandler? = null
     private var traceEnabled = false
 
