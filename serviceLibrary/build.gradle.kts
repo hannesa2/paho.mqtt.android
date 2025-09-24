@@ -79,7 +79,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.20")
-    implementation("androidx.work:work-runtime-ktx:2.10.4")
+    implementation("androidx.work:work-runtime-ktx:2.10.5")
     implementation("com.github.AppDevNext.Logcat:LogcatCoreLib:3.4")
 
     implementation("androidx.room:room-runtime:2.8.0")
