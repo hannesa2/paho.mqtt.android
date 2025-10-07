@@ -6,15 +6,6 @@ It has been created to provide reliable open-source implementations of open and 
 applications for Machine-to-Machine (M2M) and Internet of Things (IoT).
 MQTT reflects the inherent physical and cost constraints of device connectivity. Its objectives include effective levels of decoupling between devices and applications, designed to keep markets open and encourage the rapid growth of scalable Web and Enterprise middleware and applications.
 
-## Features
-|                     |                    |   |                      |                    |
-|---------------------|--------------------|---|----------------------|--------------------|
-| MQTT 3.1            | :heavy_check_mark: |   | Automatic Reconnect  | :heavy_check_mark: |
-| MQTT 3.1.1          | :heavy_check_mark: |   | Offline Buffering    | :heavy_check_mark: |
-| LWT                 | :heavy_check_mark: |   | WebSocket Support    | :heavy_check_mark: |
-| SSL / TLS           | :heavy_check_mark: |   | Standard TCP Support | :heavy_check_mark: |
-| Message Persistence | :heavy_check_mark: |   |
-
 ## Project status: maintenance mode
 Issues are ignored, but pull requests are not. If you need to get something done, submit a PR!
 
