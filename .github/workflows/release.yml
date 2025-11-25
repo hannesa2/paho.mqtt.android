@@ -10,7 +10,7 @@ jobs:
     name: Publish release
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - name: Find Tag
