@@ -53,7 +53,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":serviceLibrary"))
+    implementation("com.github.hannesa2:paho.mqtt.android:4.4.2")
 
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
