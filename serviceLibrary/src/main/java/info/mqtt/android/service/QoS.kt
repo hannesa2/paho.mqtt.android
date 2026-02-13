@@ -7,8 +7,7 @@ enum class QoS(val value: Int) {
     ExactlyOnce(2);
 
     companion object {
-        @JvmStatic
-        fun valueOf(qos: Int): QoS {
+        fun fromValue(qos: Int): QoS {
             return entries[qos]
         }
     }

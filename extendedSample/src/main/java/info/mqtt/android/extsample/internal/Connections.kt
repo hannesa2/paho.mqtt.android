@@ -27,7 +27,7 @@ class Connections private constructor(context: Context) {
 
     private fun readConnectionsAsync(context: Context) = CoroutineScope(Dispatchers.IO).async {
         synchronized(connections) {
-            val connectionDaoList = persistence.all.map { it.toConnection(context) }
+            val connectionDaoList = persistence.getAll().map { it.toConnection(context) }
 
             connectionDaoList.forEach {
                 Timber.d("Connection was persisted. ${it.handle()}")

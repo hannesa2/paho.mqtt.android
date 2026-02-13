@@ -46,7 +46,7 @@ fun ConnectionEntity.toConnection(context: Context): Connection {
 
     // Now we recover all subscriptions for this connection
     CoroutineScope(Dispatchers.IO).launch {
-        connection.setSubscriptions(AppDatabase.getDatabase(context).subscriptionDao().all.map { it.toSubscription() })
+        connection.setSubscriptions(AppDatabase.getDatabase(context).subscriptionDao().getAll().map { it.toSubscription() })
     }
     return connection
 }
@@ -64,7 +64,7 @@ fun Connection.toConnectionEntity(): ConnectionEntity = ConnectionEntity(
     cleanSession = connectionOptions.isCleanSession.toInt(),
     topic = connectionOptions.willDestination,
     message = connectionOptions.willMessage?.payload.toString(), // message
-    qos = QoS.valueOf(connectionOptions.willMessage?.qos ?: QoS.AtMostOnce.value),
+    qos = QoS.fromValue(connectionOptions.willMessage?.qos ?: QoS.AtMostOnce.value),
     retained = connectionOptions.willMessage?.isRetained?.toInt() ?: 0,
     isAutomaticReconnect = connectionOptions.isAutomaticReconnect.toInt(),
 )

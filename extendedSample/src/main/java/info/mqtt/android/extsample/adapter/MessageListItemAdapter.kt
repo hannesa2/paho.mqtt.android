@@ -39,7 +39,7 @@ class MessageListItemAdapter(context: Context, private var messages: List<Receiv
 
         binding.messageText.text = String(messages[position].message.payload)
         binding.messageTopicText.text = "${context.getString(R.string.topic_fmt)} ${messages[position].topic}"
-        binding.messageInfo.text = "qos=${QoS.valueOf(messages[position].message.qos)}(${messages[position].message.qos}) " +
+        binding.messageInfo.text = "qos=${QoS.fromValue(messages[position].message.qos)}(${messages[position].message.qos}) " +
                 "isDuplicate=${messages[position].message.isDuplicate} retained=${messages[position].message.isRetained}"
         val dateTimeFormatter = SimpleDateFormat("HH:mm:ss.sss")
         val shortDateStamp = dateTimeFormatter.format(messages[position].timestamp)

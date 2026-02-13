@@ -241,8 +241,8 @@ class MqttAndroidClient @JvmOverloads constructor(
         val supervisorJob = SupervisorJob()
         clientJob = supervisorJob
         clientScope = CoroutineScope(Dispatchers.IO + supervisorJob)
-        clientScope?.launch {
-            mqttService?.collect(::onReceive)
+        mqttService?.collect { bundle ->
+            onReceive(bundle)
         }
         receiverRegistered.set(true)
     }
@@ -412,7 +412,7 @@ class MqttAndroidClient @JvmOverloads constructor(
         message.isRetained = retained
         val token = MqttDeliveryTokenAndroid(this, userContext, callback, message)
         storeToken(token)
-        val internalToken = mqttService!!.publish(clientHandle!!, topic, payload, QoS.valueOf(qos), retained, null, token)
+        val internalToken = mqttService!!.publish(clientHandle!!, topic, payload, QoS.fromValue(qos), retained, null, token)
         token.setDelegate(internalToken)
         return token
     }
@@ -526,7 +526,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     override fun subscribe(topic: String, qos: Int, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
         val token: IMqttToken = MqttTokenAndroid(this, userContext, callback, arrayOf(topic))
         storeToken(token)
-        mqttService!!.subscribe(clientHandle!!, topic, QoS.valueOf(qos), null, token)
+        mqttService!!.subscribe(clientHandle!!, topic, QoS.fromValue(qos), null, token)
         return token
     }
 
@@ -737,7 +737,7 @@ class MqttAndroidClient @JvmOverloads constructor(
             topics = topicFilters
         )
         storeToken(token)
-        mqttService!!.subscribe(clientHandle!!, topicFilters, qos.map { QoS.valueOf(it) }.toTypedArray(), null, token, messageListeners)
+        mqttService!!.subscribe(clientHandle!!, topicFilters, qos.map { QoS.fromValue(it) }.toTypedArray(), null, token, messageListeners)
         return token
     }
 

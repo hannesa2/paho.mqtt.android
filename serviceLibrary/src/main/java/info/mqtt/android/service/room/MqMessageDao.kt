@@ -6,8 +6,8 @@ import info.mqtt.android.service.room.entity.MqMessageEntity
 @Dao
 interface MqMessageDao {
 
-    @get:Query("SELECT * FROM MQMessageEntity")
-    val all: List<MqMessageEntity>
+    @Query("SELECT * FROM MQMessageEntity")
+    fun getAll(): List<MqMessageEntity>
 
     @Query("SELECT * FROM MQMessageEntity WHERE clientHandle = :clientHandle ORDER BY timestamp ASC")
     fun allArrived(clientHandle: String): List<MqMessageEntity>
