@@ -52,19 +52,19 @@ fun ConnectionEntity.toConnection(context: Context): Connection {
 }
 
 fun Connection.toConnectionEntity(): ConnectionEntity = ConnectionEntity(
-    handle(),
-    hostName,
-    id,
-    port,
-    isSSL,
-    connectionOptions.connectionTimeout,
-    connectionOptions.keepAliveInterval,
-    connectionOptions.userName,
-    String(connectionOptions.password ?: CharArray(0)),
-    connectionOptions.isCleanSession.toInt(),
-    connectionOptions.willDestination,
-    connectionOptions.willMessage?.payload.toString(), // message
-    QoS.valueOf(connectionOptions.willMessage?.qos ?: QoS.AtMostOnce.value),
-    connectionOptions.willMessage?.isRetained?.toInt() ?: 0,
-    connectionOptions.isAutomaticReconnect.toInt() ?: 0,
+    clientHandle = handle(),
+    host = hostName,
+    clientId = id,
+    port = port,
+    ssl = isSSL,
+    timeout = connectionOptions.connectionTimeout,
+    keepAlive = connectionOptions.keepAliveInterval,
+    userName = connectionOptions.userName,
+    userPass = String(connectionOptions.password ?: CharArray(0)),
+    cleanSession = connectionOptions.isCleanSession.toInt(),
+    topic = connectionOptions.willDestination,
+    message = connectionOptions.willMessage?.payload.toString(), // message
+    qos = QoS.valueOf(connectionOptions.willMessage?.qos ?: QoS.AtMostOnce.value),
+    retained = connectionOptions.willMessage?.isRetained?.toInt() ?: 0,
+    isAutomaticReconnect = connectionOptions.isAutomaticReconnect.toInt(),
 )
