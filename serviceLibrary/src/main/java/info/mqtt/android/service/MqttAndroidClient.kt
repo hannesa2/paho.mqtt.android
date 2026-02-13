@@ -2,7 +2,10 @@
 
 package info.mqtt.android.service
 
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import info.mqtt.android.service.extension.parcelable
@@ -625,7 +628,12 @@ class MqttAndroidClient @JvmOverloads constructor(
      * @throws IllegalArgumentException if the two supplied arrays are not the same size.
      */
     override fun subscribe(topic: Array<String>, qos: IntArray, userContext: Any?, callback: IMqttActionListener?): IMqttToken {
-        val token: IMqttToken = MqttTokenAndroid(this, userContext, callback, topic)
+        val token: IMqttToken = MqttTokenAndroid(
+            client = this,
+            userContext = userContext,
+            listener = callback,
+            topics = topic
+        )
         storeToken(token)
         mqttService!!.subscribe(clientHandle!!, topic, qos, null, token)
         return token
@@ -648,7 +656,13 @@ class MqttAndroidClient @JvmOverloads constructor(
         topicFilter: String, qos: Int, userContext: Any?, callback: IMqttActionListener?,
         messageListener: IMqttMessageListener
     ): IMqttToken {
-        return subscribe(arrayOf(topicFilter), intArrayOf(qos), userContext, callback, arrayOf(messageListener))
+        return subscribe(
+            topicFilters = arrayOf(topicFilter),
+            qos = intArrayOf(qos),
+            userContext = userContext,
+            callback = callback,
+            messageListeners = arrayOf(messageListener)
+        )
     }
 
     /**
@@ -663,7 +677,13 @@ class MqttAndroidClient @JvmOverloads constructor(
      * @see .subscribe
      */
     override fun subscribe(topicFilter: String, qos: Int, messageListener: IMqttMessageListener): IMqttToken {
-        return subscribe(topicFilter, qos, null, null, messageListener)
+        return subscribe(
+            topicFilter = topicFilter,
+            qos = qos,
+            userContext = null,
+            callback = null,
+            messageListener = messageListener
+        )
     }
 
     /**
@@ -681,7 +701,13 @@ class MqttAndroidClient @JvmOverloads constructor(
      * @see .subscribe
      */
     override fun subscribe(topicFilters: Array<String>, qos: IntArray, messageListeners: Array<IMqttMessageListener>): IMqttToken {
-        return subscribe(topicFilters, qos, null, null, messageListeners)
+        return subscribe(
+            topicFilters = topicFilters,
+            qos = qos,
+            userContext = null,
+            callback = null,
+            messageListeners = messageListeners
+        )
     }
 
     /**
@@ -704,7 +730,12 @@ class MqttAndroidClient @JvmOverloads constructor(
         topicFilters: Array<String>, qos: IntArray, userContext: Any?, callback: IMqttActionListener?, messageListeners:
         Array<IMqttMessageListener>
     ): IMqttToken {
-        val token: IMqttToken = MqttTokenAndroid(this, userContext, callback, topicFilters)
+        val token: IMqttToken = MqttTokenAndroid(
+            client = this,
+            userContext = userContext,
+            listener = callback,
+            topics = topicFilters
+        )
         storeToken(token)
         mqttService!!.subscribe(clientHandle!!, topicFilters, qos.map { QoS.valueOf(it) }.toTypedArray(), null, token, messageListeners)
         return token
@@ -758,10 +789,9 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      * The topic(s) specified on the unsubscribe must match the topic(s)
      * specified in the original subscribe request for the unsubscribe to
-     * succeed
+     *  succeed
      *
-     * The method returns control before the unsubscribe completes. Completion
-     * can be tracked by:
+     * The method returns control before the unsubscribe completes. Completion can be tracked by:
      *
      *  * Waiting on the returned token [MqttToken.waitForCompletion]
      * or
@@ -978,7 +1008,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      * Process a Connection Lost notification
      */
     private fun connectionLostAction(data: Bundle?) {
-        val reason = data?.serializable(MqttServiceConstants.CALLBACK_EXCEPTION) as Exception?
+        val reason = data?.serializable<Exception>(MqttServiceConstants.CALLBACK_EXCEPTION)
         callbacksList.forEach {
             it.connectionLost(reason)
         }
