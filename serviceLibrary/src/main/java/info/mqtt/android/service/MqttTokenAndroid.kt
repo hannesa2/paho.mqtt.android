@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.IMqttAsyncClient
 import org.eclipse.paho.client.mqttv3.IMqttToken
 import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage
+import java.util.concurrent.locks.ReentrantLock
 
 internal open class MqttTokenAndroid constructor(
     private val client: MqttAndroidClient,
@@ -17,29 +18,32 @@ internal open class MqttTokenAndroid constructor(
 
     @Volatile
     private var lastException: MqttException? = null
-    private val lock = Object()
+    private val lock = ReentrantLock()
+    private val condition = lock.newCondition()
 
     private var delegate: IMqttToken? = null
     private var pendingException: Throwable? = null
 
     @Throws(MqttException::class)
     override fun waitForCompletion() {
-        synchronized(lock) {
-            try {
-                lock.wait()
-            } catch (_: InterruptedException) {
-            }
+        lock.lock()
+        try {
+            condition.await()
+        } catch (_: InterruptedException) {
+        } finally {
+            lock.unlock()
         }
         pendingException?.let { throw it }
     }
 
     @Throws(MqttException::class)
     override fun waitForCompletion(timeout: Long) {
-        synchronized(lock) {
-            try {
-                lock.wait(timeout)
-            } catch (_: InterruptedException) {
-            }
+        lock.lock()
+        try {
+            condition.await(timeout, java.util.concurrent.TimeUnit.MILLISECONDS)
+        } catch (_: InterruptedException) {
+        } finally {
+            lock.unlock()
         }
         if (!isComplete) {
             throw MqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT.toInt(), Throwable("After $timeout ms"))
@@ -48,22 +52,28 @@ internal open class MqttTokenAndroid constructor(
     }
 
     fun notifyComplete() {
-        synchronized(lock) {
+        lock.lock()
+        try {
             isComplete = true
-            lock.notifyAll()
+            condition.signalAll()
             listener?.onSuccess(this)
+        } finally {
+            lock.unlock()
         }
     }
 
     fun notifyFailure(throwable: Throwable) {
-        synchronized(lock) {
+        lock.lock()
+        try {
             isComplete = true
             pendingException = throwable
-            lock.notifyAll()
+            condition.signalAll()
             if (throwable is MqttException) {
                 lastException = throwable
             }
             listener?.onFailure(this, throwable)
+        } finally {
+            lock.unlock()
         }
     }
 
