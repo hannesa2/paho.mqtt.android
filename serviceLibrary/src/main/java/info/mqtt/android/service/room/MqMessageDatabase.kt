@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttMessage
-import java.util.*
+import java.util.UUID
 
 @Database(entities = [MqMessageEntity::class, PingEntity::class], version = MQ_DB_VERSION)
 @TypeConverters(Converters::class)
@@ -71,8 +71,8 @@ abstract class MqMessageDatabase : RoomDatabase() {
                 context.applicationContext,
                 MqMessageDatabase::class.java,
                 storageName
-            ).fallbackToDestructiveMigrationFrom(1, 2)
-                .fallbackToDestructiveMigrationOnDowngrade()
+            ).fallbackToDestructiveMigrationFrom(false, 1, 2)
+                .fallbackToDestructiveMigrationOnDowngrade(false)
                 .build()
         }
     }
