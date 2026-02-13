@@ -1,17 +1,14 @@
 package info.mqtt.android.service
 
-import android.annotation.SuppressLint
 import android.app.Service
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.os.PowerManager
 import info.mqtt.android.service.room.MqMessageDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -176,7 +173,6 @@ import java.util.concurrent.ConcurrentHashMap
 </tr> *
 </table> *
  */
-@SuppressLint("Registered")
 class MqttService : Service(), MqttTraceHandler {
     // mapping from client handle strings to actual client connections.
     internal val connections: MutableMap<String, MqttConnection> = ConcurrentHashMap()
@@ -190,8 +186,9 @@ class MqttService : Service(), MqttTraceHandler {
 
     var isTraceEnabled = false
 
-    // An intent receiver to deal with changes in network connectivity
-    private var networkConnectionMonitor: NetworkConnectionIntentReceiver? = null
+    // A network callback to deal with changes in network connectivity
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private var connectivityManager: ConnectivityManager? = null
 
     private var mqttServiceBinder: MqttServiceBinder? = null
 
@@ -577,16 +574,36 @@ class MqttService : Service(), MqttTraceHandler {
     }
 
     private fun registerBroadcastReceivers() {
-        if (networkConnectionMonitor == null) {
-            networkConnectionMonitor = NetworkConnectionIntentReceiver()
-            registerReceiver(networkConnectionMonitor, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+        if (networkCallback == null) {
+            connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+
+            networkCallback = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: android.net.Network) {
+                    super.onAvailable(network)
+                    traceDebug("Network available, reconnecting.")
+                    reconnect(this@MqttService)
+                }
+
+                override fun onLost(network: android.net.Network) {
+                    super.onLost(network)
+                    traceDebug("Network lost.")
+                    notifyClientsOffline()
+                }
+            }
+
+            val networkRequest = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build()
+
+            connectivityManager?.registerNetworkCallback(networkRequest, networkCallback!!)
         }
     }
 
     private fun unregisterBroadcastReceivers() {
-        if (networkConnectionMonitor != null) {
-            unregisterReceiver(networkConnectionMonitor)
-            networkConnectionMonitor = null
+        if (networkCallback != null && connectivityManager != null) {
+            connectivityManager?.unregisterNetworkCallback(networkCallback!!)
+            networkCallback = null
+            connectivityManager = null
         }
     }
 
@@ -600,32 +617,15 @@ class MqttService : Service(), MqttTraceHandler {
 
     @Suppress("DEPRECATION")
     private fun isInternetAvailable(context: Context): Boolean {
-        var result = false
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val actNw = connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-            result = when {
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
-        } else {
-            connectivityManager.run {
-                connectivityManager.activeNetworkInfo?.run {
-                    result = when (type) {
-                        ConnectivityManager.TYPE_WIFI -> true
-                        ConnectivityManager.TYPE_MOBILE -> true
-                        ConnectivityManager.TYPE_ETHERNET -> true
-                        else -> false
-                    }
-
-                }
-            }
+        val connectivityManager = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkCapabilities = connectivityManager.activeNetwork ?: return false
+        val actNw = connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+        return when {
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
         }
-
-        return result
     }
 
     /**
@@ -645,32 +645,5 @@ class MqttService : Service(), MqttTraceHandler {
     }
 
     fun getInFlightMessageCount(clientHandle: String) = getConnection(clientHandle).inFlightMessageCount
-
-    /*
-     * Called in response to a change in network connection - after losing a
-     * connection to the server, this allows us to wait until we have a usable
-     * data connection again
-     */
-    private inner class NetworkConnectionIntentReceiver : BroadcastReceiver() {
-        @SuppressLint("Wakelock")
-        override fun onReceive(context: Context, intent: Intent) {
-            traceDebug("Internal network status receive.")
-            // we protect against the phone switching off
-            // by requesting a wake lock - we request the minimum possible wake
-            // lock - just enough to keep the CPU running until we've finished
-            val pm = getSystemService(POWER_SERVICE) as PowerManager
-            val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MQTT:tag")
-            wl.acquire(10 * 60 * 1000L /*10 minutes*/)
-            traceDebug("Reconnect for Network recovery.")
-            if (isOnline(context)) {
-                traceDebug("Online,reconnect.")
-                // we have an internet connection - have another try at connecting
-                reconnect(context)
-            } else {
-                notifyClientsOffline()
-            }
-            wl.release()
-        }
-    }
 
 }
