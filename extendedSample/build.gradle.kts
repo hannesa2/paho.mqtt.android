@@ -71,5 +71,5 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
     androidTestUtil("androidx.test.services:test-services:1.6.0")
     androidTestImplementation("org.hamcrest:hamcrest:3.0")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.7.0")
 }
