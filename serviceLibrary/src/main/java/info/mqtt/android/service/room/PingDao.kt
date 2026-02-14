@@ -7,8 +7,8 @@ import info.mqtt.android.service.room.entity.PingEntity
 @Dao
 interface PingDao {
 
-    @get:Query("SELECT * FROM PingEntity ORDER BY timestamp ASC")
-    val all: LiveData<List<PingEntity>>
+    @Query("SELECT * FROM PingEntity ORDER BY timestamp ASC")
+    fun getAll(): LiveData<List<PingEntity>>
 
     @Query("SELECT * FROM PingEntity WHERE success = :statePing ORDER BY timestamp ASC")
     fun allByState(statePing: Boolean): LiveData<List<PingEntity>>

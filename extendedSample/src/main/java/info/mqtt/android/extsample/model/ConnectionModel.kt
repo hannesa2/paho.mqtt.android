@@ -53,7 +53,7 @@ class ConnectionModel {
         }
         if (connection.connectionOptions.willMessage != null) {
             lwtMessage = String(connection.connectionOptions.willMessage.payload)
-            lwtQos = QoS.valueOf(connection.connectionOptions.willMessage.qos)
+            lwtQos = QoS.fromValue(connection.connectionOptions.willMessage.qos)
             isLwtRetain = connection.connectionOptions.willMessage.isRetained
         } else {
             lwtMessage = ""

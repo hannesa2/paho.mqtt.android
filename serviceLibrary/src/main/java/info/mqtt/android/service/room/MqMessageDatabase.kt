@@ -30,7 +30,7 @@ abstract class MqMessageDatabase : RoomDatabase() {
             clientHandle,
             topic,
             MqttMessage(message.payload),
-            QoS.valueOf(message.qos),
+            QoS.fromValue(message.qos),
             message.isRetained,
             message.isDuplicate,
             System.currentTimeMillis()

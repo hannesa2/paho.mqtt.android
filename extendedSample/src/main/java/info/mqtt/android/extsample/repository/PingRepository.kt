@@ -7,10 +7,10 @@ import info.mqtt.android.service.room.entity.PingEntity
 
 class PingRepository(private val pingDao: PingDao) {
 
-    val listLiveData: LiveData<List<PingEntity>> = pingDao.all
+    val listLiveData: LiveData<List<PingEntity>> = pingDao.getAll()
 
     @WorkerThread
-    suspend fun insert(pingEntity: PingEntity) {
+    fun insert(pingEntity: PingEntity) {
         pingDao.insert(pingEntity)
     }
 }
