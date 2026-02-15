@@ -69,7 +69,7 @@ class Connection private constructor(
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
         historyList.add("$action $timestamp")
         history.postValue(historyList)
-        notifyListeners(PropertyChangeEvent(this, ActivityConstants.historyProperty, null, null))
+        notifyListeners(PropertyChangeEvent(this, ActivityConstants.HISTORY_PROPERTY, null, null))
     }
 
     fun handle() = clientHandle
