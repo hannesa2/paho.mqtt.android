@@ -3,6 +3,7 @@ package info.mqtt.android.extsample.room
 import androidx.room.*
 import info.mqtt.android.extsample.room.entity.ConnectionEntity
 
+@Suppress("KotlinRedundantDiagnosticSuppress", "UNCHECKED_CAST")
 @Dao
 interface PersistenceDao {
 

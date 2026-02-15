@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity(), FragmentDrawerListener {
             drawerFragment.addConnection((pair.value as Connection?)!!)
             connectionMap.add(pair.key as String)
         }
-        if (connectionMap.size == 0) {
+        if (connectionMap.isEmpty()) {
             displayView(-1)
         } else {
             displayView(0)
