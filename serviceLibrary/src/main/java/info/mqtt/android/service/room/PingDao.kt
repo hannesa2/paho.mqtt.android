@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import info.mqtt.android.service.room.entity.PingEntity
 
+@Suppress("KotlinRedundantDiagnosticSuppress", "UNCHECKED_CAST")
 @Dao
 interface PingDao {
 

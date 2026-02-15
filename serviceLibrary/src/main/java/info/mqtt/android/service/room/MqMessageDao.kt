@@ -3,6 +3,7 @@ package info.mqtt.android.service.room
 import androidx.room.*
 import info.mqtt.android.service.room.entity.MqMessageEntity
 
+@Suppress("KotlinRedundantDiagnosticSuppress", "UNCHECKED_CAST")
 @Dao
 interface MqMessageDao {
 
