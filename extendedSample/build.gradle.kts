@@ -5,7 +5,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
     id("com.google.devtools.ksp")
 }
 
@@ -20,13 +19,10 @@ android {
         versionCode = getGitCommitCount()
         versionName = "${getVersionText()}.$versionCode-${getLatestGitHash()}"
 
-        if (System.getenv("CI") == "true") { // Github action
-            resValue("string", "add_connection_server_default", "10.0.2.2")
-        } else
-            resValue("string", "add_connection_server_default", "broker.hivemq.com")
-
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
+        if (System.getenv("CI") == "true") {
+            buildConfigField("String", "DEFAULT_SERVER", "\"10.0.2.2\"")
+        } else {
+            buildConfigField("String", "DEFAULT_SERVER", "\"broker.hivemq.com\"")
         }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -39,16 +35,22 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_17
-        }
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
     }
 }
 

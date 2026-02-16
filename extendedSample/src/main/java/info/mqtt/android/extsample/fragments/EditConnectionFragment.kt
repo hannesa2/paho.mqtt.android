@@ -4,12 +4,20 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import info.mqtt.android.extsample.ActivityConstants
+import info.mqtt.android.extsample.BuildConfig
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.databinding.FragmentEditConnectionBinding
@@ -18,7 +26,7 @@ import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.model.ConnectionModel
 import info.mqtt.android.service.QoS
 import timber.log.Timber
-import java.util.*
+import java.util.Random
 
 class EditConnectionFragment : Fragment() {
     private lateinit var formModel: ConnectionModel
@@ -31,7 +39,6 @@ class EditConnectionFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -50,10 +57,28 @@ class EditConnectionFragment : Fragment() {
             Timber.d("Form Model: $formModel")
             formModel.clientHandle = connection.handle()
         } else {
-            formModel = ConnectionModel(getString(R.string.add_connection_server_default))
+            formModel = ConnectionModel(BuildConfig.DEFAULT_SERVER)
         }
         populateFromConnectionModel(formModel)
         setFormItemListeners()
+        binding.hostname.setText(BuildConfig.DEFAULT_SERVER)
+
+        // Set up menu using MenuProvider API
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_edit_connection, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_save_connection -> {
+                        saveConnection()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         return view
     }
@@ -203,22 +228,6 @@ class EditConnectionFragment : Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_edit_connection, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        val id = item.itemId
-        if (id == R.id.action_save_connection) {
-            saveConnection()
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
     companion object {
         private const val AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"

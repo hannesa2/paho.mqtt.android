@@ -5,7 +5,9 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import com.google.android.material.tabs.TabLayout
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.R
@@ -29,7 +31,6 @@ class ConnectionFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val connections: HashMap<String, Connection> = getInstance(requireActivity()).connections
         connection = connections[requireArguments().getString(ActivityConstants.CONNECTION_KEY)]
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -58,6 +59,31 @@ class ConnectionFragment : Fragment() {
 
         })
 
+        // Set up menu using MenuProvider API
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_connection, menu)
+                connectSwitch = menu.findItem(R.id.connect_switch).actionView?.findViewById(R.id.disConnectSwitch)
+                connectSwitch?.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        connection?.connect(requireActivity())
+                        changeConnectedState(true)
+                    } else {
+                        Handler(Looper.getMainLooper()).postDelayed(
+                            { binding.tablayout.getTabAt(0)?.select() }, 100
+                        )
+                        connection?.client?.disconnect()
+                        changeConnectedState(false)
+                    }
+                }
+                changeConnectedState(connection!!.isConnected)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return false
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         return view
     }
 
@@ -65,25 +91,6 @@ class ConnectionFragment : Fragment() {
         binding.tablayout.getTabAt(1)?.view?.isClickable = state
         binding.tablayout.getTabAt(2)?.view?.isClickable = state
         connectSwitch?.isChecked = state
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_connection, menu)
-        connectSwitch = menu.findItem(R.id.connect_switch).actionView?.findViewById(R.id.disConnectSwitch)
-        connectSwitch?.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                connection?.connect(requireActivity())
-                changeConnectedState(true)
-            } else {
-                Handler(Looper.getMainLooper()).postDelayed(
-                    { binding.tablayout.getTabAt(0)?.select() }, 100
-                )
-                connection?.client?.disconnect()
-                changeConnectedState(false)
-            }
-        }
-        changeConnectedState(connection!!.isConnected)
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun displayFragment(fragment: Fragment) {

@@ -31,9 +31,7 @@ class MessagesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val connections = Connections.getInstance(requireActivity()).connections
         connection = connections[requireArguments().getString(ActivityConstants.CONNECTION_KEY)]!!
-        setHasOptionsMenu(true)
         Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection.id}'")
-        setHasOptionsMenu(true)
         connection.messages.observe(this.viewLifecycleOwner) {
             messageListAdapter.notifyDataSetChanged()
         }

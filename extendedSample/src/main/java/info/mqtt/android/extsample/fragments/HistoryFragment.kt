@@ -26,9 +26,7 @@ class HistoryFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val connections = Connections.getInstance(requireActivity()).connections
         connection = connections[requireArguments().getString(ActivityConstants.CONNECTION_KEY)]!!
-        setHasOptionsMenu(true)
         Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection.id}'")
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
