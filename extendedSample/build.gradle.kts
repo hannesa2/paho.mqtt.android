@@ -19,13 +19,10 @@ android {
         versionCode = getGitCommitCount()
         versionName = "${getVersionText()}.$versionCode-${getLatestGitHash()}"
 
-        if (System.getenv("CI") == "true") { // Github action
-            resValue("string", "add_connection_server_default", "10.0.2.2")
-        } else
-            resValue("string", "add_connection_server_default", "broker.hivemq.com")
-
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
+        if (System.getenv("CI") == "true") {
+            buildConfigField("String", "DEFAULT_SERVER", "\"10.0.2.2\"")
+        } else {
+            buildConfigField("String", "DEFAULT_SERVER", "\"broker.hivemq.com\"")
         }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

@@ -4,12 +4,18 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import info.mqtt.android.extsample.ActivityConstants
+import info.mqtt.android.extsample.BuildConfig
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
 import info.mqtt.android.extsample.databinding.FragmentEditConnectionBinding
@@ -18,7 +24,7 @@ import info.mqtt.android.extsample.internal.Connections.Companion.getInstance
 import info.mqtt.android.extsample.model.ConnectionModel
 import info.mqtt.android.service.QoS
 import timber.log.Timber
-import java.util.*
+import java.util.Random
 
 class EditConnectionFragment : Fragment() {
     private lateinit var formModel: ConnectionModel
@@ -50,11 +56,11 @@ class EditConnectionFragment : Fragment() {
             Timber.d("Form Model: $formModel")
             formModel.clientHandle = connection.handle()
         } else {
-            formModel = ConnectionModel(getString(R.string.add_connection_server_default))
+            formModel = ConnectionModel(BuildConfig.DEFAULT_SERVER)
         }
         populateFromConnectionModel(formModel)
         setFormItemListeners()
-
+        binding.hostname.setText(BuildConfig.DEFAULT_SERVER)
         return view
     }
 
