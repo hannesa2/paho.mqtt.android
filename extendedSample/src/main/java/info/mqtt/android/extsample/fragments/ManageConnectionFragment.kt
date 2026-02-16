@@ -28,7 +28,6 @@ class ManageConnectionFragment : Fragment() {
         connections = Connections.getInstance(requireActivity()).connections
         connectionKey = requireArguments().getString(ActivityConstants.CONNECTION_KEY)
         connection = connections[connectionKey]
-        setHasOptionsMenu(false)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

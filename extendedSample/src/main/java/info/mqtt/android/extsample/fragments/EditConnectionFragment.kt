@@ -13,7 +13,9 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.BuildConfig
 import info.mqtt.android.extsample.MainActivity
@@ -37,7 +39,6 @@ class EditConnectionFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -61,6 +62,24 @@ class EditConnectionFragment : Fragment() {
         populateFromConnectionModel(formModel)
         setFormItemListeners()
         binding.hostname.setText(BuildConfig.DEFAULT_SERVER)
+
+        // Set up menu using MenuProvider API
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_edit_connection, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_save_connection -> {
+                        saveConnection()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         return view
     }
 
@@ -209,22 +228,6 @@ class EditConnectionFragment : Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_edit_connection, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        val id = item.itemId
-        if (id == R.id.action_save_connection) {
-            saveConnection()
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
     companion object {
         private const val AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
