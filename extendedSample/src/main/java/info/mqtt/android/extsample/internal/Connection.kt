@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
@@ -72,7 +73,7 @@ class Connection private constructor(
     fun addHistory(action: String) {
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
         historyList.add("$action $timestamp")
-        _history.value = historyList
+        _history.update { ArrayList(historyList) }
         notifyListeners(PropertyChangeEvent(this, ActivityConstants.HISTORY_PROPERTY, null, null))
     }
 
@@ -182,7 +183,7 @@ class Connection private constructor(
     fun addMessage(topic: String, message: MqttMessage) {
         val msg = ReceivedMessage(topic, message)
         messageList.add(0, msg)
-        _messages.value = messageList
+        _messages.update { ArrayList(messageList) }
         if (subscriptions.containsKey(topic)) {
             if (subscriptions[topic]!!.isEnableNotifications) {
                 //create intent to start activity
