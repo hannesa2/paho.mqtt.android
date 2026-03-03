@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.adapter.MessageListItemAdapter
 import info.mqtt.android.extsample.databinding.FragmentConnectionHistoryBinding
@@ -40,8 +42,10 @@ class MessagesFragment : Fragment() {
         binding.historyListView.adapter = messageListAdapter
         
         viewLifecycleOwner.lifecycleScope.launch {
-            connection.messages.collectLatest {
-                messageListAdapter.notifyDataSetChanged()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                connection.messages.collectLatest {
+                    messageListAdapter.notifyDataSetChanged()
+                }
             }
         }
 

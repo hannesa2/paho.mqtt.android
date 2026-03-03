@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import info.mqtt.android.extsample.adapter.PingListAdapter
 import info.mqtt.android.extsample.ActivityConstants
@@ -45,14 +47,18 @@ class PingFragment : Fragment() {
         pingViewModel = ViewModelProvider(this).get(PingViewModel::class.java)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            pingViewModel.listStateFlow.collectLatest { pingEntities ->
-                adapter.setWords(pingEntities)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                pingViewModel.listStateFlow.collectLatest { pingEntities ->
+                    adapter.setWords(pingEntities)
+                }
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            connection.history.collectLatest {
-                adapter.notifyDataSetChanged()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                connection.history.collectLatest {
+                    adapter.notifyDataSetChanged()
+                }
             }
         }
 

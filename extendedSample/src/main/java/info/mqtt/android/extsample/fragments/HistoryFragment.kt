@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.adapter.HistoryListItemAdapter
 import info.mqtt.android.extsample.databinding.FragmentConnectionHistoryBinding
@@ -42,8 +44,10 @@ class HistoryFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            connection.history.collectLatest {
-                historyListItemAdapter.notifyDataSetChanged()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                connection.history.collectLatest {
+                    historyListItemAdapter.notifyDataSetChanged()
+                }
             }
         }
 
