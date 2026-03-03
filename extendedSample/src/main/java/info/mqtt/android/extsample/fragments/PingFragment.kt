@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import info.mqtt.android.extsample.adapter.PingListAdapter
 import info.mqtt.android.extsample.ActivityConstants
@@ -13,6 +14,8 @@ import info.mqtt.android.extsample.repository.PingViewModel
 import info.mqtt.android.extsample.databinding.ContentPingBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.Connections
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class PingFragment : Fragment() {
@@ -41,12 +44,16 @@ class PingFragment : Fragment() {
 
         pingViewModel = ViewModelProvider(this).get(PingViewModel::class.java)
 
-        pingViewModel.listLiveData.observe(requireActivity()) { pingEntities ->
-            pingEntities?.let { adapter.setWords(it) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            pingViewModel.listStateFlow.collectLatest { pingEntities ->
+                adapter.setWords(pingEntities)
+            }
         }
 
-        connection.history.observe(this.viewLifecycleOwner) {
-            adapter.notifyDataSetChanged()
+        viewLifecycleOwner.lifecycleScope.launch {
+            connection.history.collectLatest {
+                adapter.notifyDataSetChanged()
+            }
         }
 
         return binding.root

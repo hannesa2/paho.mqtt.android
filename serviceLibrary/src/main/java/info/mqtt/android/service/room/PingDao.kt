@@ -1,18 +1,18 @@
 package info.mqtt.android.service.room
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import info.mqtt.android.service.room.entity.PingEntity
+import kotlinx.coroutines.flow.Flow
 
 @Suppress("KotlinRedundantDiagnosticSuppress", "UNCHECKED_CAST")
 @Dao
 interface PingDao {
 
     @Query("SELECT * FROM PingEntity ORDER BY timestamp ASC")
-    fun getAll(): LiveData<List<PingEntity>>
+    fun getAll(): Flow<List<PingEntity>>
 
     @Query("SELECT * FROM PingEntity WHERE success = :statePing ORDER BY timestamp ASC")
-    fun allByState(statePing: Boolean): LiveData<List<PingEntity>>
+    fun allByState(statePing: Boolean): Flow<List<PingEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(pingEntity: PingEntity): Long

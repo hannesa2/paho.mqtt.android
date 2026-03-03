@@ -5,11 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.adapter.MessageListItemAdapter
 import info.mqtt.android.extsample.databinding.FragmentConnectionHistoryBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.Connections
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class MessagesFragment : Fragment() {
@@ -32,12 +35,16 @@ class MessagesFragment : Fragment() {
         val connections = Connections.getInstance(requireActivity()).connections
         connection = connections[requireArguments().getString(ActivityConstants.CONNECTION_KEY)]!!
         Timber.d("CONNECTION_KEY=${requireArguments().getString(ActivityConstants.CONNECTION_KEY)} '${connection.id}'")
-        connection.messages.observe(this.viewLifecycleOwner) {
-            messageListAdapter.notifyDataSetChanged()
+        
+        messageListAdapter = MessageListItemAdapter(requireContext(), connection.messages.value)
+        binding.historyListView.adapter = messageListAdapter
+        
+        viewLifecycleOwner.lifecycleScope.launch {
+            connection.messages.collectLatest {
+                messageListAdapter.notifyDataSetChanged()
+            }
         }
 
-        messageListAdapter = MessageListItemAdapter(requireContext(), connection.messages.value!!)
-        binding.historyListView.adapter = messageListAdapter
         binding.historyClearButton.setOnClickListener {
             connection.messageList.clear()
             messageListAdapter.notifyDataSetChanged()

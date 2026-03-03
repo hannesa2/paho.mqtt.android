@@ -82,6 +82,7 @@ dependencies {
     implementation("com.github.AppDevNext.Logcat:LogcatCoreLib:3.4")
 
     implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
     ksp("androidx.room:room-compiler:2.8.4")
 
     androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")

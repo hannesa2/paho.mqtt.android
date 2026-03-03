@@ -3,7 +3,6 @@ package info.mqtt.android.extsample.internal
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.MutableLiveData
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.MainActivity
 import info.mqtt.android.extsample.R
@@ -15,6 +14,9 @@ import info.mqtt.android.extsample.utils.toSubscriptionEntity
 import info.mqtt.android.service.MqttAndroidClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
@@ -40,14 +42,16 @@ class Connection private constructor(
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
     val messageList = ArrayList<ReceivedMessage>()
     val historyList = ArrayList<String>()
-    val messages = MutableLiveData<MutableList<ReceivedMessage>>()
-    val history = MutableLiveData<MutableList<String>>()
+    
+    private val _messages = MutableStateFlow<MutableList<ReceivedMessage>>(mutableListOf())
+    val messages: StateFlow<MutableList<ReceivedMessage>> = _messages.asStateFlow()
+    
+    private val _history = MutableStateFlow<MutableList<String>>(mutableListOf())
+    val history: StateFlow<MutableList<String>> = _history.asStateFlow()
 
     private var status = ConnectionStatus.NONE
 
     init {
-        messages.postValue(arrayListOf())
-        history.postValue(arrayListOf())
         addHistory("Client: $id created")
     }
 
@@ -68,7 +72,7 @@ class Connection private constructor(
     fun addHistory(action: String) {
         val timestamp = SimpleDateFormat("HH:mm.ss.SSS").format(Date(System.currentTimeMillis()))
         historyList.add("$action $timestamp")
-        history.postValue(historyList)
+        _history.value = historyList
         notifyListeners(PropertyChangeEvent(this, ActivityConstants.HISTORY_PROPERTY, null, null))
     }
 
@@ -178,7 +182,7 @@ class Connection private constructor(
     fun addMessage(topic: String, message: MqttMessage) {
         val msg = ReceivedMessage(topic, message)
         messageList.add(0, msg)
-        messages.postValue(messageList)
+        _messages.value = messageList
         if (subscriptions.containsKey(topic)) {
             if (subscriptions[topic]!!.isEnableNotifications) {
                 //create intent to start activity

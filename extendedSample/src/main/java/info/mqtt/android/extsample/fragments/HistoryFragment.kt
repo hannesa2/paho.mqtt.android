@@ -5,11 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import info.mqtt.android.extsample.ActivityConstants
 import info.mqtt.android.extsample.adapter.HistoryListItemAdapter
 import info.mqtt.android.extsample.databinding.FragmentConnectionHistoryBinding
 import info.mqtt.android.extsample.internal.Connection
 import info.mqtt.android.extsample.internal.Connections
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class HistoryFragment : Fragment() {
@@ -31,15 +34,17 @@ class HistoryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentConnectionHistoryBinding.inflate(inflater, container, false)
-        historyListItemAdapter = HistoryListItemAdapter(requireContext(), connection.history.value!!)
+        historyListItemAdapter = HistoryListItemAdapter(requireContext(), connection.history.value)
         binding.historyListView.adapter = historyListItemAdapter
         binding.historyClearButton.setOnClickListener {
             connection.historyList.clear()
             historyListItemAdapter.notifyDataSetChanged()
         }
 
-        connection.history.observe(this.viewLifecycleOwner) {
-            historyListItemAdapter.notifyDataSetChanged()
+        viewLifecycleOwner.lifecycleScope.launch {
+            connection.history.collectLatest {
+                historyListItemAdapter.notifyDataSetChanged()
+            }
         }
 
         return binding.root
