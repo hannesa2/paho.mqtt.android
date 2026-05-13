@@ -1232,8 +1232,12 @@ class MqttAndroidClient @JvmOverloads constructor(
         throw UnsupportedOperationException()
     }
 
-    @Throws(MqttException::class)
     override fun disconnectForcibly(quiesceTimeout: Long, disconnectTimeout: Long) {
+        throw UnsupportedOperationException()
+    }
+
+    @Throws(MqttException::class)
+    override fun disconnectForcibly(quiesceTimeout: Long, disconnectTimeout: Long, p2: Boolean) {
         throw UnsupportedOperationException()
     }
 
