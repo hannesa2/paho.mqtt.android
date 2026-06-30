@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - v3.x
   pull_request:
 env:
   resourceRunID: ${{ github.run_id }}-${{ github.run_number }}
