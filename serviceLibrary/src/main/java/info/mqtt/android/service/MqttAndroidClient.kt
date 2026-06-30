@@ -1237,6 +1237,11 @@ class MqttAndroidClient @JvmOverloads constructor(
         throw UnsupportedOperationException()
     }
 
+    @Throws(MqttException::class)
+    override fun disconnectForcibly(quiesceTimeout: Long, disconnectTimeout: Long, p2: Boolean) {
+        throw UnsupportedOperationException()
+    }
+
     /**
      * Unregister receiver which receives intent from MqttService avoids
      * IntentReceiver leaks.
