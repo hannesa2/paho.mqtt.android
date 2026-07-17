@@ -71,7 +71,7 @@ android {
 }
 
 dependencies {
-    api("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
+    api("com.github.hannesa2:paho.mqtt.java:1.2.6-beta6")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.core:core-ktx:1.18.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
