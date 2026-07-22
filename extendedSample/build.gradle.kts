@@ -65,7 +65,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.20")
     implementation("com.github.AppDevNext.Logcat:LogcatCoreUI:3.6")
     implementation("androidx.room:room-runtime:2.8.4")
-    implementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    implementation("androidx.test.uiautomator:uiautomator:2.4.0")
     ksp("androidx.room:room-compiler:2.8.4")
 
     testImplementation("junit:junit:4.13.2")
