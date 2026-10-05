@@ -36,7 +36,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: Install Android SDK
-        uses: hannesa2/action-android/install-sdk@0.17.0
+        uses: hannesa2/action-android/install-sdk@0.18.1
       - name: Build project
         run: ./gradlew assembleRelease
         env:
