@@ -57,9 +57,9 @@ jobs:
           java-version: 17
       - uses: gradle/actions/wrapper-validation@v6.4.0
       - name: Install Android SDK
-        uses: hannesa2/action-android/install-sdk@0.17.0
+        uses: hannesa2/action-android/install-sdk@0.18.1
       - name: Android Emulator test
-        uses: hannesa2/action-android/emulator-run-cmd@0.17.0
+        uses: hannesa2/action-android/emulator-run-cmd@0.18.1
         with:
           cmd: ./gradlew cAT --continue
           api: ${{ matrix.api }}
@@ -132,7 +132,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: Install Android SDK
-        uses: hannesa2/action-android/install-sdk@0.17.0
+        uses: hannesa2/action-android/install-sdk@0.18.1
       - name: Run tests
         run: ./gradlew test
       - name: Kotlin code checks
