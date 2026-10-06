@@ -12,8 +12,7 @@ android {
     defaultConfig {
         applicationId = "info.mqtt.java.example"
         minSdk = 24
-        compileSdk = 36
-        targetSdk = 36
+        compileSdk = 37
         versionCode = getGitCommitCount()
         versionName = "${getVersionText()}.$versionCode-${getLatestGitHash()}"
 
