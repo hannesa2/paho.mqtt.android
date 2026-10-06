@@ -12,7 +12,7 @@ android {
     testNamespace = "info.mqtt.android.service.test"
     compileSdk = 36
     defaultConfig {
-        minSdk = 23
+        minSdk = 24
 
         // Android Studio 4.1 doesn"t generate versionName in libraries any more
         // https://developer.android.com/studio/releases/gradle-plugin#version_properties_removed_from_buildconfig_class_in_library_projects
