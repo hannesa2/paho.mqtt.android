@@ -61,7 +61,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.19.1")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.20")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.21")
     implementation("com.github.AppDevNext.Logcat:LogcatCoreUI:3.6")
     implementation("androidx.room:room-runtime:2.8.5")
     implementation("androidx.test.uiautomator:uiautomator:2.4.0")
