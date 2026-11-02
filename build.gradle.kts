@@ -15,7 +15,7 @@ buildscript {
 }
 
 plugins {
-    id("com.google.devtools.ksp") version "2.3.12" apply false
+    id("com.google.devtools.ksp") version "2.3.13" apply false
 }
 
 println("Gradle uses Java ${Jvm.current()}")
