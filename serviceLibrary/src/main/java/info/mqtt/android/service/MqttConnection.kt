@@ -16,6 +16,8 @@ import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence
 import timber.log.Timber
 import java.io.File
 import java.util.*
+import java.util.concurrent.ScheduledThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /**
  * MqttConnection holds a MqttAsyncClient {host,port,clientId} instance to perform
@@ -81,6 +83,23 @@ internal class MqttConnection(
     @Volatile
     private var isConnecting = false
     private var wakelock: WakeLock? = null
+
+    /**
+     * Set once the service lets go of this connection (disconnect). From then on it no longer reports
+     * connect/lost events to the app, and a Paho client that wasn't connected gets shut down for good,
+     * see [disconnectAndRetire].
+     *
+     * Why: the service forgets a connection as soon as it's told to disconnect, even when the
+     * client isn't connected (e.g. Paho is waiting between auto-reconnect attempts). Before this,
+     * nothing reached Paho in that case, so the client kept reconnecting on its own with the same
+     * client id and fought any new connection for it.
+     */
+    @Volatile
+    private var retired = false
+
+    /** Guarded by [closeLock]: closing runs on the caller's thread first, then maybe on [shutdownExecutor]. */
+    private var pahoClosed = false
+    private val closeLock = Any()
     private var disconnectedBufferOptions: DisconnectedBufferOptions? = null
 
     /**
@@ -194,6 +213,7 @@ internal class MqttConnection(
     }
 
     override fun connectComplete(reconnect: Boolean, serverURI: String) {
+        if (retired) return mutedAfterRetire("connectComplete")
         val resultBundle = Bundle()
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.CONNECT_EXTENDED_ACTION)
         resultBundle.putBoolean(MqttServiceConstants.CALLBACK_RECONNECT, reconnect)
@@ -268,23 +288,86 @@ internal class MqttConnection(
      * @param activityToken     arbitrary string to be passed back to the activity
      */
     fun disconnect(quiesceTimeout: Long, invocationContext: String?, activityToken: IMqttToken) {
+        disconnectAndRetire(invocationContext, activityToken, quiesceTimeout) { listener ->
+            myClient!!.disconnect(quiesceTimeout, invocationContext, listener)
+        }
+    }
+
+    /**
+     * Disconnect from the server
+     *
+     * @param invocationContext arbitrary data to be passed back to the application
+     * @param activityToken     arbitrary string to be passed back to the activity
+     */
+    fun disconnect(invocationContext: String?, activityToken: IMqttToken?) {
+        disconnectAndRetire(invocationContext, activityToken, PAHO_DEFAULT_QUIESCE_MS) { listener ->
+            myClient!!.disconnect(invocationContext, listener)
+        }
+    }
+
+    /**
+     * Disconnects, and makes sure the Paho client can never come back by itself.
+     *
+     * The service removes this connection from its map right after this call, so nothing can reach
+     * this client again. A client that was waiting to reconnect (or in the middle of reconnecting)
+     * used to live on and reconnect by itself, fighting any new client with the same id. Now:
+     * - connected: clean disconnect, as before. It doesn't reconnect after that;
+     * - not connected: closed before this returns;
+     * - disconnect failed or never answered: closed in the background.
+     */
+    private fun disconnectAndRetire(
+        invocationContext: String?,
+        activityToken: IMqttToken?,
+        quiesceTimeout: Long,
+        sendDisconnect: (IMqttActionListener) -> Unit,
+    ) {
         service.traceDebug("disconnect()")
         disconnected = true
+        retire()
         val resultBundle = Bundle()
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken.toString())
         resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, invocationContext)
         resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.DISCONNECT_ACTION)
-        if (myClient != null && myClient!!.isConnected) {
-            val listener: IMqttActionListener = MqttConnectionListener(resultBundle)
-            try {
-                myClient!!.disconnect(quiesceTimeout, invocationContext, listener)
-            } catch (e: Exception) {
-                handleException(resultBundle, e)
+        val client = myClient
+        if (client != null && client.isConnected) {
+            // A clean disconnect leaves the Paho client disconnected and not reconnecting, exactly as
+            // before this change, so it isn't closed. Closing it would also close its persistence, and
+            // a new client with the same id and server (e.g. a token refresh) shares that folder.
+            // Only a disconnect that fails needs the full shutdown.
+            val answered = java.util.concurrent.atomic.AtomicBoolean(false)
+            val listener: IMqttActionListener = object : MqttConnectionListener(resultBundle) {
+                override fun onSuccess(asyncActionToken: IMqttToken) {
+                    answered.set(true)
+                    super.onSuccess(asyncActionToken)
+                    alarmPingSender?.release()
+                }
+
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    answered.set(true)
+                    super.onFailure(asyncActionToken, exception)
+                    shutDownPahoClientLater("disconnect failed: ${exception?.message}")
+                }
             }
+            try {
+                sendDisconnect(listener)
+            } catch (e: Exception) {
+                answered.set(true)
+                handleException(resultBundle, e)
+                shutDownPahoClientLater("disconnect threw: ${e.message}")
+            }
+            // Safety net in case Paho never answers the disconnect.
+            shutdownExecutor.schedule({
+                if (!answered.get()) closeForGood(client, "disconnect not answered in time", CLOSE_RETRIES_LATER)
+            }, quiesceTimeout + DISCONNECT_ANSWER_GRACE_MS, TimeUnit.MILLISECONDS)
         } else {
             resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED)
             service.traceError(MqttServiceConstants.DISCONNECT_ACTION + " " + NOT_CONNECTED)
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
+            // Shut it down before returning, so the app's next client with the same id (it shares the
+            // persistence folder) can't start while this one is still closing.
+            if (client != null && !closeForGood(client, "not connected", CLOSE_RETRIES_NOW)) {
+                shutDownPahoClientLater("not connected, still closing")
+            }
         }
         if (connectOptions != null && connectOptions!!.isCleanSession) {
             // assume we'll clear the stored messages at this point
@@ -295,38 +378,60 @@ internal class MqttConnection(
         releaseWakeLock()
     }
 
+    private fun retire() {
+        // Note: don't turn off isAutomaticReconnect on connectOptions here. It's the app's own object
+        // and may be reused for its next connection. Closing the client is what stops reconnects:
+        // an attempt on a closed client fails at once and isn't rescheduled.
+        retired = true
+    }
+
+    /** Keeps trying to close the Paho client on [shutdownExecutor], so the caller never blocks. */
+    private fun shutDownPahoClientLater(reason: String) {
+        val client = myClient ?: return
+        shutdownExecutor.execute { closeForGood(client, reason, CLOSE_RETRIES_LATER) }
+    }
+
     /**
-     * Disconnect from the server
+     * Paho only accepts close() when the client is fully disconnected:
+     * - waiting between reconnect attempts: close() works at once, and the pending attempt fails as
+     *   "closed" without being rescheduled;
+     * - connecting: close() throws CONNECT_IN_PROGRESS, so abort the attempt first. Paho waits for the
+     *   CONNACK as long as the socket stays open, so the attempt never ends by itself. No DISCONNECT
+     *   packet is sent: the socket never connected, and waiting for it would only slow this down;
+     * - connected: same, drop the link first;
+     * - disconnecting: Paho queues the close and does it when the disconnect finishes.
+     * A failed attempt can schedule another reconnect on Paho's own thread, so retry a few times.
      *
-     * @param invocationContext arbitrary data to be passed back to the application
-     * @param activityToken     arbitrary string to be passed back to the activity
+     * @return true once the client is closed.
      */
-    fun disconnect(invocationContext: String?, activityToken: IMqttToken?) {
-        service.traceDebug("disconnect()")
-        disconnected = true
-        val resultBundle = Bundle()
-        resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken.toString())
-        resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, invocationContext)
-        resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.DISCONNECT_ACTION)
-        if (myClient != null && myClient!!.isConnected) {
-            val listener: IMqttActionListener = MqttConnectionListener(resultBundle)
+    private fun closeForGood(client: MqttAsyncClient, reason: String, attempts: Int): Boolean = synchronized(closeLock) {
+        if (pahoClosed) return true
+        for (attempt in 1..attempts) {
             try {
-                myClient!!.disconnect(invocationContext, listener)
-            } catch (e: Exception) {
-                handleException(resultBundle, e)
+                client.close()
+                pahoClosed = true
+            } catch (e: MqttException) {
+                when (e.reasonCode) {
+                    MqttException.REASON_CODE_CLIENT_CLOSED.toInt() -> pahoClosed = true
+                    MqttException.REASON_CODE_CONNECT_IN_PROGRESS.toInt(),
+                    MqttException.REASON_CODE_CLIENT_CONNECTED.toInt() ->
+                        runCatching { client.disconnectForcibly(0, 0, false) }
+
+                    else -> Unit // e.g. still disconnecting: try again shortly
+                }
             }
-        } else {
-            resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED)
-            service.traceError(MqttServiceConstants.DISCONNECT_ACTION + " " + NOT_CONNECTED)
-            service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
-        }
-        if (connectOptions != null && connectOptions!!.isCleanSession) {
-            // assume we'll clear the stored messages at this point
-            CoroutineScope(Dispatchers.IO).launch {
-                service.messageDatabase.persistenceDao().deleteClientHandle(clientHandle)
+            if (pahoClosed) {
+                // Paho may still have an auto-reconnect timer pending (1.2.5 has no public way to stop
+                // it). When it fires, connect() fails at once because the client is closed, and nothing
+                // is rescheduled. Its idle thread ends once this client is garbage collected.
+                alarmPingSender?.release()
+                Timber.i("$clientId: Paho client shut down for good ($reason, attempt $attempt)")
+                return true
             }
+            Thread.sleep(CLOSE_RETRY_DELAY_MS)
         }
-        releaseWakeLock()
+        if (attempts == CLOSE_RETRIES_LATER) Timber.e("$clientId: could not shut the Paho client down ($reason)")
+        return false
     }
 
     /**
@@ -576,6 +681,7 @@ internal class MqttConnection(
      * @param why the exception causing the break in communications
      */
     override fun connectionLost(why: Throwable?) {
+        if (retired) return mutedAfterRetire("connectionLost")
         if (why != null) {
             service.traceDebug("connectionLost(${why.message})")
         } else {
@@ -801,6 +907,18 @@ internal class MqttConnection(
         }
     }
 
+    /**
+     * A retired connection shares its clientHandle with any new connection for the same client id,
+     * so its connect/lost events would land on the new one and confuse it.
+     *
+     * Messages are NOT muted: during a clean disconnect Paho can still deliver in-flight messages,
+     * and it acks a QoS 1 message as soon as messageArrived returns, so muting them would lose them.
+     * A retired client is closed right after, so it can't receive anything later.
+     */
+    private fun mutedAfterRetire(callback: String) {
+        Timber.d("$clientId: ignoring $callback from a connection that was already let go")
+    }
+
     @Synchronized
     private fun setConnectingState(isConnecting: Boolean) {
         this.isConnecting = isConnecting
@@ -847,6 +965,21 @@ internal class MqttConnection(
     }
 
     companion object {
+        /** Paho's disconnect() without a timeout quiesces for 30s. */
+        private const val PAHO_DEFAULT_QUIESCE_MS = 30_000L
+        private const val DISCONNECT_ANSWER_GRACE_MS = 10_000L
+        /** Tries on the caller's thread before disconnect() returns. Each try is quick, no network wait. */
+        private const val CLOSE_RETRIES_NOW = 5
+
+        /** Tries on [shutdownExecutor] if those weren't enough. */
+        private const val CLOSE_RETRIES_LATER = 50
+        private const val CLOSE_RETRY_DELAY_MS = 20L
+
+        /** One background thread for every connection's shutdown, so nothing blocks the caller. */
+        private val shutdownExecutor = ScheduledThreadPoolExecutor(1) { runnable ->
+            Thread(runnable, "MqttConnection-shutdown").apply { isDaemon = true }
+        }
+
         private const val TEMP = "MqttConnection"
         private const val NOT_CONNECTED = "not connected"
     }

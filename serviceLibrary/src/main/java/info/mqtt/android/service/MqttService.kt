@@ -315,7 +315,9 @@ class MqttService : Service(), MqttTraceHandler {
      * @param clientHandle identifies the MqttConnection to use
      */
     fun close(clientHandle: String) {
-        val client = getConnection(clientHandle)
+        // Unknown handle: a disconnect already let this connection go, and it shuts its Paho client
+        // down by itself. Nothing to close, so don't throw "Invalid ClientHandle".
+        val client = connections[clientHandle] ?: return
         client.close()
     }
 
@@ -379,7 +381,12 @@ class MqttService : Service(), MqttTraceHandler {
      * @param clientHandle identifies the MqttConnection to use
      * @return true if the specified client is connected to an MQTT server
      */
-    fun isConnected(clientHandle: String) = getConnection(clientHandle).isConnected
+    /**
+     * False for a handle the service no longer knows. Between disconnect() (which forgets the handle
+     * at once) and the client receiving the disconnect answer (which clears its own copy), a client
+     * still asks with the old handle; that used to throw "Invalid ClientHandle".
+     */
+    fun isConnected(clientHandle: String) = connections[clientHandle]?.isConnected == true
 
     /**
      * Publish a message to a topic
