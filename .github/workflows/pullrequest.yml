@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04 ]
+        os: [ ubuntu-26.04 ]
         api: [ 34 ]
         abi: [ x86_64 ]
         emulatorApi: [ 14 ]
@@ -119,7 +119,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04 ]
+        os: [ ubuntu-26.04 ]
     steps:
       - uses: actions/checkout@v7
         with:
