@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 
@@ -34,9 +35,19 @@ internal class AlarmPingSender(
 
     private var comms: ClientComms? = null
 
+    /**
+     * Identifies the ping jobs scheduled by this sender. A new process (or a new sender for the
+     * same client id) gets a new session, so [PingWorker] can tell its own jobs from leftovers.
+     */
+    private val session = UUID.randomUUID().toString()
+
     override fun init(comms: ClientComms) {
+        // Runs from the ClientComms constructor, before connect(), so this can't hit a live chain.
+        // Clears jobs a killed process left behind for this client id.
+        workManager.cancelAllWorkByTag("${PING_JOB}_$id")
         this.comms = comms
         clientCommsMap[id] = comms
+        activeSessions[id] = session
         messageDatabase = service.messageDatabase
         Timber.w("Init ping job $id")
     }
@@ -56,6 +67,7 @@ internal class AlarmPingSender(
     fun release() {
         val own = comms ?: return
         if (clientCommsMap.remove(id, own)) {
+            activeSessions.remove(id, session)
             workManager.cancelAllWorkByTag("${PING_JOB}_$id")
         }
     }
@@ -72,30 +84,29 @@ internal class AlarmPingSender(
         val pingWork = OneTimeWorkRequest.Builder(PingWorker::class.java)
         val data = Data.Builder()
         data.putBoolean("logging", pingLogging)
-        data.putInt("keepRecordCount", keepPingRecords)
+        data.putInt(PingWorker.KEEP_RECORDS_COUNT, keepPingRecords)
         data.putString("id", id)
+        data.putString(PingWorker.SESSION, session)
 
         pingWork
             .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
             .setInputData(data.build())
             .addTag("${PING_JOB}_$id")
 
-        // we add the currentTimeMillis to keep the prev job running
-        val uniqueWorkName = "${PING_JOB}_${id}_${System.currentTimeMillis()}"
-
-        workManager.enqueueUniqueWork(
-            uniqueWorkName,
-            ExistingWorkPolicy.REPLACE,
-            pingWork.build()
-        )
-
-
+        // Plain enqueue, not unique work: Paho calls schedule() from inside the running PingWorker
+        // (ClientState.checkForActivity), so REPLACE on a stable name would cancel that worker,
+        // and APPEND would hold the next ping until the current one gets its PINGRESP.
+        // Leftover jobs are handled by the session check in PingWorker instead.
+        workManager.enqueue(pingWork.build())
 
         Timber.d("$id: Successfully scheduled new ping job")
     }
 
     companion object {
         internal var clientCommsMap: ConcurrentHashMap<String, ClientComms> = ConcurrentHashMap()
+
+        /** Client id -> session of the sender that currently owns that connection. */
+        internal val activeSessions: ConcurrentHashMap<String, String> = ConcurrentHashMap()
 
         private const val PING_JOB = "PING_JOB"
 
