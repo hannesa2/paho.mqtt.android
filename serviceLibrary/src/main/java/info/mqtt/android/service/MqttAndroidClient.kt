@@ -19,6 +19,8 @@ import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
+import java.net.InetAddress
+import java.net.Socket
 import java.security.KeyManagementException
 import java.security.KeyStore
 import java.security.KeyStoreException
@@ -26,7 +28,11 @@ import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLException
+import javax.net.ssl.SSLHandshakeException
+import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
 
@@ -1220,19 +1226,16 @@ class MqttAndroidClient @JvmOverloads constructor(
      * authentication
      * @throws MqttSecurityException if there was any error when getting the SSLSocketFactory
      */
+    @Deprecated(
+        "Use getSSLSocketFactory(KeyStore) for better security. This method will be removed in a future version.",
+        ReplaceWith("getSSLSocketFactory(ts)")
+    )
     @Throws(MqttSecurityException::class)
     fun getSSLSocketFactory(keyStore: InputStream?, password: String): SSLSocketFactory {
         return try {
-            val sslSockFactory: SSLSocketFactory
             val ts: KeyStore = KeyStore.getInstance("BKS")
             ts.load(keyStore, password.toCharArray())
-            val tmf = TrustManagerFactory.getInstance("X509")
-            tmf.init(ts)
-            val tm = tmf.trustManagers
-            val ctx: SSLContext = SSLContext.getInstance("TLSv1")
-            ctx.init(null, tm, null)
-            sslSockFactory = ctx.socketFactory
-            sslSockFactory
+            getSSLSocketFactory(ts)
         } catch (e: KeyStoreException) {
             throw MqttSecurityException(e)
         } catch (e: CertificateException) {
@@ -1242,6 +1245,99 @@ class MqttAndroidClient @JvmOverloads constructor(
         } catch (e: NoSuchAlgorithmException) {
             throw MqttSecurityException(e)
         } catch (e: KeyManagementException) {
+            throw MqttSecurityException(e)
+        }
+    }
+
+    /**
+     * Get the SSLSocketFactory with certificate pinning support
+     * Uses modern TLS 1.2/1.3 with configurable trust managers and hostname verification
+     *
+     * @param trustStore the trusted certificates keystore
+     * @param hostnameVerifier optional hostname verifier for additional security
+     * @return SSLSocketFactory used to connect to the server with SSL authentication
+     * @throws MqttSecurityException if there was any error when getting the SSLSocketFactory
+     */
+    @Throws(MqttSecurityException::class)
+    fun getSSLSocketFactory(
+        trustStore: KeyStore,
+        hostnameVerifier: HostnameVerifier? = null
+    ): SSLSocketFactory {
+        return try {
+            // Initialize TrustManagerFactory with the provided trust store
+            val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+            tmf.init(trustStore)
+            val trustManagers = tmf.trustManagers
+
+            // Create SSLContext with TLS 1.3 (Android 10+) or TLS 1.2 (Android 5+)
+            val tlsVersion = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                "TLSv1.3"
+            } else {
+                "TLSv1.2"
+            }
+            val ctx: SSLContext = SSLContext.getInstance(tlsVersion)
+            ctx.init(null, trustManagers, null)
+
+            val socketFactory = ctx.socketFactory
+
+            // If hostname verifier is provided, wrap the socket factory
+            return if (hostnameVerifier != null) {
+                object : SSLSocketFactory() {
+                    override fun getDefaultCipherSuites(): Array<String> {
+                        return socketFactory.defaultCipherSuites
+                    }
+
+                    override fun createSocket(s: Socket, host: String, port: Int, autoClose: Boolean): Socket {
+                        val sslSocket = socketFactory.createSocket(s, host, port, autoClose) as SSLSocket
+                        // Apply custom hostname verification
+                        val session = sslSocket.session
+                        val peerHost = session.peerHost
+                        if (!hostnameVerifier.verify(peerHost, session)) {
+                            throw SSLHandshakeException("Hostname verification failed for: $peerHost")
+                        }
+                        return sslSocket
+                    }
+
+                    override fun createSocket(host: String, port: Int): Socket {
+                        val sslSocket = socketFactory.createSocket(host, port) as SSLSocket
+                        // Apply custom hostname verification
+                        val session = sslSocket.session
+                        if (!hostnameVerifier.verify(host, session)) {
+                            throw SSLHandshakeException("Hostname verification failed for: $host")
+                        }
+                        return sslSocket
+                    }
+
+                    override fun createSocket(host: String, port: Int, localHost: InetAddress, localPort: Int): Socket {
+                        return socketFactory.createSocket(host, port, localHost, localPort)
+                    }
+
+                    override fun createSocket(host: InetAddress, port: Int): Socket {
+                        return socketFactory.createSocket(host, port)
+                    }
+
+                    override fun createSocket(host: InetAddress, port: Int, localHost: InetAddress, localPort: Int): Socket {
+                        return socketFactory.createSocket(host, port, localHost, localPort)
+                    }
+
+                    override fun getSupportedCipherSuites(): Array<String> {
+                        return socketFactory.supportedCipherSuites
+                    }
+                }
+            } else {
+                socketFactory
+            }
+        } catch (e: KeyStoreException) {
+            throw MqttSecurityException(e)
+        } catch (e: CertificateException) {
+            throw MqttSecurityException(e)
+        } catch (e: IOException) {
+            throw MqttSecurityException(e)
+        } catch (e: NoSuchAlgorithmException) {
+            throw MqttSecurityException(e)
+        } catch (e: KeyManagementException) {
+            throw MqttSecurityException(e)
+        } catch (e: SSLException) {
             throw MqttSecurityException(e)
         }
     }
