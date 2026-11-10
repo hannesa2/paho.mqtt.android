@@ -130,12 +130,12 @@ class MqttAndroidClient @JvmOverloads constructor(
      * connect will fail.
      */
     override fun close() {
-        mqttService?.let {
-            if (clientHandle == null) {
-                clientHandle = it.getClient(serverURI, clientId, context.applicationInfo.packageName, persistence)
-            }
-            it.close(clientHandle!!)
-        }
+        // No handle means there is nothing to close: either this client never connected, or a
+        // disconnect already let the connection go (the service shuts that one down by itself).
+        // Asking the service for a handle here would create a new, empty connection just to close it,
+        // and leave it behind in the service.
+        val handle = clientHandle ?: return
+        mqttService?.close(handle)
     }
 
     /**

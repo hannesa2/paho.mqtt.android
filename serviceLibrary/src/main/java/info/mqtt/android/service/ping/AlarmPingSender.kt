@@ -32,7 +32,10 @@ internal class AlarmPingSender(
 
     private val workManager = WorkManager.getInstance(service)
 
+    private var comms: ClientComms? = null
+
     override fun init(comms: ClientComms) {
+        this.comms = comms
         clientCommsMap[id] = comms
         messageDatabase = service.messageDatabase
         Timber.w("Init ping job $id")
@@ -43,6 +46,18 @@ internal class AlarmPingSender(
         clientCommsMap[id]?.clientState?.let {
             schedule(clientCommsMap[id]!!.keepAlive)
         } ?: Timber.e("FIXME: try to start ping schedule, but clientState null, not able to get keepAlive")
+    }
+
+    /**
+     * The connection was shut down for good. Drops this sender's ClientComms and its pending ping
+     * jobs, but only if they are still its own: a newer connection with the same client id may
+     * already have replaced them, and its jobs share the same tag.
+     */
+    fun release() {
+        val own = comms ?: return
+        if (clientCommsMap.remove(id, own)) {
+            workManager.cancelAllWorkByTag("${PING_JOB}_$id")
+        }
     }
 
     override fun stop() {
