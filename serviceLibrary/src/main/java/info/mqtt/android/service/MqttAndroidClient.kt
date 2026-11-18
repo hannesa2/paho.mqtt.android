@@ -13,7 +13,6 @@ import info.mqtt.android.service.extension.serializable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -81,8 +80,7 @@ class MqttAndroidClient @JvmOverloads constructor(
     @Volatile
     private var serviceBound = false
 
-    private var clientJob: Job? = null
-    private var clientScope: CoroutineScope? = null
+    private var eventCollector: Job? = null
     /**
      * Constructor- create an MqttAndroidClient that can be used to communicate
      * with an MQTT server on android
@@ -235,15 +233,13 @@ class MqttAndroidClient @JvmOverloads constructor(
     }
 
     private fun collect() {
-        if (mqttService == null) {
-            return
-        }
-        val supervisorJob = SupervisorJob()
-        clientJob = supervisorJob
-        clientScope = CoroutineScope(Dispatchers.IO + supervisorJob)
-        mqttService?.collect { bundle ->
-            onReceive(bundle)
-        }
+        mqttService?.let(::collectFrom)
+    }
+
+    @Synchronized
+    private fun collectFrom(service: MqttService) {
+        eventCollector?.cancel()
+        eventCollector = service.collect(::onReceive)
         receiverRegistered.set(true)
     }
 
@@ -913,6 +909,15 @@ class MqttAndroidClient @JvmOverloads constructor(
      *
      */
     private fun onReceive(data: Bundle) {
+        val handleFromIntent: String? = data.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE)
+        val isOwnEvent = handleFromIntent != null && handleFromIntent == clientHandle
+
+        if (isOwnEvent) {
+            handleOwnEvent(data)
+        }
+    }
+
+    private fun handleOwnEvent(data: Bundle) {
         val status = data.serializable(MqttServiceConstants.CALLBACK_STATUS) as Status?
         if (status == Status.ERROR) {
             Timber.e("$status $data")
@@ -920,10 +925,6 @@ class MqttAndroidClient @JvmOverloads constructor(
             Timber.w("$status $data")
         else
             Timber.v("$status $data")
-        val handleFromIntent = data.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE)
-        if (handleFromIntent == null || handleFromIntent != clientHandle) {
-            return
-        }
         val action = data.getString(MqttServiceConstants.CALLBACK_ACTION)
         if (MqttServiceConstants.CONNECT_ACTION == action) {
             connectAction(data)
@@ -1268,9 +1269,8 @@ class MqttAndroidClient @JvmOverloads constructor(
     fun unregisterResources() {
         if (receiverRegistered.get()) {
             synchronized(this@MqttAndroidClient) {
-                clientJob?.cancel()
-                clientJob = null
-                clientScope = null
+                eventCollector?.cancel()
+                eventCollector = null
                 receiverRegistered.set(false)
             }
             if (serviceBound) {

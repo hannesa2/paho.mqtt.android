@@ -252,11 +252,10 @@ class MqttService : Service(), MqttTraceHandler {
         }
     }
 
-    fun collect(block: (Bundle) -> Unit) {
+    fun collect(block: (Bundle) -> Unit): Job? =
         serviceScope?.launch {
             collectFlowInternal(block)
         }
-    }
 
     private suspend fun collectFlowInternal(block: (Bundle) -> Unit) {
         flow.collect(block)
