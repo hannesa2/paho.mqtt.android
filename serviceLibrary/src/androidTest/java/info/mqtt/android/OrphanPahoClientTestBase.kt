@@ -2,6 +2,7 @@ package info.mqtt.android
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ServiceTestRule
@@ -25,6 +26,7 @@ import org.junit.rules.TestName
 import org.junit.runner.RunWith
 import timber.log.Timber
 import java.util.UUID
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -151,6 +153,22 @@ abstract class OrphanPahoClientTestBase {
         assertTrue("auto-reconnect was switched off on the app's options", options.isAutomaticReconnect)
     }
 
+    @Test
+    fun unregisteredAndRegisteredAgain_getsEachConnectionLossOnce() {
+        val losses = AtomicInteger()
+        val client = newClient(clientId())
+        client.setCallback(callbackOf(onConnectionLost = losses::incrementAndGet))
+        connect(client, options().apply { isAutomaticReconnect = false })
+
+        client.unregisterResources()
+        client.registerResources()
+        broker.dropAll()
+
+        assertTrue("connectionLost never arrived", waitUntil(10_000) { losses.get() > 0 })
+        Thread.sleep(SETTLE_MS)
+        assertEquals("connectionLost arrived more than once", 1, losses.get())
+    }
+
     // ── A new client with the same id (what the app does next) ──
 
     @Test
@@ -228,6 +246,41 @@ abstract class OrphanPahoClientTestBase {
         letGo(old)
 
         assertNewClientStaysAlone(id)
+    }
+
+    @Test
+    fun failedConnectOfNewClient_isLoggedOnlyByThatClient() {
+        fun connectAndClose(client: MqttAndroidClient) {
+            connect(client)
+            runCatching { client.disconnect(0).waitForCompletion(2_000) }
+            runCatching { client.close() }
+        }
+
+        fun errorRecorderOf(errorLogs: MutableList<String>): Timber.Tree =
+            object : Timber.Tree() {
+                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+                    if (priority == Log.ERROR) errorLogs += message
+                }
+            }
+
+        val earlierClients = List(EARLIER_CLIENT_COUNT) { newClient(clientId()) }
+        earlierClients.forEach(::connectAndClose)
+        val id = clientId()
+        val client = newClient(id)
+        val errorLogs = CopyOnWriteArrayList<String>()
+        val recorder = errorRecorderOf(errorLogs)
+
+        broker.mode = TestBroker.Mode.REFUSE
+        Timber.plant(recorder)
+        try {
+            runCatching { client.connect(options().apply { isAutomaticReconnect = false }).waitForCompletion(15_000) }
+            waitUntil(5_000) { errorLogs.any { it.contains(id) } }
+            Thread.sleep(SETTLE_MS)
+        } finally {
+            Timber.uproot(recorder)
+        }
+
+        assertEquals("the failed connect was logged by other clients too", 1, errorLogs.count { it.contains(id) })
     }
 
     // ── The service side ──
@@ -308,18 +361,12 @@ abstract class OrphanPahoClientTestBase {
         val completes = AtomicInteger()
         val losses = AtomicInteger()
         val fresh = newClient(id)
-        fresh.setCallback(object : MqttCallbackExtended {
-            override fun connectComplete(reconnect: Boolean, serverURI: String?) {
-                completes.incrementAndGet()
-            }
-
-            override fun connectionLost(cause: Throwable?) {
-                losses.incrementAndGet()
-            }
-
-            override fun messageArrived(topic: String?, message: MqttMessage?) = Unit
-            override fun deliveryComplete(token: IMqttDeliveryToken?) = Unit
-        })
+        fresh.setCallback(
+            callbackOf(
+                onConnectComplete = completes::incrementAndGet,
+                onConnectionLost = losses::incrementAndGet,
+            )
+        )
         connect(fresh)
         afterConnect()
 
@@ -329,6 +376,17 @@ abstract class OrphanPahoClientTestBase {
         assertEquals("the new client got someone else's connect events", 1, completes.get())
         assertTrue(fresh.isConnectedSafe())
     }
+
+    private fun callbackOf(
+        onConnectComplete: () -> Unit = {},
+        onConnectionLost: () -> Unit,
+    ): MqttCallbackExtended =
+        object : MqttCallbackExtended {
+            override fun connectComplete(reconnect: Boolean, serverURI: String?) = onConnectComplete()
+            override fun connectionLost(cause: Throwable?) = onConnectionLost()
+            override fun messageArrived(topic: String?, message: MqttMessage?) = Unit
+            override fun deliveryComplete(token: IMqttDeliveryToken?) = Unit
+        }
 
     private fun assertPingSenderReleased(id: String) {
         assertFalse("ClientComms kept after the drop", AlarmPingSender.clientCommsMap.containsKey(id))
@@ -373,6 +431,8 @@ abstract class OrphanPahoClientTestBase {
          * that is waiting reconnects well within this, and a released hanging connect is instant.
          */
         const val OBSERVE_MS = 9_000L
+
+        const val EARLIER_CLIENT_COUNT = 3
     }
 }
 
