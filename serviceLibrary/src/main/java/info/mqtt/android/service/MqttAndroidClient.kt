@@ -221,12 +221,12 @@ class MqttAndroidClient @JvmOverloads constructor(
             context.bindService(serviceStartIntent, serviceConnection, Context.BIND_AUTO_CREATE)
         } else {
             CoroutineScope(Dispatchers.IO).launch {
-                doConnect(pingLogging, keepPingRecords)
-
                 //Register receiver to show shoulder tap.
                 if (!receiverRegistered.get()) {
                     collect()
                 }
+
+                doConnect(pingLogging, keepPingRecords)
             }
         }
         return token
