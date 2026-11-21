@@ -90,7 +90,7 @@ jobs:
       - name: Compare screenshots
         if: ${{ always() }}
         env:
-          CLASSIC_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLASSIC_TOKEN: ${{ secrets.CLASSIC_TOKEN }}
           emulatorApi: ${{ matrix.emulatorApi }}
         run: |
           ls -ls extendedSample/build/outputs/connected_android_test_additional_output/debugAndroidTest/connected
