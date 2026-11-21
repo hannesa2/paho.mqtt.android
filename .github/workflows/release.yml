@@ -13,16 +13,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: true
-      - name: Find Tag
-        id: tagger
-        uses: jimschubert/query-tag-action@v2
-        with:
-          skip-unshallow: 'true'
-          commit-ish: HEAD
       - name: Check pre-release
         run: |
-          echo "tag=${{steps.tagger.outputs.tag}}"
-          if [[ ${{ steps.tagger.outputs.tag }} == *alpha* || ${{ steps.tagger.outputs.tag }} == *beta* ]]
+          echo "tag=${{ github.ref_name }}"
+          if [[ ${{ github.ref_name }} == *alpha* || ${{ github.ref_name }} == *beta* ]]
           then
              prerelease=true
           else
@@ -40,14 +34,14 @@ jobs:
       - name: Build project
         run: ./gradlew assembleRelease
         env:
-          VERSION: ${{steps.tagger.outputs.tag}}
+          VERSION: ${{ github.ref_name }}
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{steps.tagger.outputs.tag}}
+          tag_name: ${{ github.ref_name }}
           generate_release_notes: true
           prerelease: ${{ env.PRE_RELEASE }}
-          name: ${{steps.tagger.outputs.tag}}
+          name: ${{ github.ref_name }}
           files: |
             ./serviceLibrary/build/outputs/aar/serviceLibrary-release.aar
         env:
