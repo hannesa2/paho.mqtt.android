@@ -121,6 +121,9 @@ fun getServerCertificate(host: String, port: Int = 443): X509Certificate? {
     val socketFactory = SSLSocketFactory.getDefault()
     val socket = socketFactory.createSocket(host, port) as SSLSocket
     try {
+        socket.sslParameters = socket.sslParameters.apply {
+            endpointIdentificationAlgorithm = "HTTPS"
+        }
         socket.startHandshake()
         val session = socket.session
         return session.peerCertificates.firstOrNull() as? X509Certificate
