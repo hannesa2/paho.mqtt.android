@@ -1,4 +1,4 @@
-# Certificate Pinning Implementation for MQTT-Android
+# Certificate Pinning Guidance for MQTT-Android
 
 ## Overview
 
@@ -8,6 +8,10 @@ The `getSSLSocketFactory` method has been enhanced to support modern SSL/TLS sec
 - **Hostname verification** support
 - **Custom trust stores**
 - **Backward compatibility** with existing code
+
+This API does not implement certificate pinning. A custom `HostnameVerifier`
+checks host identity only; it does not compare the peer certificate or public
+key against an application-configured pin.
 
 ## Implementation Details
 
@@ -96,18 +100,18 @@ options.socketFactory = sslSocketFactory
 mqttClient.connect(options)
 ```
 
-### Example 3: OkHttp Pinning Does Not Transfer to MQTT
+### OkHttp Pinning Requires MQTT-Side Integration
 
 OkHttp's `CertificatePinner` is enforced by OkHttp's connection handling, not by
 its `SSLSocketFactory`. Passing `okHttpClient.sslSocketFactory` to Paho therefore
 does **not** enforce the pins configured on that OkHttp client.
 
-The production recommendation below to use `CertificatePinner` requires explicit
-integration into the MQTT connection's certificate-verification path. That
-integration must check the expected broker hostname and validated peer chain,
-reject pin mismatches before the connection is used, and preserve normal
-certificate-chain and hostname validation. Merely extracting a socket factory is
-not a pinning implementation.
+For production pinning, integrate an explicit pin comparison into the MQTT
+connection's certificate-verification path. It must check the expected broker
+hostname and validated peer chain, reject pin mismatches before the connection
+is used, and preserve normal certificate-chain and hostname validation. Merely
+extracting an OkHttp socket factory or adding a `HostnameVerifier` is not a
+pinning implementation.
 
 ### Example 4: Loading Certificate from Server
 
@@ -154,14 +158,14 @@ val sslSocketFactory = mqttClient.getSSLSocketFactory(trustStore)
 
 ## Security Best Practices
 
-1. **Always use certificate pinning** in production to prevent MITM attacks
+1. **If your threat model requires certificate pinning**, implement and test the
+   pin comparison in the MQTT TLS verification path; this library API does not
+   provide pinning.
 2. **Use TLS 1.2 or higher** - the new implementation automatically selects the best version
 3. **Keep backup certificates** in case your primary certificate expires
-4. **Use OkHttp's CertificatePinner** for production apps - it provides:
-   - Multiple pin support for certificate rotation
-   - Automatic validation
-   - Better error handling
-   - Well-tested implementation
+4. OkHttp's `CertificatePinner` does not apply to Paho MQTT connections. Do not
+   rely on it unless you explicitly integrate equivalent pin validation into
+   the MQTT TLS path.
 
 ## API Reference
 

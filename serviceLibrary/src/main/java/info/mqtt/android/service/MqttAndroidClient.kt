@@ -22,6 +22,7 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketAddress
+import java.net.SocketException
 import java.nio.channels.SocketChannel
 import java.security.KeyManagementException
 import java.security.KeyStore
@@ -1233,10 +1234,7 @@ class MqttAndroidClient @JvmOverloads constructor(
      * authentication
      * @throws MqttSecurityException if there was any error when getting the SSLSocketFactory
      */
-    @Deprecated(
-        "Use getSSLSocketFactory(KeyStore) for better security. This method will be removed in a future version.",
-        ReplaceWith("getSSLSocketFactory(ts)")
-    )
+    @Deprecated("Use getSSLSocketFactory(KeyStore) for better security. This method will be removed in a future version.")
     @Throws(MqttSecurityException::class)
     fun getSSLSocketFactory(keyStore: InputStream?, password: String): SSLSocketFactory {
         return try {
@@ -1257,15 +1255,16 @@ class MqttAndroidClient @JvmOverloads constructor(
     }
 
     /**
-     * Get the SSLSocketFactory with certificate pinning support
-     * Uses modern TLS 1.2/1.3 with configurable trust managers and hostname verification
+     * Get the SSLSocketFactory with optional hostname verification
+     * Uses modern TLS 1.2/1.3 with configurable trust managers. This method does not provide certificate pinning.
      *
      * @param trustStore the trusted certificates keystore
-     * @param hostnameVerifier optional hostname verifier for additional security
+     * @param hostnameVerifier optional hostname verifier to check the broker hostname
      * @return SSLSocketFactory used to connect to the server with SSL authentication
      * @throws MqttSecurityException if there was any error when getting the SSLSocketFactory
      */
     @Throws(MqttSecurityException::class)
+    @JvmOverloads
     fun getSSLSocketFactory(
         trustStore: KeyStore,
         hostnameVerifier: HostnameVerifier? = null
@@ -1300,43 +1299,25 @@ class MqttAndroidClient @JvmOverloads constructor(
 
                     override fun createSocket(s: Socket, host: String, port: Int, autoClose: Boolean): Socket {
                         val sslSocket = socketFactory.createSocket(s, host, port, autoClose) as SSLSocket
-                        try {
-                            val session = sslSocket.session
-                            val peerHost = session.peerHost
-                            if (!hostnameVerifier.verify(peerHost, session)) {
-                                throw SSLHandshakeException("Hostname verification failed for: $peerHost")
-                            }
-                            return sslSocket
-                        } catch (e: Exception) {
-                            runCatching { sslSocket.close() }
-                            throw e
-                        }
+                        return VerifyingSSLSocket(sslSocket, hostnameVerifier, host)
                     }
 
                     override fun createSocket(host: String, port: Int): Socket {
                         val sslSocket = socketFactory.createSocket(host, port) as SSLSocket
-                        try {
-                            val session = sslSocket.session
-                            if (!hostnameVerifier.verify(host, session)) {
-                                throw SSLHandshakeException("Hostname verification failed for: $host")
-                            }
-                            return sslSocket
-                        } catch (e: Exception) {
-                            runCatching { sslSocket.close() }
-                            throw e
-                        }
+                        return VerifyingSSLSocket(sslSocket, hostnameVerifier, host)
                     }
 
                     override fun createSocket(host: String, port: Int, localHost: InetAddress, localPort: Int): Socket {
-                        return socketFactory.createSocket(host, port, localHost, localPort)
+                        val sslSocket = socketFactory.createSocket(host, port, localHost, localPort) as SSLSocket
+                        return VerifyingSSLSocket(sslSocket, hostnameVerifier, host)
                     }
 
                     override fun createSocket(host: InetAddress, port: Int): Socket {
-                        return socketFactory.createSocket(host, port)
+                        throw SocketException("Hostname verification requires a hostname, not an InetAddress")
                     }
 
                     override fun createSocket(host: InetAddress, port: Int, localHost: InetAddress, localPort: Int): Socket {
-                        return socketFactory.createSocket(host, port, localHost, localPort)
+                        throw SocketException("Hostname verification requires a hostname, not an InetAddress")
                     }
 
                     override fun getSupportedCipherSuites(): Array<String> {
@@ -1432,11 +1413,16 @@ class MqttAndroidClient @JvmOverloads constructor(
 
 }
 
-private class VerifyingSSLSocket(
+internal class VerifyingSSLSocket(
     private val delegate: SSLSocket,
-    private val hostnameVerifier: HostnameVerifier
+    private val hostnameVerifier: HostnameVerifier,
+    peerHost: String? = null
 ) : SSLSocket() {
-    private var peerHost: String? = null
+    @Volatile
+    private var peerHost: String? = peerHost
+
+    @Volatile
+    private var verified = false
 
     override fun bind(bindpoint: SocketAddress?) = delegate.bind(bindpoint)
 
@@ -1464,9 +1450,15 @@ private class VerifyingSSLSocket(
 
     override fun getLocalSocketAddress(): SocketAddress? = delegate.localSocketAddress
 
-    override fun getInputStream(): InputStream = delegate.inputStream
+    override fun getInputStream(): InputStream {
+        ensureVerified()
+        return delegate.inputStream
+    }
 
-    override fun getOutputStream(): java.io.OutputStream = delegate.outputStream
+    override fun getOutputStream(): java.io.OutputStream {
+        ensureVerified()
+        return delegate.outputStream
+    }
 
     override fun setTcpNoDelay(on: Boolean) = delegate.setTcpNoDelay(on)
 
@@ -1537,9 +1529,15 @@ private class VerifyingSSLSocket(
 
     override fun setEnabledProtocols(protocols: Array<out String>?) = delegate.setEnabledProtocols(protocols)
 
-    override fun getSession(): SSLSession = delegate.session
+    override fun getSession(): SSLSession {
+        ensureVerified()
+        return delegate.session
+    }
 
-    override fun getHandshakeSession(): SSLSession? = delegate.handshakeSession
+    override fun getHandshakeSession(): SSLSession? {
+        ensureVerified()
+        return delegate.handshakeSession
+    }
 
     override fun addHandshakeCompletedListener(listener: HandshakeCompletedListener?) =
         delegate.addHandshakeCompletedListener(listener)
@@ -1548,16 +1546,25 @@ private class VerifyingSSLSocket(
         delegate.removeHandshakeCompletedListener(listener)
 
     override fun startHandshake() {
-        try {
-            delegate.startHandshake()
-            val session = delegate.session
-            val host = peerHost ?: session.peerHost
-            if (host == null || !hostnameVerifier.verify(host, session)) {
-                throw SSLHandshakeException("Hostname verification failed for: $host")
+        ensureVerified()
+    }
+
+    private fun ensureVerified() {
+        if (verified) return
+        synchronized(this) {
+            if (verified) return
+            try {
+                delegate.startHandshake()
+                val session = delegate.session
+                val host = peerHost
+                if (host.isNullOrBlank() || !hostnameVerifier.verify(host, session)) {
+                    throw SSLHandshakeException("Hostname verification failed for: $host")
+                }
+                verified = true
+            } catch (e: Exception) {
+                runCatching { delegate.close() }
+                throw e
             }
-        } catch (e: Exception) {
-            runCatching { delegate.close() }
-            throw e
         }
     }
 
