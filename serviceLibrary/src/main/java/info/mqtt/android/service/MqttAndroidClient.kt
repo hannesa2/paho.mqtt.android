@@ -1548,11 +1548,16 @@ private class VerifyingSSLSocket(
         delegate.removeHandshakeCompletedListener(listener)
 
     override fun startHandshake() {
-        delegate.startHandshake()
-        val session = delegate.session
-        val host = peerHost ?: session.peerHost
-        if (host == null || !hostnameVerifier.verify(host, session)) {
-            throw SSLHandshakeException("Hostname verification failed for: $host")
+        try {
+            delegate.startHandshake()
+            val session = delegate.session
+            val host = peerHost ?: session.peerHost
+            if (host == null || !hostnameVerifier.verify(host, session)) {
+                throw SSLHandshakeException("Hostname verification failed for: $host")
+            }
+        } catch (e: Exception) {
+            runCatching { delegate.close() }
+            throw e
         }
     }
 
