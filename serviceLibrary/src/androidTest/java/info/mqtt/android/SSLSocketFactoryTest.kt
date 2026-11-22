@@ -3,11 +3,14 @@ package info.mqtt.android
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import info.mqtt.android.service.MqttAndroidClient
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.InputStream
 import java.security.KeyStore
 import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 
 /**
@@ -68,6 +71,11 @@ class SSLSocketFactoryTest {
 
         // Verify the socket factory is not null
         assert(sslSocketFactory != null) { "SSLSocketFactory should not be null" }
+
+        val socket = sslSocketFactory.createSocket()
+        assertTrue(socket is SSLSocket)
+        assertFalse(socket.isConnected)
+        socket.close()
 
         // Clean up
         mqttClient.unregisterResources()

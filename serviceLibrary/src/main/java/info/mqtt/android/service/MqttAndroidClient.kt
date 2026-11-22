@@ -19,7 +19,10 @@ import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.net.Socket
+import java.net.SocketAddress
+import java.nio.channels.SocketChannel
 import java.security.KeyManagementException
 import java.security.KeyStore
 import java.security.KeyStoreException
@@ -27,10 +30,13 @@ import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.net.ssl.HandshakeCompletedListener
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
+import javax.net.ssl.SSLParameters
+import javax.net.ssl.SSLSession
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
@@ -1288,6 +1294,10 @@ class MqttAndroidClient @JvmOverloads constructor(
                         return socketFactory.defaultCipherSuites
                     }
 
+                    override fun createSocket(): Socket {
+                        return VerifyingSSLSocket(socketFactory.createSocket() as SSLSocket, hostnameVerifier)
+                    }
+
                     override fun createSocket(s: Socket, host: String, port: Int, autoClose: Boolean): Socket {
                         val sslSocket = socketFactory.createSocket(s, host, port, autoClose) as SSLSocket
                         try {
@@ -1420,4 +1430,149 @@ class MqttAndroidClient @JvmOverloads constructor(
         private val SERVICE_NAME = MqttService::class.java.name
     }
 
+}
+
+private class VerifyingSSLSocket(
+    private val delegate: SSLSocket,
+    private val hostnameVerifier: HostnameVerifier
+) : SSLSocket() {
+    private var peerHost: String? = null
+
+    override fun bind(bindpoint: SocketAddress?) = delegate.bind(bindpoint)
+
+    override fun connect(endpoint: SocketAddress?) {
+        peerHost = (endpoint as? InetSocketAddress)?.hostString
+        delegate.connect(endpoint)
+    }
+
+    override fun connect(endpoint: SocketAddress?, timeout: Int) {
+        peerHost = (endpoint as? InetSocketAddress)?.hostString
+        delegate.connect(endpoint, timeout)
+    }
+
+    override fun getChannel(): SocketChannel? = delegate.channel
+
+    override fun getInetAddress(): InetAddress = delegate.inetAddress
+
+    override fun getLocalAddress(): InetAddress = delegate.localAddress
+
+    override fun getPort(): Int = delegate.port
+
+    override fun getLocalPort(): Int = delegate.localPort
+
+    override fun getRemoteSocketAddress(): SocketAddress? = delegate.remoteSocketAddress
+
+    override fun getLocalSocketAddress(): SocketAddress? = delegate.localSocketAddress
+
+    override fun getInputStream(): InputStream = delegate.inputStream
+
+    override fun getOutputStream(): java.io.OutputStream = delegate.outputStream
+
+    override fun setTcpNoDelay(on: Boolean) = delegate.setTcpNoDelay(on)
+
+    override fun getTcpNoDelay(): Boolean = delegate.tcpNoDelay
+
+    override fun setSoLinger(on: Boolean, linger: Int) = delegate.setSoLinger(on, linger)
+
+    override fun getSoLinger(): Int = delegate.soLinger
+
+    override fun sendUrgentData(data: Int) = delegate.sendUrgentData(data)
+
+    override fun setOOBInline(on: Boolean) = delegate.setOOBInline(on)
+
+    override fun getOOBInline(): Boolean = delegate.getOOBInline()
+
+    override fun setSoTimeout(timeout: Int) = delegate.setSoTimeout(timeout)
+
+    override fun getSoTimeout(): Int = delegate.soTimeout
+
+    override fun setSendBufferSize(size: Int) = delegate.setSendBufferSize(size)
+
+    override fun getSendBufferSize(): Int = delegate.sendBufferSize
+
+    override fun setReceiveBufferSize(size: Int) = delegate.setReceiveBufferSize(size)
+
+    override fun getReceiveBufferSize(): Int = delegate.receiveBufferSize
+
+    override fun setKeepAlive(on: Boolean) = delegate.setKeepAlive(on)
+
+    override fun getKeepAlive(): Boolean = delegate.keepAlive
+
+    override fun setTrafficClass(tc: Int) = delegate.setTrafficClass(tc)
+
+    override fun getTrafficClass(): Int = delegate.trafficClass
+
+    override fun setReuseAddress(on: Boolean) = delegate.setReuseAddress(on)
+
+    override fun getReuseAddress(): Boolean = delegate.reuseAddress
+
+    override fun close() = delegate.close()
+
+    override fun shutdownInput() = delegate.shutdownInput()
+
+    override fun shutdownOutput() = delegate.shutdownOutput()
+
+    override fun isConnected(): Boolean = delegate.isConnected
+
+    override fun isBound(): Boolean = delegate.isBound
+
+    override fun isClosed(): Boolean = delegate.isClosed
+
+    override fun isInputShutdown(): Boolean = delegate.isInputShutdown
+
+    override fun isOutputShutdown(): Boolean = delegate.isOutputShutdown
+
+    override fun setPerformancePreferences(connectionTime: Int, latency: Int, bandwidth: Int) =
+        delegate.setPerformancePreferences(connectionTime, latency, bandwidth)
+
+    override fun getSupportedCipherSuites(): Array<String> = delegate.supportedCipherSuites
+
+    override fun getEnabledCipherSuites(): Array<String> = delegate.enabledCipherSuites
+
+    override fun setEnabledCipherSuites(suites: Array<out String>?) = delegate.setEnabledCipherSuites(suites)
+
+    override fun getSupportedProtocols(): Array<String> = delegate.supportedProtocols
+
+    override fun getEnabledProtocols(): Array<String> = delegate.enabledProtocols
+
+    override fun setEnabledProtocols(protocols: Array<out String>?) = delegate.setEnabledProtocols(protocols)
+
+    override fun getSession(): SSLSession = delegate.session
+
+    override fun getHandshakeSession(): SSLSession? = delegate.handshakeSession
+
+    override fun addHandshakeCompletedListener(listener: HandshakeCompletedListener?) =
+        delegate.addHandshakeCompletedListener(listener)
+
+    override fun removeHandshakeCompletedListener(listener: HandshakeCompletedListener?) =
+        delegate.removeHandshakeCompletedListener(listener)
+
+    override fun startHandshake() {
+        delegate.startHandshake()
+        val session = delegate.session
+        val host = peerHost ?: session.peerHost
+        if (host == null || !hostnameVerifier.verify(host, session)) {
+            throw SSLHandshakeException("Hostname verification failed for: $host")
+        }
+    }
+
+    override fun setUseClientMode(mode: Boolean) = delegate.setUseClientMode(mode)
+
+    override fun getUseClientMode(): Boolean = delegate.useClientMode
+
+    override fun setNeedClientAuth(need: Boolean) = delegate.setNeedClientAuth(need)
+
+    override fun getNeedClientAuth(): Boolean = delegate.needClientAuth
+
+    override fun setWantClientAuth(want: Boolean) = delegate.setWantClientAuth(want)
+
+    override fun getWantClientAuth(): Boolean = delegate.wantClientAuth
+
+    override fun setEnableSessionCreation(flag: Boolean) = delegate.setEnableSessionCreation(flag)
+
+    override fun getEnableSessionCreation(): Boolean = delegate.enableSessionCreation
+
+    override fun getSSLParameters(): SSLParameters = delegate.sslParameters
+
+    override fun setSSLParameters(params: SSLParameters?) = delegate.setSSLParameters(params)
 }
