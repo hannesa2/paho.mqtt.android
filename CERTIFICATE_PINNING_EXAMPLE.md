@@ -82,10 +82,9 @@ trustStore.load(trustStoreInputStream, "password".toCharArray())
 
 // Create custom hostname verifier
 val hostnameVerifier = HostnameVerifier { hostname, session ->
-    // Custom verification logic
-    val peerCertificate = session.peerCertificates.firstOrNull()
-    // Add your pinning logic here
-    true // or your custom verification
+    // Validate the hostname; this alone does not perform certificate pinning.
+    // If adding a pin check, require both hostname verification and a matching pin.
+    javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier().verify(hostname, session)
 }
 
 // Get SSL socket factory with hostname verification
