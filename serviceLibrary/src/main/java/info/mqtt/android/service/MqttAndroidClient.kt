@@ -1535,7 +1535,6 @@ internal class VerifyingSSLSocket(
     }
 
     override fun getHandshakeSession(): SSLSession? {
-        ensureVerified()
         return delegate.handshakeSession
     }
 
