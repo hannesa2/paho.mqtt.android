@@ -305,7 +305,9 @@ class SSLSocketFactoryTest {
         override fun sendUrgentData(data: Int) = delegate.sendUrgentData(data)
         override fun setOOBInline(on: Boolean) = delegate.setOOBInline(on)
         override fun getOOBInline(): Boolean = delegate.oobInline
-        override fun setSoTimeout(timeout: Int) = delegate.soTimeout = timeout
+        override fun setSoTimeout(timeout: Int) {
+            delegate.soTimeout = timeout
+        }
         override fun getSoTimeout(): Int = delegate.soTimeout
         override fun setSendBufferSize(size: Int) = delegate.setSendBufferSize(size)
         override fun getSendBufferSize(): Int = delegate.sendBufferSize
@@ -313,7 +315,9 @@ class SSLSocketFactoryTest {
         override fun getReceiveBufferSize(): Int = delegate.receiveBufferSize
         override fun setKeepAlive(on: Boolean) = delegate.setKeepAlive(on)
         override fun getKeepAlive(): Boolean = delegate.keepAlive
-        override fun setTrafficClass(tc: Int) = delegate.trafficClass = tc
+        override fun setTrafficClass(tc: Int) {
+            delegate.trafficClass = tc
+        }
         override fun getTrafficClass(): Int = delegate.trafficClass
         override fun setReuseAddress(on: Boolean) = delegate.setReuseAddress(on)
         override fun getReuseAddress(): Boolean = delegate.reuseAddress
@@ -351,15 +355,16 @@ class SSLSocketFactoryTest {
         override fun setSSLParameters(params: SSLParameters?) = Unit
     }
 
-    private object TestSSLSession : SSLSession by java.lang.reflect.Proxy.newProxyInstance(
+    private object TestSSLSession : SSLSession by (java.lang.reflect.Proxy.newProxyInstance(
         SSLSession::class.java.classLoader,
-        arrayOf(SSLSession::class.java)
-    ) { _, method, _ ->
-        when (method.name) {
-            "getPeerHost" -> "127.0.0.1"
-            "getPeerPort" -> 1883
-            "isValid" -> true
-            else -> null
+        arrayOf(SSLSession::class.java),
+        { _, method, _ ->
+            when (method.name) {
+                "getPeerHost" -> "127.0.0.1"
+                "getPeerPort" -> 1883
+                "isValid" -> true
+                else -> null
+            }
         }
-    } as SSLSession
+    ) as SSLSession)
 }
