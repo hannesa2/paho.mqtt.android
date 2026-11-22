@@ -1290,23 +1290,31 @@ class MqttAndroidClient @JvmOverloads constructor(
 
                     override fun createSocket(s: Socket, host: String, port: Int, autoClose: Boolean): Socket {
                         val sslSocket = socketFactory.createSocket(s, host, port, autoClose) as SSLSocket
-                        // Apply custom hostname verification
-                        val session = sslSocket.session
-                        val peerHost = session.peerHost
-                        if (!hostnameVerifier.verify(peerHost, session)) {
-                            throw SSLHandshakeException("Hostname verification failed for: $peerHost")
+                        try {
+                            val session = sslSocket.session
+                            val peerHost = session.peerHost
+                            if (!hostnameVerifier.verify(peerHost, session)) {
+                                throw SSLHandshakeException("Hostname verification failed for: $peerHost")
+                            }
+                            return sslSocket
+                        } catch (e: Exception) {
+                            runCatching { sslSocket.close() }
+                            throw e
                         }
-                        return sslSocket
                     }
 
                     override fun createSocket(host: String, port: Int): Socket {
                         val sslSocket = socketFactory.createSocket(host, port) as SSLSocket
-                        // Apply custom hostname verification
-                        val session = sslSocket.session
-                        if (!hostnameVerifier.verify(host, session)) {
-                            throw SSLHandshakeException("Hostname verification failed for: $host")
+                        try {
+                            val session = sslSocket.session
+                            if (!hostnameVerifier.verify(host, session)) {
+                                throw SSLHandshakeException("Hostname verification failed for: $host")
+                            }
+                            return sslSocket
+                        } catch (e: Exception) {
+                            runCatching { sslSocket.close() }
+                            throw e
                         }
-                        return sslSocket
                     }
 
                     override fun createSocket(host: String, port: Int, localHost: InetAddress, localPort: Int): Socket {
