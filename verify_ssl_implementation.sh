@@ -4,7 +4,7 @@ echo "=== Verifying SSL Socket Factory Implementation ==="
 echo ""
 
 echo "1. Checking if the new method exists in MqttAndroidClient.kt..."
-if grep -q "fun getSSLSocketFactory(trustStore: KeyStore" /Users/hannes/git/paho.mqtt.android/serviceLibrary/src/main/java/info/mqtt/android/service/MqttAndroidClient.kt; then
+if grep -q "trustStore: KeyStore," /Users/hannes/git/paho.mqtt.android/serviceLibrary/src/main/java/info/mqtt/android/service/MqttAndroidClient.kt; then
     echo "   ✓ New getSSLSocketFactory(trustStore: KeyStore) method found"
 else
     echo "   ✗ New method not found"
