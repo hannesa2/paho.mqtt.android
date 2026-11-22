@@ -97,26 +97,18 @@ options.socketFactory = sslSocketFactory
 mqttClient.connect(options)
 ```
 
-### Example 3: Certificate Pinning with OkHttp (Recommended)
+### Example 3: OkHttp Pinning Does Not Transfer to MQTT
 
-For production applications, consider using OkHttp's `CertificatePinner` for robust certificate pinning:
+OkHttp's `CertificatePinner` is enforced by OkHttp's connection handling, not by
+its `SSLSocketFactory`. Passing `okHttpClient.sslSocketFactory` to Paho therefore
+does **not** enforce the pins configured on that OkHttp client.
 
-```kotlin
-// First, get the server's certificate hash
-val okHttpClient = OkHttpClient.Builder()
-    .certificatePinner(CertificatePinner.Builder()
-        .add("mqtt.example.com", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
-        .build())
-    .build()
-
-// Extract the SSLSocketFactory from OkHttp
-val sslSocketFactory = okHttpClient.sslSocketFactory
-
-// Use with MQTT
-val options = MqttConnectOptions()
-options.socketFactory = sslSocketFactory
-mqttClient.connect(options)
-```
+The production recommendation below to use `CertificatePinner` requires explicit
+integration into the MQTT connection's certificate-verification path. That
+integration must check the expected broker hostname and validated peer chain,
+reject pin mismatches before the connection is used, and preserve normal
+certificate-chain and hostname validation. Merely extracting a socket factory is
+not a pinning implementation.
 
 ### Example 4: Loading Certificate from Server
 
