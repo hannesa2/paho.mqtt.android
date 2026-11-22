@@ -1452,7 +1452,7 @@ private class VerifyingSSLSocket(
 
     override fun getChannel(): SocketChannel? = delegate.channel
 
-    override fun getInetAddress(): InetAddress = delegate.inetAddress
+    override fun getInetAddress(): InetAddress? = delegate.inetAddress
 
     override fun getLocalAddress(): InetAddress = delegate.localAddress
 
